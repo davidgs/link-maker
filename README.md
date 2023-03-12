@@ -40,7 +40,7 @@ Configuration Page:
 ![Configuration Page dark-mode](./images/link-maker-config-dark.png)
 
 Configuring Bit.ly API:
-![Configuring Bit.ly API](./images/link-maker-config-bitly-light.png)
+![Configuring Bit.ly API](./images/link-maker-bitly-config-light.png)
 
 ![Configuring Bit.ly API dark-mode](./images/link-maker-bitly-config-dark.png)
 
