@@ -1,0 +1,18 @@
+{
+  "name": "link-maker",
+  "version": "1.1.0",
+  "description": "A UTM Link Builder App",
+  "license": "MIT",
+  "author": {
+    "name": "David G. Simmons",
+    "email": "davidgs@davidgs.com",
+    "url": "https://github.com/davidgs/link-maker"
+  },
+  "main": "./dist/main/main.js",
+  "scripts": {
+    "rebuild": "node -r ts-node/register ../../.erb/scripts/electron-rebuild.js",
+    "postinstall": "npm run rebuild && npm run link-modules",
+    "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
+  },
+  "devDependencies": {}
+}

@@ -1,0 +1,559 @@
+/*
+ *  __                  __
+ * /\ \                /\ \
+ * \ \ \___   __  __   \_\ \     __
+ *  \ \  _ `\/\ \/\ \  /'_` \  /'__`\
+ *   \ \ \ \ \ \ \_\ \/\ \_\ \/\  __/
+ *    \ \_\ \_\/`____ \ \___,_\ \____\
+ *     \/_/\/_/`/___/> \/__,_ /\/____/
+ *                /\___/
+ *                \/__/
+ *
+ * Designed, built, and released under MIT license by @mdo. Learn more at
+ * https://github.com/poole/hyde.
+ */
+
+
+/*
+ * Contents
+ *
+ * Global resets
+ * Sidebar
+ * Container
+ * Reverse layout
+ * Themes
+ */
+
+
+/*
+ * Global resets
+ *
+ * Update the foundational and global aspects of the page.
+ */
+
+html {
+  font-family: Mulish, "Helvetica Neue", "Arial Nova", sans-serif !important;
+}
+body {
+  font-family: Mulish, "Helvetica Neue", "Arial Nova", sans-serif !important;
+}
+.form-select {
+  font-family: Mulish, "Helvetica Neue", "Arial Nova", sans-serif !important;
+}
+--bs-font-sans-serif {
+  font-family: Mulish, "Helvetica Neue", "Arial Nova", sans-serif !important;
+}
+@media (min-width: 48em) {
+  html {
+    font-size: 16px;
+  }
+}
+@media (min-width: 58em) {
+  html {
+    font-size: 16px;
+  }
+}
+
+
+/*
+ * Sidebar
+ *
+ * Flexible banner for housing site name, intro, and "footer" content. Starts
+ * out above content in mobile and later moves to the side with wider viewports.
+ */
+
+.sidebar {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: rgba(255,255,255,.5);
+  background-color: #202020;
+  font-size: .75rem;
+
+}
+@media (min-width: 48em) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 18rem;
+    text-align: left;
+  }
+}
+
+/* Sidebar links */
+.sidebar a {
+  color: #fff;
+}
+
+/* About section */
+.sidebar-about h1 {
+  color: #fff;
+  margin-top: 0;
+  font-family: Mulish, "Helvetica Neue", "Arial Nova", sans-serif;
+  font-size: 3.25rem;
+}
+
+.sidebar-lead {
+  font-size: 1.5rem;
+  font-weight: 300;
+  margin-bottom: 1.5rem;
+}
+
+.sidebar-contact {
+  font-size: 1rem;
+  font-weight: 250;
+  margin-bottom: 1.5rem;
+}
+
+.sidebar-credit {
+  font-size: 1rem;
+  font-weight: 250;
+  margin-bottom: .25rem;
+}
+
+/* Sidebar nav */
+.sidebar-nav {
+  padding-left: 0;
+  list-style: none;
+}
+.sidebar-nav-item {
+  display: block;
+}
+a.sidebar-nav-item:hover,
+a.sidebar-nav-item:focus {
+  text-decoration: underline;
+}
+.sidebar-nav-item.active {
+  font-weight: bold;
+}
+
+/* Sticky sidebar
+ *
+ * Add the `sidebar-sticky` class to the sidebar's container to affix it the
+ * contents to the bottom of the sidebar in tablets and up.
+ */
+
+@media (min-width: 48em) {
+  .sidebar-sticky {
+    position: absolute;
+    right:  1rem;
+    bottom: 1rem;
+    left:   1rem;
+  }
+}
+
+
+/* Container
+ *
+ * Align the contents of the site above the proper threshold with some margin-fu
+ * with a 25%-wide `.sidebar`.
+ */
+
+.content {
+  padding-top:    .5rem;
+  /* padding-bottom: .5rem; */
+}
+
+@media (min-width: 48em) {
+  .content {
+    margin-left: 2rem;
+    margin-right: 2rem;
+  }
+}
+
+@media (min-width: 64em) {
+
+}
+
+
+/*
+ * Reverse layout
+ *
+ * Flip the orientation of the page by placing the `.sidebar` on the right.
+ */
+
+@media (min-width: 48em) {
+  .layout-reverse .sidebar {
+    left: auto;
+    right: 0;
+  }
+  .layout-reverse .content {
+    margin-left: 2rem;
+    margin-right: 20rem;
+  }
+}
+
+@media (min-width: 64em) {
+  .layout-reverse .content {
+    margin-left: 4rem;
+    margin-right: 22rem;
+  }
+}
+
+
+
+/*
+ * Themes
+ *
+ * As of v1.1, Hyde includes optional themes to color the sidebar and links
+ * within blog posts. To use, add the class of your choosing to the `body`.
+ */
+
+/* Base16 (http://chriskempson.github.io/base16/#default) */
+
+
+
+/* blue */
+.sidebar {
+  background-color: #0A1C2E;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  font-family: Mulish, "Helvetica Neue", "Arial Nova", sans-serif;
+  font-size: 16;
+}
+.content a,
+.related-posts li a:hover {
+  color: #dee2e6;;
+}
+
+.container {
+  width: 100%;
+  padding-right: 5px;
+  padding-left: 5px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.container.align-fix {
+  width: 100%;
+  padding-right: 5px;
+  padding-left: 5px;
+  margin-right: auto;
+  margin-left: 20em;
+}
+
+.pill {
+  background-color: #0B3665;
+  border: none;
+  color: #ffffff;
+  padding: 9px 20px;
+  padding-right: 35px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin-right: 13px;
+  margin-left: -1px;
+  margin-bottom: 10px;
+  border-radius: 100px;
+  font-size: 14px;
+  z-index: -1;
+  cursor: auto;
+}
+.pill:hover {
+  opacity: 0.8;
+}
+.pillImage {
+  width: 15px;
+  height: auto;
+  z-index: -2;
+  margin-left: -5px;
+  margin-right: 5px;
+}
+
+.close {
+  position: relative;
+  right: 5px;
+  top: 7px;
+  width: 4px;
+  height: 8px;
+  opacity: 1;
+  z-index: 99;
+  cursor: pointer;
+}
+
+.close:hover {
+  opacity: 0.3;
+}
+
+.close:before,
+.close:after {
+  position: absolute;
+  left: 20px;
+  content: ' ';
+  height: 10px;
+  width: 2px;
+  background-color: #ffffff;
+  cursor: pointer;
+}
+
+.close:before {
+  transform: rotate(45deg);
+}
+
+.close:after {
+  transform: rotate(-45deg);
+}
+
+.pointer {
+  cursor: pointer;
+}
+.content-link {
+  padding-top: .5rem;
+  padding-bottom: .5rem;
+  word-wrap: break-word;
+}
+@media (min-width: 48em) {
+  .content-link {
+    max-width: 38rem;
+    margin-left: 20rem;
+    margin-right: 2rem;
+  }
+}
+
+@media (min-width: 64em) {
+  .content-link {
+    margin-left: 22rem;
+    margin-right: 4rem;
+  }
+}
+
+.alert {
+  padding: 20px;
+  min-height: 125px;
+  background-color: #f44336;
+  color: white;
+  margin-bottom: 15px;
+  border-radius: 15px;
+}
+
+.alert-columns {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  margin: 5px 0;
+  /* border: 1px solid #f44336; */
+}
+.alert-column1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px;
+  width: 8%;
+  /* border: 1px solid #f44336; */
+}
+.alert-column2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  word-break: break-all;
+  margin: 2px;
+  width: 60%;
+  padding: 5px;
+  /* border: 1px solid #f44336; */
+}
+
+.alert-column3 {
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  width: 30%;
+  text-align:center;
+  /* border: 1px solid #f44336; */
+}
+
+.qr-position {
+  position: absolute;
+  right: 25px;
+  top: 10px;
+  bottom: 10px;
+  margin-right: 20px;
+}
+
+.icon-position {
+  position: absolute;
+  display: flex;
+  width: 60px;
+  height: 90%;
+  align-items: center;
+  justify-content: center;
+  left: 10px;
+  top: 10px;
+  margin-right: 5px;
+}
+
+.copy-icon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+}
+
+.link-text {
+  position: absolute;
+  display: flex;
+  width: 40%;
+  right: 140px;
+  top: 10px;
+  bottom: 10px;
+  align-items: center;
+  justify-content: center;
+  margin-right: 5px;
+  font-size: 20px;
+  font-weight: 500;
+  color: #ffffff;
+  word-wrap: break-word;
+}
+.link-text:after {
+  content: '';
+  clear: both;
+  display: block;
+}
+
+.App {
+  text-align: center;
+  width: 100%;
+}
+.column {
+  width: 100%;
+}
+
+@media (min-width: 48em) {
+  .aside-column {
+    float: left;
+    width: 25%;
+    max-width: 230px;
+    margin-right: 10px;
+  }
+  .main-column {
+    float: right;
+    width: 75%;
+    padding-left: 40px;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+  /* Stops the float property from affecting content after the columns */
+  .columns:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
+@media (min-width: 64em) {
+  .aside-column {
+      float: left;
+      width: 25%;
+      max-width: 230px;
+      margin-right: 10px;
+      padding-right: 10px;
+    }
+
+    .main-column {
+      float: right;
+      width: 75%;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+
+    /* Stops the float property from affecting content after the columns */
+    .columns:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+}
+.configSwitch {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.header-stuff {
+  color: #0B3665;
+}
+ .content .header-stuff a,
+.related-posts li a:hover {
+  color: #343a40;
+  ;
+}
+
+.header-stuff-dark {
+  color: #adb5bd
+}
+
+.vertical-slider {
+  transform: rotate(90deg);
+  padding-top: 5rem;
+}
+
+.btn-icon-only {
+  border-color: #0B3665;
+  border: 1px solid #0B3665;
+  border-radius: 10%;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+    border-top-color: initial;
+    border-top-style: solid;
+    border-top-width: 0.5px;
+    border-right-color: initial;
+    border-right-style: solid;
+    border-right-width: 0.5px;
+    border-bottom-color: initial;
+    border-bottom-style: solid;
+    border-bottom-width: 0.5px;
+    border-left-color: initial;
+    border-left-style: solid;
+    border-left-width: 0.5px;
+    border-image-source: initial;
+    border-image-slice: initial;
+    border-image-width: initial;
+    border-image-outset: initial;
+    border-image-repeat: initial;
+  outline: solid;
+  color: #0B3665;
+}
+.btn-icon-only-dark {
+  border-color: #adb5bd;
+  border: 1px solid #adb5bd;
+  border-radius: 10%;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+    border-top-color: initial;
+    border-top-style: solid;
+    border-top-width: 0.5px;
+    border-right-color: initial;
+    border-right-style: solid;
+    border-right-width: 0.5px;
+    border-bottom-color: initial;
+    border-bottom-style: solid;
+    border-bottom-width: 0.5px;
+    border-left-color: initial;
+    border-left-style: solid;
+    border-left-width: 0.5px;
+    border-image-source: initial;
+    border-image-slice: initial;
+    border-image-width: initial;
+    border-image-outset: initial;
+    border-image-repeat: initial;
+  outline: solid;
+  color: #adb5bd;
+}
+.button-icon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.form-control.valid {
+  border-color: green;
+}
+
+.form-control.invalid {
+  border-color: red;
+}
