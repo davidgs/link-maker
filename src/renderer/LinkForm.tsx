@@ -323,12 +323,12 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
   useEffect(() => {
     if (
       target !== 'https://www.example.com/' &&
-      (mainConfig.utm_source.useValue && (source !== '' && source !== null)) &&
-      (mainConfig.utm_medium.useValue && (medium !== '' && medium !== null)) &&
-      (mainConfig.utm_term.useValue && (term !== '' && term !== null)) &&
-      (mainConfig.utm_campaign.useValue && (campaign !== '' && campaign !== null)) &&
-      (mainConfig.utm_content.useValue && (content !== '' && content !== null)) &&
-      (mainConfig.utm_keyword.useValue && (keyword !== '' && keyword !== null))
+      (mainConfig?.utm_source?.useValue && (source !== '' && source !== null)) &&
+      (mainConfig?.utm_medium?.useValue && (medium !== '' && medium !== null)) &&
+      (mainConfig?.utm_term?.useValue && (term !== '' && term !== null)) &&
+      (mainConfig?.utm_campaign?.useValue && (campaign !== '' && campaign !== null)) &&
+      (mainConfig?.utm_content?.useValue && (content !== '' && content !== null)) &&
+      (mainConfig?.utm_keyword?.useValue && (keyword !== '' && keyword !== null))
     ) {
       setEnableBitly(true);
     } else {
@@ -341,12 +341,12 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
       // only call bitly if the link is complete.
       if (
         target !== 'https://www.example.com/' &&
-        (mainConfig.utm_source.useValue && (source !== '' && source !== null)) &&
-        (mainConfig.utm_medium.useValue && (medium !== '' && medium !== null)) &&
-        (mainConfig.utm_campaign.useValue && (campaign !== '' && campaign !== null)) &&
-        (mainConfig.utm_term.useValue && (term !== '' && term !== null)) &&
-        (mainConfig.utm_content.useValue && (content !== '' && content !== null)) &&
-        (mainConfig.utm_keyword.useValue && (keyword !== '' && keyword !== null))
+        (mainConfig?.utm_source?.useValue && (source !== '' && source !== null)) &&
+        (mainConfig?.utm_medium?.useValue && (medium !== '' && medium !== null)) &&
+        (mainConfig?.utm_campaign?.useValue && (campaign !== '' && campaign !== null)) &&
+        (mainConfig?.utm_term?.useValue && (term !== '' && term !== null)) &&
+        (mainConfig?.utm_content?.useValue && (content !== '' && content !== null)) &&
+        (mainConfig?.utm_keyword?.useValue && (keyword !== '' && keyword !== null))
       ) {
         const headers = {
           Authorization: `Bearer ${bitlyConfig.bitlyToken}`,
@@ -420,7 +420,7 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
         > */}
           {/* bitly enable */}
 
-          { mainConfig.bitly_config.useValue ? (<BitlyCheck
+          { mainConfig?.bitly_config.useValue ? (<BitlyCheck
             targetType="bitly_config"
             useMe={useBitly}
             bitlyEnabled={enableBitly}
@@ -517,7 +517,7 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
                 targetType="utm_bases"
                 id="restricted-bases"
                 enabled
-                settings={mainConfig.utm_bases}
+                settings={mainConfig?.utm_bases}
                 selected={base}
               />
             )}
@@ -540,16 +540,16 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
       {/* utm_source & utm_medium */}
       <Row style={{ marginBottom: '-.5rem' }}>
         {/* utm_source */}
-        {mainConfig.utm_source.useValue ? (
+        {mainConfig?.utm_source?.useValue ? (
           <Col>
-            {mainConfig.utm_source.isChooser ? (
+            {mainConfig?.utm_source?.isChooser ? (
             <InputGroup className="mb-3" size="lg">
               <UTMChoice
                 valueChanged={setSource}
                 targetType="utm_source"
                 enabled={!qrOnly}
                 id="utm-source"
-                settings={mainConfig.utm_source}
+                settings={mainConfig?.utm_source}
                 selected={source}
               />
             </InputGroup>
@@ -567,16 +567,16 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
           </Col>
         ) : ( <></> )}
         {/* utm_medium */}
-        {mainConfig.utm_medium.useValue ? (
+        {mainConfig?.utm_medium?.useValue ? (
           <Col>
             <InputGroup className="mb-3" size="lg">
-              {mainConfig.utm_medium.isChooser ? (
+              {mainConfig?.utm_medium?.isChooser ? (
               <UTMChoice
                 valueChanged={setMedium}
                 targetType="utm_medium"
                 enabled={!qrOnly}
                 id="medium-choice"
-                settings={mainConfig.utm_medium}
+                settings={mainConfig?.utm_medium}
                 selected={medium}
               /> ) : (
               <UTMTextField
@@ -593,15 +593,15 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
       </Row>
       {/*  utm_term, utm_campaign */}
       <Row style={{ marginBottom: '.5rem' }}>
-        {mainConfig.utm_campaign.useValue ? (
+        {mainConfig?.utm_campaign.useValue ? (
           <Col>
-            {mainConfig.utm_campaign.isChooser ? (
+            {mainConfig?.utm_campaign.isChooser ? (
               <UTMChoice
                 valueChanged={setCampaign}
                 targetType="utm_campaign"
                 enabled={!qrOnly}
                 id="campaign-choice"
-                settings={mainConfig.utm_campaign}
+                settings={mainConfig?.utm_campaign}
                 selected={campaign}
               /> ) : (
             <UTMTextField
@@ -613,15 +613,15 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
             /> )}
           </Col>
         ) : ( <></> )}
-        {mainConfig.utm_term.useValue ? (
+        {mainConfig?.utm_term.useValue ? (
           <Col>
-            {mainConfig.utm_term.isChooser ? (
+            {mainConfig?.utm_term.isChooser ? (
               <UTMChoice
                 valueChanged={setTerm}
                 targetType="utm_Term"
                 enabled={!qrOnly}
                 id="term-choice"
-                settings={mainConfig.utm_term}
+                settings={mainConfig?.utm_term}
                 selected={term}
               /> ) : (
             <UTMTextField
@@ -637,15 +637,15 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
 
       {/*  utm_content, utm_keyword */}
       <Row style={{ marginBottom: '.5rem' }}>
-        {mainConfig.utm_content?.useValue ? (
+        {mainConfig?.utm_content?.useValue ? (
           <Col>
-            {mainConfig.utm_content.isChooser ? (
+            {mainConfig?.utm_content.isChooser ? (
               <UTMChoice
                 valueChanged={setContent}
                 targetType="utm_content"
                 enabled={!qrOnly}
                 id="content-choice"
-                settings={mainConfig.utm_content}
+                settings={mainConfig?.utm_content}
                 selected={content}
               /> ) : (
             <UTMTextField
@@ -657,15 +657,15 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
             /> )}
           </Col>
         ) : ( <></> )}
-        {mainConfig.utm_keyword.useValue ? (
+        {mainConfig?.utm_keyword?.useValue ? (
           <Col>
-            {mainConfig.utm_keyword.isChooser ? (
+            {mainConfig?.utm_keyword?.isChooser ? (
               <UTMChoice
                 valueChanged={setKeyword}
                 targetType="utm_keyword"
                 enabled={!qrOnly}
                 id="keyword-choice"
-                settings={mainConfig.utm_keyword}
+                settings={mainConfig?.utm_keyword}
                 selected={keyword}
               /> ) : (
             <UTMTextField
@@ -682,16 +682,16 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
 
       {/* team_name, region_name, utm_country */}
       <Row style={{ marginTop: '.5rem', marginBottom: '-.5rem' }}>
-        {mainConfig.team_name.useValue ? (
+        {mainConfig?.team_name.useValue ? (
         <Col>
-          {mainConfig.team_name.isChooser ? (
+          {mainConfig?.team_name.isChooser ? (
           <InputGroup className="mb-3" size="lg">
             <UTMChoice
               valueChanged={updateTeam}
               targetType="utm_campaign_team"
               enabled={!qrOnly}
               id="utm-team"
-              settings={mainConfig.team_name}
+              settings={mainConfig?.team_name}
               selected={team}
             />
           </InputGroup>
@@ -708,16 +708,16 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
             )}
         </Col>
         ) : ( <></> )}
-        {mainConfig.region_name.useValue ? (
+        {mainConfig?.region_name.useValue ? (
         <Col>
-          {mainConfig.region_name.isChooser ? (
+          {mainConfig?.region_name.isChooser ? (
           <InputGroup className="mb-3" size="lg">
             <UTMChoice
               valueChanged={updateRegion}
               targetType="region_name"
               enabled={!qrOnly}
               id="region_name"
-              settings={mainConfig.region_name}
+              settings={mainConfig?.region_name}
               selected={region}
             />
           </InputGroup>
