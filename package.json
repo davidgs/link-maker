@@ -1,7 +1,7 @@
 {
   "description": "A UTM Link Builder App",
-  "name": "link-maker",
-  "productName": "Link Maker",
+  "name": "link-builder",
+  "productName": "Link Builder",
   "keywords": [
     "electron",
     "react",
@@ -196,8 +196,8 @@
     "webpack-merge": "^5.8.0"
   },
   "build": {
-    "productName": "UTMLinker",
-    "appId": "com.davidgs.link-maker",
+    "productName": "UTMBuilder",
+    "appId": "com.davidgs.link-builder",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
