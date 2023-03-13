@@ -48,8 +48,8 @@ const electronApp = require('electron').app;
 const home = process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH || './';
 const store = new Store();
 const defaultConfig: UtmParams = defaultUTMParams;
-const currentVersion = 'v1.1.0'
-const currentBuild = 'b11'
+const currentVersion = 'v1.1.1'
+const currentBuild = 'b14'
 const server = 'http://update-server-davidgs.vercel.app/';
 const url = `${server}/update/${process.platform}/${app.getVersion()}`;
 

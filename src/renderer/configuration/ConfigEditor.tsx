@@ -77,7 +77,7 @@ export default function ConfigEditor({
   const deletePillValue = (value: string, type: string) => {
     switch (type) {
       case 'utm_target':
-        const newB = Object.entries(config.utm_bases);
+        const newB = Object.entries(config?.utm_bases);
         const bLen = newB.length;
         const entries: UtmKeyValue[] = newB[bLen - 1][1] as UtmKeyValue[];
         for (let i = 0; i < entries.length; i += 1) {
@@ -96,7 +96,7 @@ export default function ConfigEditor({
         });
         break;
       case 'utm_term':
-        const newT = Object.entries(config.utm_term);
+        const newT = Object.entries(config?.utm_term);
         const tLen = newT.length;
         const tEntries: UtmKeyValue[] = newT[tLen - 1][1] as UtmKeyValue[];
         for (let t = 0; t < tEntries.length; t += 1) {
@@ -115,7 +115,7 @@ export default function ConfigEditor({
         });
         break;
       case 'utm_medium':
-        const newM = Object.entries(config.utm_medium);
+        const newM = Object.entries(config?.utm_medium);
         const mLen = newM.length;
         const mEntries: UtmKeyValue[] = newM[mLen - 1][1] as UtmKeyValue[];
         for (let n = 0; n < mEntries.length; n += 1) {
@@ -134,7 +134,7 @@ export default function ConfigEditor({
         });
         break;
       case 'utm_source':
-        const newS = Object.entries(config.utm_source);
+        const newS = Object.entries(config?.utm_source);
         const sLen = newS.length;
         const sEntries: UtmKeyValue[] = newS[sLen - 1][1] as UtmKeyValue[];
         for (let n = 0; n < sEntries.length; n += 1) {
@@ -153,7 +153,7 @@ export default function ConfigEditor({
         });
         break;
       case 'utm_content':
-        const newC = Object.entries(config.utm_content);
+        const newC = Object.entries(config?.utm_content);
         const cLen = newC.length;
         const cEntries: UtmKeyValue[] = newC[cLen - 1][1] as UtmKeyValue[];
         for (let n = 0; n < cEntries.length; n += 1) {
@@ -172,7 +172,7 @@ export default function ConfigEditor({
         });
         break;
       case 'utm_keyword':
-        const newK = Object.entries(config.utm_keyword);
+        const newK = Object.entries(config?.utm_keyword);
         const kLen = newK.length;
         const kEntries: UtmKeyValue[] = newK[kLen - 1][1] as UtmKeyValue[];
         for (let n = 0; n < kEntries.length; n += 1) {
@@ -191,7 +191,7 @@ export default function ConfigEditor({
         });
         break;
       case 'utm_campaign':
-        const newCam = Object.entries(config.utm_campaign);
+        const newCam = Object.entries(config?.utm_campaign);
         const camLen = newCam.length;
         const camEntries: UtmKeyValue[] = newCam[camLen - 1][1] as UtmKeyValue[];
         for (let n = 0; n < camEntries.length; n += 1) {
@@ -210,7 +210,7 @@ export default function ConfigEditor({
         });
         break;
       case 'team_name':
-        const newTea = Object.entries(config.team_name);
+        const newTea = Object.entries(config?.team_name);
         const len = newTea.length;
         const teaEntries: UtmKeyValue[] = newTea[len - 1][1] as UtmKeyValue[];
         for (let tn = 0; tn < teaEntries.length; tn += 1) {
@@ -229,7 +229,7 @@ export default function ConfigEditor({
         });
         break;
       case 'region_name':
-        const newReg = Object.entries(config.region_name);
+        const newReg = Object.entries(config?.region_name);
         const gLen = newReg.length;
         const rEntries: UtmKeyValue[] = newReg[gLen - 1][1] as UtmKeyValue[];
         for (let i = 0; i < rEntries.length; i += 1) {
@@ -261,7 +261,7 @@ export default function ConfigEditor({
           return;
         }
         setBaseVal('');
-        const newTar = config.utm_bases.value;
+        const newTar = config?.utm_bases?.value;
         const newTarPill = {
           key: target?.value?.replace(/,/g, ''),
           value: target?.value?.replace(/,/g, ''),
@@ -287,7 +287,7 @@ export default function ConfigEditor({
           return;
         }
         setTermVal('');
-        const newTrm = config.utm_term.value;
+        const newTrm = config?.utm_term?.value;
         const newTrmPill = {
           key: target?.value?.replace(/,/g, '').split('=')[1].trim(),
           value: target?.value?.replace(/,/g, '').split('=')[0].trim(),
@@ -313,7 +313,7 @@ export default function ConfigEditor({
           return;
         }
         setMediumVal('');
-        const newMeds = config.utm_medium.value;
+        const newMeds = config?.utm_medium?.value;
         const newMedPill = {
           key: target?.value?.replace(/,/g, '').split('=')[1].trim(),
           value: target?.value?.replace(/,/g, '').split('=')[0].trim(),
@@ -339,7 +339,7 @@ export default function ConfigEditor({
           return;
         }
         setSourceVal('');
-        const newSou = config.utm_source.value as UtmKeyValue[];
+        const newSou = config?.utm_source?.value as UtmKeyValue[];
         const newSouPill = {
           key: target?.value?.replace(/,/g, '').split('=')[1].trim(),
           value: target?.value?.replace(/,/g, '').split('=')[0].trim(),
@@ -365,7 +365,7 @@ export default function ConfigEditor({
           return;
         }
         setContentVal('');
-        const newCont = config.utm_content.value as UtmKeyValue[];
+        const newCont = config?.utm_content?.value as UtmKeyValue[];
         const newContPill = {
           key: target?.value?.replace(/,/g, '').split('=')[1].trim(),
           value: target?.value?.replace(/,/g, '').split('=')[0].trim(),
@@ -392,7 +392,7 @@ export default function ConfigEditor({
           return;
         }
         setTeamVal('');
-        const newKey = config.utm_keyword.value as UtmKeyValue[];
+        const newKey = config?.utm_keyword?.value as UtmKeyValue[];
         const newKeyPill = {
           key: target?.value?.replace(/,/g, '').split('=')[1].trim(),
           value: target?.value?.replace(/,/g, '').split('=')[0].trim(),
@@ -419,7 +419,7 @@ export default function ConfigEditor({
           return;
         }
         setTeamVal('');
-        const newCam = config.utm_campaign.value as UtmKeyValue[];
+        const newCam = config?.utm_campaign?.value as UtmKeyValue[];
         const newCamPill = {
           key: target?.value?.replace(/,/g, '').split('=')[1].trim(),
           value: target?.value?.replace(/,/g, '').split('=')[0].trim(),
@@ -445,7 +445,7 @@ export default function ConfigEditor({
           return;
         }
         setTeamVal('');
-        const newTm = config.team_name.value as UtmKeyValue[];
+        const newTm = config?.team_name?.value as UtmKeyValue[];
         const newTmPill = {
           key: target?.value?.replace(/,/g, '').split('=')[1].trim(),
           value: target?.value?.replace(/,/g, '').split('=')[0].trim(),
@@ -471,7 +471,7 @@ export default function ConfigEditor({
           return;
         }
         setRegionVal('');
-        const newR = config.region_name.value;
+        const newR = config?.region_name?.value;
         const newRPill = {
           key: target?.value?.replace(/,/g, '').split('=')[1],
           value: target?.value?.replace(/,/g, '').split('=')[0],
@@ -692,7 +692,7 @@ export default function ConfigEditor({
                   - QR Code Logo Image
                   - QR Code Design
                  */}
-                { config.bitly_config.useValue ? (
+                { config?.bitly_config?.useValue ? (
                   <>
                   <Form.Label>
                     <strong>Label</strong>
@@ -701,7 +701,7 @@ export default function ConfigEditor({
                     type="text"
                     id="bitly_config-label"
                     placeholder="Enter Bitly Switch label"
-                    value={`${config.bitly_config.label}`}
+                    value={`${config?.bitly_config?.label}`}
                     onChange={(e) => {
                       setFieldValue(e, 'bitly_config');
                     }}
@@ -713,7 +713,7 @@ export default function ConfigEditor({
                     type="text"
                     id="bitly_config-tooltip"
                     placeholder="Enter utm_source field tooltip"
-                    value={config.bitly_config.tooltip}
+                    value={config?.bitly_config?.tooltip}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -731,7 +731,7 @@ export default function ConfigEditor({
                     type="text"
                     id="bitly_config-aria"
                     placeholder="Enter bitly switch field ARIA (Accessibility) label"
-                    value={config.bitly_config.ariaLabel}
+                    value={config?.bitly_config?.ariaLabel}
                     required
                     onChange={(e) => {
                       setConfig((prevConfig) => {
@@ -749,7 +749,7 @@ export default function ConfigEditor({
                     <Form.Control
                       type="text"
                       placeholder="The Bit.ly API Token"
-                      value={config.bitly_config.bitlyToken}
+                      value={config?.bitly_config?.bitlyToken}
                       required
                       id="bitly_token-value"
                       onChange={(eventKey) => {
@@ -771,7 +771,7 @@ export default function ConfigEditor({
                     <Form.Control
                       type="text"
                       placeholder="Your Custom Bit.ly Domain"
-                      value={config.bitly_config.bitlyDomain}
+                      value={config?.bitly_config?.bitlyDomain}
                       required
                       id="bitly_domain-value"
                       onChange={(eventKey) => {
@@ -793,7 +793,7 @@ export default function ConfigEditor({
                   id="bitly_config-use"
                   // key="show-utm_source"
                   label="Enable using Bit.ly?"
-                  checked={config.bitly_config.useValue}
+                  checked={config?.bitly_config?.useValue}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -813,7 +813,7 @@ export default function ConfigEditor({
                   </Accordion.Header>
                   <Accordion.Body id="images">
                     <Form noValidate validated={targetValidated}>
-                { config.bitly_config.useValue ? (
+                { config?.bitly_config?.useValue ? (
                   <>
                   <Form.Label>
                     <strong>Label</strong>
@@ -822,7 +822,7 @@ export default function ConfigEditor({
                     type="text"
                     id="bitly_config-label"
                     placeholder="Enter Bitly Switch label"
-                    value={`${config.bitly_config.label}`}
+                    value={`${config?.bitly_config?.label}`}
                     onChange={(e) => {
                       setFieldValue(e, 'bitly_config');
                     }}
@@ -834,7 +834,7 @@ export default function ConfigEditor({
                     type="text"
                     id="bitly_config-tooltip"
                     placeholder="Enter utm_source field tooltip"
-                    value={config.bitly_config.tooltip}
+                    value={config?.bitly_config?.tooltip}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -852,7 +852,7 @@ export default function ConfigEditor({
                     type="text"
                     id="bitly_config-aria"
                     placeholder="Enter bitly switch field ARIA (Accessibility) label"
-                    value={config.bitly_config.ariaLabel}
+                    value={config?.bitly_config?.ariaLabel}
                     required
                     onChange={(e) => {
                       setConfig((prevConfig) => {
@@ -870,7 +870,7 @@ export default function ConfigEditor({
                     <Form.Control
                       type="text"
                       placeholder="The Bit.ly API Token"
-                      value={config.bitly_config.bitlyToken}
+                      value={config?.bitly_config?.bitlyToken}
                       required
                       id="bitly_token-value"
                       onChange={(eventKey) => {
@@ -892,7 +892,7 @@ export default function ConfigEditor({
                     <Form.Control
                       type="text"
                       placeholder="Your Custom Bit.ly Domain"
-                      value={config.bitly_config.bitlyDomain}
+                      value={config?.bitly_config?.bitlyDomain}
                       required
                       id="bitly_domain-value"
                       onChange={(eventKey) => {
@@ -914,7 +914,7 @@ export default function ConfigEditor({
                   id="bitly_config-use"
                   // key="show-utm_source"
                   label="Enable using Bit.ly?"
-                  checked={config.bitly_config.useValue}
+                  checked={config?.bitly_config?.useValue}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -949,9 +949,9 @@ export default function ConfigEditor({
                     id="utm_target-label"
                     placeholder="Enter utm_target field label"
                     value={
-                      config.utm_target.showName
-                        ? `${config.utm_target.label} (utm_target)`
-                        : `${config.utm_target.label}`
+                      config?.utm_target?.showName
+                        ? `${config?.utm_target?.label} (utm_target)`
+                        : `${config?.utm_target?.label}`
                     }
                     onChange={(e) => {
                       setFieldValue(e, 'utm_target');
@@ -962,7 +962,7 @@ export default function ConfigEditor({
                     // key="show-utm_target"
                     id="utm_target-show"
                     label="Show 'utm_target' in Field Label?"
-                    checked={config.utm_target.showName}
+                    checked={config?.utm_target?.showName}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -983,7 +983,7 @@ export default function ConfigEditor({
                     // key="utm_target_tooltip"
                     id="utm_target-tooltip"
                     placeholder="Enter utm_target field tooltip"
-                    value={config.utm_target.tooltip}
+                    value={config?.utm_target?.tooltip}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1005,7 +1005,7 @@ export default function ConfigEditor({
                     id="utm_target-aria"
                     placeholder="Enter utm_target field ARIA (Accessibility) label"
                     required
-                    value={config.utm_target.ariaLabel}
+                    value={config?.utm_target?.ariaLabel}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1026,7 +1026,7 @@ export default function ConfigEditor({
                     // key="utm_target_error"
                     id="utm_target-error"
                     placeholder="Enter utm_target field tooltip"
-                    value={config.utm_target.error}
+                    value={config?.utm_target?.error}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1044,7 +1044,7 @@ export default function ConfigEditor({
                     id="utm_target-restrict_bases"
                     // key="restrict-bases"
                     label="Restrict base URLs for utm_targets?"
-                    checked={config.restrict_bases}
+                    checked={config?.restrict_bases}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1053,7 +1053,7 @@ export default function ConfigEditor({
                       });
                     }}
                   />
-                  {config.restrict_bases && (
+                  {config?.restrict_bases && (
                     <Form.Group>
                       <Form.Label>
                         <strong>Base URLs</strong>
@@ -1071,7 +1071,7 @@ export default function ConfigEditor({
                         }}
                       />
                       <PillArea
-                        pills={config.utm_bases.value}
+                        pills={config?.utm_bases?.value}
                         type="utm_target"
                         callback={deletePillValue}
                       />
@@ -1088,7 +1088,7 @@ export default function ConfigEditor({
             </Accordion.Header>
             <Accordion.Body id="utm_source">
               <Form.Group>
-                { config.utm_source.useValue ? (
+                { config?.utm_source?.useValue ? (
                   <>
                   <Form.Label>
                     <strong>Label</strong>
@@ -1099,9 +1099,9 @@ export default function ConfigEditor({
                     id="utm_source-label"
                     placeholder="Enter utm_source field label"
                     value={
-                      config.utm_source.showName
-                        ? `${config.utm_source.label} (utm_source)`
-                        : `${config.utm_source.label}`
+                      config?.utm_source?.showName
+                        ? `${config?.utm_source?.label} (utm_source)`
+                        : `${config?.utm_source?.label}`
                     }
                     onChange={(e) => {
                       setFieldValue(e, 'utm_source');
@@ -1112,7 +1112,7 @@ export default function ConfigEditor({
                     id="utm_source-show"
                     // key="show-utm_source"
                     label="Show 'utm_source' in Field Label?"
-                    checked={config.utm_source.showName}
+                    checked={config?.utm_source?.showName}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1131,7 +1131,7 @@ export default function ConfigEditor({
                     // key="utm_source_tooltip"
                     id="utm_source-tooltip"
                     placeholder="Enter utm_source field tooltip"
-                    value={config.utm_source.tooltip}
+                    value={config?.utm_source?.tooltip}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1149,7 +1149,7 @@ export default function ConfigEditor({
                     type="text"
                     id="utm_source-aria"
                     placeholder="Enter utm_source field ARIA (Accessibility) label"
-                    value={config.utm_source.ariaLabel}
+                    value={config?.utm_source?.ariaLabel}
                     required
                     onChange={(e) => {
                       setConfig((prevConfig) => {
@@ -1169,7 +1169,7 @@ export default function ConfigEditor({
                     // key="utm_source_error"
                     id="utm_source-error"
                     placeholder="Enter utm_source field error mesage"
-                    value={config.utm_source.error}
+                    value={config?.utm_source?.error}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1180,7 +1180,7 @@ export default function ConfigEditor({
                       });
                     }}
                   />
-                  { config.utm_source.isChooser ? (
+                  { config?.utm_source?.isChooser ? (
                     <>
                     <Form.Label>
                       <strong>Source Values</strong>
@@ -1200,7 +1200,7 @@ export default function ConfigEditor({
                       You must provide a key=value pair.
                     </Form.Control.Feedback>
                     <PillArea
-                      pills={config.utm_source.value}
+                      pills={config?.utm_source?.value}
                       type="utm_source"
                       callback={deletePillValue}
                     />
@@ -1217,7 +1217,7 @@ export default function ConfigEditor({
                   id="utm_source-use"
                   // key="show-utm_source"
                   label="Use 'utm_source' value?"
-                  checked={config.utm_source.useValue}
+                  checked={config?.utm_source?.useValue}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -1228,7 +1228,7 @@ export default function ConfigEditor({
                     });
                   }}
               />
-              { config.utm_source.useValue ? (
+              { config?.utm_source?.useValue ? (
                   <Form.Group>
                     <Form.Check
                     inline
@@ -1237,7 +1237,7 @@ export default function ConfigEditor({
                     id="utm_source-use-chooser"
                     // key="show-utm_source"
                     label="Use Chooser"
-                    checked={config.utm_source.isChooser}
+                    checked={config?.utm_source?.isChooser}
                     onChange={(e) => {
                       console.log(`e.target.checked: ${e.target.checked}`)
                       setConfig((prevConfig) => {
@@ -1256,7 +1256,7 @@ export default function ConfigEditor({
                     id="utm_source-use-text"
                     // key="show-utm_source"
                     label="Use Text Input"
-                    checked={!config.utm_source.isChooser}
+                    checked={!config?.utm_source?.isChooser}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1281,7 +1281,7 @@ export default function ConfigEditor({
             </Accordion.Header>
             <Accordion.Body>
               <Form.Group>
-                {config.utm_medium.useValue ? (
+                {config?.utm_medium?.useValue ? (
                   <>
                   <Form.Label>
                   <strong>Label</strong>
@@ -1292,9 +1292,9 @@ export default function ConfigEditor({
                     // key="utm_medium-label"
                     placeholder="Enter utm_medium field label"
                     value={
-                      config.utm_medium.showName
-                        ? `${config.utm_medium.label} (utm_medium)`
-                        : `${config.utm_medium.label}`
+                      config?.utm_medium?.showName
+                        ? `${config?.utm_medium?.label} (utm_medium)`
+                        : `${config?.utm_medium?.label}`
                     }
                     onChange={(e) => {
                       setFieldValue(e, 'utm_medium');
@@ -1305,7 +1305,7 @@ export default function ConfigEditor({
                     // key="show-utm_medium"
                     id="show-utm-medium"
                     label="Show 'utm_medium' in Field Label?"
-                    checked={config.utm_medium.showName}
+                    checked={config?.utm_medium?.showName}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1324,7 +1324,7 @@ export default function ConfigEditor({
                     // key="utm_medium-tooltip"
                     id="utm_medium-tooltip"
                     placeholder="Enter utm_medium field tooltip"
-                    value={config.utm_medium.tooltip}
+                    value={config?.utm_medium?.tooltip}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1343,7 +1343,7 @@ export default function ConfigEditor({
                     // key="utm_medium-aria"
                     id="utm_medium-aria"
                     placeholder="Enter utm_medium field ARIA (Accessibility) label"
-                    value={config.utm_medium.ariaLabel}
+                    value={config?.utm_medium?.ariaLabel}
                     required
                     onChange={(e) => {
                       setConfig((prevConfig) => {
@@ -1363,7 +1363,7 @@ export default function ConfigEditor({
                     // key="utm_medium-error"
                     id="utm_medium-error"
                     placeholder="Enter utm_medium field error mesage"
-                    value={config.utm_medium.error}
+                    value={config?.utm_medium?.error}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1374,7 +1374,7 @@ export default function ConfigEditor({
                       });
                     }}
                   />
-                {config.utm_medium.isChooser ? (
+                {config?.utm_medium?.isChooser ? (
                   <>
                 <Form.Label>
                   <strong>Medium Values</strong>
@@ -1395,7 +1395,7 @@ export default function ConfigEditor({
                   You must provide a key=value pair.
                 </Form.Control.Feedback>
                 <PillArea
-                  pills={config.utm_medium.value}
+                  pills={config?.utm_medium?.value}
                   type="utm_medium"
                   callback={deletePillValue}
                 />
@@ -1412,7 +1412,7 @@ export default function ConfigEditor({
                   id="utm_source-use"
                   // key="show-utm_source"
                   label="Use 'utm_medium' value?"
-                  checked={config.utm_medium.useValue}
+                  checked={config?.utm_medium?.useValue}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -1423,7 +1423,7 @@ export default function ConfigEditor({
                     });
                   }}
               />
-              { config.utm_source.useValue ? (
+              { config?.utm_source?.useValue ? (
                   <Form.Group>
                     <Form.Check
                     inline
@@ -1432,7 +1432,7 @@ export default function ConfigEditor({
                     id="utm_medium-use-chooser"
                     // key="show-utm_source"
                     label="Use Chooser"
-                    checked={config.utm_medium.isChooser}
+                    checked={config?.utm_medium?.isChooser}
                     onChange={(e) => {
                       console.log(`e.target.checked: ${e.target.checked}`)
                       setConfig((prevConfig) => {
@@ -1451,7 +1451,7 @@ export default function ConfigEditor({
                     id="utm_medium-use-text"
                     // key="show-utm_source"
                     label="Use Text Input"
-                    checked={!config.utm_medium.isChooser}
+                    checked={!config?.utm_medium?.isChooser}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1475,7 +1475,7 @@ export default function ConfigEditor({
               <strong>utm_campaign</strong>
             </Accordion.Header>
             <Accordion.Body id="utm_campaign">
-              {config.utm_campaign.useValue ? (
+              {config?.utm_campaign?.useValue ? (
                 <>
               <Form.Group>
                 <Form.Label>
@@ -1487,9 +1487,9 @@ export default function ConfigEditor({
                   id="utm_campaign-label"
                   placeholder="Enter utm_campaign field label"
                   value={
-                    config.utm_campaign.showName
-                      ? `${config.utm_campaign.label} (utm_campaign)`
-                      : `${config.utm_campaign.label}`
+                    config?.utm_campaign?.showName
+                      ? `${config?.utm_campaign?.label} (utm_campaign)`
+                      : `${config?.utm_campaign?.label}`
                   }
                   onChange={(e) => {
                     setFieldValue(e, 'utm_campaign');
@@ -1500,7 +1500,7 @@ export default function ConfigEditor({
                   id="utm_campaign-show"
                   // key="show-utm_campaign"
                   label="Show 'utm_campaign' in Field Label?"
-                  checked={config.utm_campaign.showName}
+                  checked={config?.utm_campaign?.showName}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -1521,7 +1521,7 @@ export default function ConfigEditor({
                   // key="utm_campaign_tooltip"
                   id="utm_campaign-tooltip"
                   placeholder="Enter utm_campaign field tooltip"
-                  value={config.utm_campaign.tooltip}
+                  value={config?.utm_campaign?.tooltip}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -1543,7 +1543,7 @@ export default function ConfigEditor({
                   id="utm_campaign-aria"
                   required
                   placeholder="Enter utm_campaign field ARIA (Accessibility) label"
-                  value={config.utm_campaign.ariaLabel}
+                  value={config?.utm_campaign?.ariaLabel}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -1564,7 +1564,7 @@ export default function ConfigEditor({
                   // key="utm_campaign_error"
                   id="utm_campaign-error"
                   placeholder="Enter utm_campaign field error message"
-                  value={config.utm_campaign.error}
+                  value={config?.utm_campaign?.error}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -1577,7 +1577,7 @@ export default function ConfigEditor({
                     });
                   }}
                 />
-                {config.utm_campaign.isChooser ? (
+                {config?.utm_campaign?.isChooser ? (
                   <>
                   <Form.Label>
                     <strong>Campaign Values</strong>
@@ -1598,7 +1598,7 @@ export default function ConfigEditor({
                     You must provide a key=value pair.
                   </Form.Control.Feedback>
                   <PillArea
-                    pills={config.utm_campaign.value}
+                    pills={config?.utm_campaign?.value}
                     type="utm_campaign"
                     callback={deletePillValue}
                   />
@@ -1615,7 +1615,7 @@ export default function ConfigEditor({
                   id="utm_campaign-use"
                   // key="show-utm_source"
                   label="Use 'utm_campaign' value?"
-                  checked={config.utm_campaign.useValue}
+                  checked={config?.utm_campaign?.useValue}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -1626,7 +1626,7 @@ export default function ConfigEditor({
                     });
                   }}
               />
-              {config.utm_campaign.useValue ? (
+              {config?.utm_campaign?.useValue ? (
                 <>
                 <Form.Check
                   type="radio"
@@ -1634,7 +1634,7 @@ export default function ConfigEditor({
                   id="utm_campaign-chooser"
                   // key="show-utm_source"
                   label="Use Chooser"
-                  checked={config.utm_campaign.isChooser}
+                  checked={config?.utm_campaign?.isChooser}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -1651,7 +1651,7 @@ export default function ConfigEditor({
                   id="utm_campaign-chooser"
                   // key="show-utm_source"
                   label="Use Text Input"
-                  checked={!config.utm_campaign.isChooser}
+                  checked={!config?.utm_campaign?.isChooser}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -1674,7 +1674,7 @@ export default function ConfigEditor({
                 <strong>utm_term</strong>
               </Accordion.Header>
               <Accordion.Body id="utm_term">
-              {config.utm_term.useValue ? (
+              {config?.utm_term?.useValue ? (
               <>
                 <Form.Group>
                   <Form.Label>
@@ -1685,9 +1685,9 @@ export default function ConfigEditor({
                     id="utm_term-label"
                     placeholder="Enter utm_term field label"
                     value={
-                      config.utm_term.showName
-                        ? `${config.utm_term.label} (utm_term)`
-                        : `${config.utm_term.label}`
+                      config?.utm_term?.showName
+                        ? `${config?.utm_term?.label} (utm_term)`
+                        : `${config?.utm_term?.label}`
                     }
                     onChange={(e) => {
                       setFieldValue(e, 'utm_term');
@@ -1697,7 +1697,7 @@ export default function ConfigEditor({
                     type="checkbox"
                     id="utm_term-show"
                     label="Show 'utm_term' in Field Label?"
-                    checked={config.utm_term.showName}
+                    checked={config?.utm_term?.showName}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1715,7 +1715,7 @@ export default function ConfigEditor({
                     type="text"
                     id="utm_term-tooltip"
                     placeholder="Enter utm_term field tooltip"
-                    value={config.utm_term.tooltip}
+                    value={config?.utm_term?.tooltip}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1733,7 +1733,7 @@ export default function ConfigEditor({
                     type="text"
                     id="utm_term-aria"
                     placeholder="Enter utm_term field ARIA (Accessibility) label"
-                    value={config.utm_term.ariaLabel}
+                    value={config?.utm_term?.ariaLabel}
                     required
                     onChange={(e) => {
                       setConfig((prevConfig) => {
@@ -1752,7 +1752,7 @@ export default function ConfigEditor({
                     type="text"
                     id="utm_term-error"
                     placeholder="Enter utm_term field error mesage"
-                    value={config.utm_term.error}
+                    value={config?.utm_term?.error}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1763,7 +1763,7 @@ export default function ConfigEditor({
                       });
                     }}
                   />
-                  { config.utm_term.isChooser ? (
+                  { config?.utm_term?.isChooser ? (
                     <>
                     <Form.Label>
                     <strong>Terms</strong>
@@ -1782,7 +1782,7 @@ export default function ConfigEditor({
                     You must provide at least one term.
                   </Form.Control.Feedback>
                   <PillArea
-                    pills={config.utm_term.value}
+                    pills={config?.utm_term?.value}
                     type="utm_term"
                     callback={deletePillValue}
                   />
@@ -1799,7 +1799,7 @@ export default function ConfigEditor({
                   id="utm_term-use"
                   // key="show-utm_source"
                   label="Use 'utm_term' value?"
-                  checked={config.utm_term.useValue}
+                  checked={config?.utm_term?.useValue}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -1810,7 +1810,7 @@ export default function ConfigEditor({
                     });
                   }}
               />
-              { config.utm_term.useValue ? (
+              { config?.utm_term?.useValue ? (
                 <>
                 <Form.Check
                   type="radio"
@@ -1818,7 +1818,7 @@ export default function ConfigEditor({
                   id="utm_term-chooser"
                   // key="show-utm_source"
                   label="Use Chooser"
-                  checked={config.utm_term.isChooser}
+                  checked={config?.utm_term?.isChooser}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -1835,7 +1835,7 @@ export default function ConfigEditor({
                   id="utm_term-text"
                   // key="show-utm_source"
                   label="Use Text Input"
-                  checked={!config.utm_term.isChooser}
+                  checked={!config?.utm_term?.isChooser}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -1859,7 +1859,7 @@ export default function ConfigEditor({
                 <strong>utm_content</strong>
               </Accordion.Header>
               <Accordion.Body id="utm_content">
-              {config.utm_content.useValue ? (
+              {config?.utm_content?.useValue ? (
               <>
                 <Form.Group>
                   <Form.Label>
@@ -1870,9 +1870,9 @@ export default function ConfigEditor({
                     id="utm_content-label"
                     placeholder="Enter utm_content field label"
                     value={
-                      config.utm_content.showName
-                        ? `${config.utm_content.label} (utm_content)`
-                        : `${config.utm_content.label}`
+                      config?.utm_content?.showName
+                        ? `${config?.utm_content?.label} (utm_content)`
+                        : `${config?.utm_content?.label}`
                     }
                     onChange={(e) => {
                       setFieldValue(e, 'utm_content');
@@ -1882,7 +1882,7 @@ export default function ConfigEditor({
                     type="checkbox"
                     id="utm_content-show"
                     label="Show 'utm_content' in Field Label?"
-                    checked={config.utm_content.showName}
+                    checked={config?.utm_content?.showName}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1900,7 +1900,7 @@ export default function ConfigEditor({
                     type="text"
                     id="utm_content-tooltip"
                     placeholder="Enter utm_content field tooltip"
-                    value={config.utm_content.tooltip}
+                    value={config?.utm_content?.tooltip}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1918,7 +1918,7 @@ export default function ConfigEditor({
                     type="text"
                     id="utm_content-aria"
                     placeholder="Enter utm_content field ARIA (Accessibility) label"
-                    value={config.utm_content.ariaLabel}
+                    value={config?.utm_content?.ariaLabel}
                     required
                     onChange={(e) => {
                       setConfig((prevConfig) => {
@@ -1937,7 +1937,7 @@ export default function ConfigEditor({
                     type="text"
                     id="utm_content-error"
                     placeholder="Enter utm_content field error mesage"
-                    value={config.utm_content.error}
+                    value={config?.utm_content?.error}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -1948,7 +1948,7 @@ export default function ConfigEditor({
                       });
                     }}
                   />
-                  { config.utm_content.isChooser ? (
+                  { config?.utm_content?.isChooser ? (
                     <>
                     <Form.Label>
                     <strong>Content</strong>
@@ -1967,7 +1967,7 @@ export default function ConfigEditor({
                     You must provide at least one content value.
                   </Form.Control.Feedback>
                   <PillArea
-                    pills={config.utm_content.value}
+                    pills={config?.utm_content?.value}
                     type="utm_content"
                     callback={deletePillValue}
                   />
@@ -1983,7 +1983,7 @@ export default function ConfigEditor({
                   type="checkbox"
                   id="utm_content-use"
                   label="Use 'utm_content' value?"
-                  checked={config.utm_content.useValue}
+                  checked={config?.utm_content?.useValue}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -1994,14 +1994,14 @@ export default function ConfigEditor({
                     });
                   }}
               />
-              { config.utm_content.useValue ? (
+              { config?.utm_content?.useValue ? (
                 <>
                 <Form.Check
                   type="radio"
                   inline
                   id="utm_content-chooser"
                   label="Use Chooser"
-                  checked={config.utm_content.isChooser}
+                  checked={config?.utm_content?.isChooser}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -2018,7 +2018,7 @@ export default function ConfigEditor({
                   id="utm_content-text"
                   // key="show-utm_source"
                   label="Use Text Input"
-                  checked={!config.utm_content.isChooser}
+                  checked={!config?.utm_content?.isChooser}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -2042,7 +2042,7 @@ export default function ConfigEditor({
                 <strong>utm_keyword</strong>
               </Accordion.Header>
               <Accordion.Body id="utm_keyword">
-              {config.utm_keyword.useValue ? (
+              {config?.utm_keyword?.useValue ? (
               <>
                 <Form.Group>
                   <Form.Label>
@@ -2053,9 +2053,9 @@ export default function ConfigEditor({
                     id="utm_keyword-label"
                     placeholder="Enter utm_keyword field label"
                     value={
-                      config.utm_keyword.showName
-                        ? `${config.utm_keyword.label} (utm_keyword)`
-                        : `${config.utm_keyword.label}`
+                      config?.utm_keyword?.showName
+                        ? `${config?.utm_keyword?.label} (utm_keyword)`
+                        : `${config?.utm_keyword?.label}`
                     }
                     onChange={(e) => {
                       setFieldValue(e, 'utm_keyword');
@@ -2065,7 +2065,7 @@ export default function ConfigEditor({
                     type="checkbox"
                     id="utm_keyword-show"
                     label="Show 'utm_keyword' in Field Label?"
-                    checked={config.utm_keyword.showName}
+                    checked={config?.utm_keyword?.showName}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -2083,7 +2083,7 @@ export default function ConfigEditor({
                     type="text"
                     id="utm_keyword-tooltip"
                     placeholder="Enter utm_keyword field tooltip"
-                    value={config.utm_keyword.tooltip}
+                    value={config?.utm_keyword?.tooltip}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -2101,7 +2101,7 @@ export default function ConfigEditor({
                     type="text"
                     id="utm_keyword-aria"
                     placeholder="Enter utm_keyword field ARIA (Accessibility) label"
-                    value={config.utm_keyword.ariaLabel}
+                    value={config?.utm_keyword?.ariaLabel}
                     required
                     onChange={(e) => {
                       setConfig((prevConfig) => {
@@ -2120,7 +2120,7 @@ export default function ConfigEditor({
                     type="text"
                     id="utm_keyword-error"
                     placeholder="Enter utm_keyword field error mesage"
-                    value={config.utm_keyword.error}
+                    value={config?.utm_keyword?.error}
                     onChange={(e) => {
                       setConfig((prevConfig) => {
                         const newConfig = { ...prevConfig };
@@ -2131,7 +2131,7 @@ export default function ConfigEditor({
                       });
                     }}
                   />
-                  { config.utm_keyword.isChooser ? (
+                  { config?.utm_keyword?.isChooser ? (
                     <>
                     <Form.Label>
                     <strong>Keywords</strong>
@@ -2150,7 +2150,7 @@ export default function ConfigEditor({
                     You must provide at least one keyword.
                   </Form.Control.Feedback>
                   <PillArea
-                    pills={config.utm_keyword.value}
+                    pills={config?.utm_keyword?.value}
                     type="utm_keyword"
                     callback={deletePillValue}
                   />
@@ -2166,7 +2166,7 @@ export default function ConfigEditor({
                   type="checkbox"
                   id="utm_keyword-use"
                   label="Use 'utm_keyword' value?"
-                  checked={config.utm_keyword.useValue}
+                  checked={config?.utm_keyword?.useValue}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -2177,14 +2177,14 @@ export default function ConfigEditor({
                     });
                   }}
               />
-              { config.utm_keyword.useValue ? (
+              { config?.utm_keyword?.useValue ? (
                 <>
                 <Form.Check
                   type="radio"
                   inline
                   id="utm_keyword-chooser"
                   label="Use Chooser"
-                  checked={config.utm_keyword.isChooser}
+                  checked={config?.utm_keyword?.isChooser}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -2201,7 +2201,7 @@ export default function ConfigEditor({
                   id="utm_keyword-text"
                   // key="show-utm_source"
                   label="Use Text Input"
-                  checked={!config.utm_keyword.isChooser}
+                  checked={!config?.utm_keyword?.isChooser}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -2225,7 +2225,7 @@ export default function ConfigEditor({
               <strong>team_name</strong>
             </Accordion.Header>
             <Accordion.Body id="team_name">
-              {config.team_name.useValue ? (
+              {config?.team_name?.useValue ? (
                 <>
                 <Form.Group>
                 <Form.Label>
@@ -2236,9 +2236,9 @@ export default function ConfigEditor({
                   id="team_name-label"
                   placeholder="Enter team_name field label"
                   value={
-                    config.team_name.showName
-                      ? `${config.team_name.label} (team_name)`
-                      : `${config.team_name.label}`
+                    config?.team_name?.showName
+                      ? `${config?.team_name?.label} (team_name)`
+                      : `${config?.team_name?.label}`
                   }
                   onChange={(e) => {
                     setFieldValue(e, 'team_name');
@@ -2248,7 +2248,7 @@ export default function ConfigEditor({
                   type="checkbox"
                   id="team_name-show"
                   label="Show 'team_name' in Field Label?"
-                  checked={config.team_name.showName}
+                  checked={config?.team_name?.showName}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -2266,7 +2266,7 @@ export default function ConfigEditor({
                   type="text"
                   id="team_name-tooltip"
                   placeholder="Enter team_name field tooltip"
-                  value={config.team_name.tooltip}
+                  value={config?.team_name?.tooltip}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -2284,7 +2284,7 @@ export default function ConfigEditor({
                   type="text"
                   id="team_name-aria"
                   placeholder="Enter team_name field ARIA (Accessibility) label"
-                  value={config.team_name.ariaLabel}
+                  value={config?.team_name?.ariaLabel}
                   required
                   onChange={(e) => {
                     setConfig((prevConfig) => {
@@ -2303,7 +2303,7 @@ export default function ConfigEditor({
                   type="text"
                   id="team_name-error"
                   placeholder="Enter team_name field error mesage"
-                  value={config.team_name.error}
+                  value={config?.team_name?.error}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -2314,7 +2314,7 @@ export default function ConfigEditor({
                     });
                   }}
                 />
-                {config.team_name.isChooser ? (
+                {config?.team_name?.isChooser ? (
                   <>
                   <Form.Label>
                   <strong>Teams</strong>
@@ -2334,7 +2334,7 @@ export default function ConfigEditor({
                   You must provide at least one key=value pair for a team.
                 </Form.Control.Feedback>
                 <PillArea
-                  pills={config.team_name.value}
+                  pills={config?.team_name?.value}
                   type="team_name"
                   callback={deletePillValue}
                 />
@@ -2350,7 +2350,7 @@ export default function ConfigEditor({
                   id="team_name-use"
                   // key="show-utm_source"
                   label="Use 'team_name' value?"
-                  checked={config.team_name.useValue}
+                  checked={config?.team_name?.useValue}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -2361,7 +2361,7 @@ export default function ConfigEditor({
                     });
                   }}
               />
-              {config.team_name.useValue ? (
+              {config?.team_name?.useValue ? (
                 <>
                 <Form.Check
                   type="radio"
@@ -2369,7 +2369,7 @@ export default function ConfigEditor({
                   id="team_name-chooser"
                   // key="show-utm_source"
                   label="Use Chooser"
-                  checked={config.team_name.isChooser}
+                  checked={config?.team_name?.isChooser}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -2386,7 +2386,7 @@ export default function ConfigEditor({
                   id="team_name-chooser"
                   // key="show-utm_source"
                   label="Use Text Input"
-                  checked={!config.team_name.isChooser}
+                  checked={!config?.team_name?.isChooser}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -2408,7 +2408,7 @@ export default function ConfigEditor({
               <strong>region_name</strong>
             </Accordion.Header>
             <Accordion.Body id="region_name">
-              { config.region_name.useValue ? (
+              { config?.region_name?.useValue ? (
                 <>
                 <Form.Group>
                 <Form.Label>
@@ -2419,9 +2419,9 @@ export default function ConfigEditor({
                   id="region_name-label"
                   placeholder="Enter region_name field label"
                   value={
-                    config.region_name.showName
-                      ? `${config.region_name.label} (region_name)`
-                      : `${config.region_name.label}`
+                    config?.region_name?.showName
+                      ? `${config?.region_name?.label} (region_name)`
+                      : `${config?.region_name?.label}`
                   }
                   onChange={(e) => {
                     setFieldValue(e, 'region_name');
@@ -2431,7 +2431,7 @@ export default function ConfigEditor({
                   type="checkbox"
                   id="region_name-show"
                   label="Show 'region_name' in Field Label?"
-                  checked={config.region_name.showName}
+                  checked={config?.region_name?.showName}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -2449,7 +2449,7 @@ export default function ConfigEditor({
                   type="text"
                   id="region_name-tooltip"
                   placeholder="Enter region_name field tooltip"
-                  value={config.region_name.tooltip}
+                  value={config?.region_name?.tooltip}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -2467,7 +2467,7 @@ export default function ConfigEditor({
                   type="text"
                   id="region_name-aria"
                   placeholder="Enter region_name field ARIA (Accessibility) label"
-                  value={config.region_name.ariaLabel}
+                  value={config?.region_name?.ariaLabel}
                   required
                   onChange={(e) => {
                     setConfig((prevConfig) => {
@@ -2486,7 +2486,7 @@ export default function ConfigEditor({
                   type="text"
                   id="region_name-error"
                   placeholder="Enter region_name field error mesage"
-                  value={config.region_name.error}
+                  value={config?.region_name?.error}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -2497,7 +2497,7 @@ export default function ConfigEditor({
                     });
                   }}
                 />
-                {config.region_name.isChooser ? (
+                {config?.region_name?.isChooser ? (
                   <>
                 <Form.Label>
                   <strong>Regions</strong>
@@ -2517,7 +2517,7 @@ export default function ConfigEditor({
                   You must provide a key=value pair for a region.
                 </Form.Control.Feedback>
                 <PillArea
-                  pills={config.region_name.value}
+                  pills={config?.region_name?.value}
                   type="region_name"
                   callback={deletePillValue}
                 />
@@ -2535,7 +2535,7 @@ export default function ConfigEditor({
                   id="region_name-use"
                   // key="show-utm_source"
                   label="Use 'region_name' value?"
-                  checked={config.region_name.useValue}
+                  checked={config?.region_name?.useValue}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConf = { ...prevConfig };
@@ -2546,7 +2546,7 @@ export default function ConfigEditor({
                     });
                   }}
               />
-                {config.region_name.useValue ? (
+                {config?.region_name?.useValue ? (
                   <>
                   <Form.Check
                   type="radio"
@@ -2554,7 +2554,7 @@ export default function ConfigEditor({
                   id="region_name-chooser"
                   // key="show-utm_source"
                   label="Use Chooser"
-                  checked={config.region_name.isChooser}
+                  checked={config?.region_name?.isChooser}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -2571,7 +2571,7 @@ export default function ConfigEditor({
                   id="region_name-chooser"
                   // key="show-utm_source"
                   label="Use Text Input"
-                  checked={!config.region_name.isChooser}
+                  checked={!config?.region_name?.isChooser}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
@@ -2598,7 +2598,7 @@ export default function ConfigEditor({
                   type="checkbox"
                   id="show_country-show"
                   label="Show Country Selector?"
-                  checked={config.show_country}
+                  checked={config?.show_country}
                   onChange={(e) => {
                     setConfig((prevConfig) => {
                       const newConfig = { ...prevConfig };
