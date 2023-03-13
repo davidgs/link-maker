@@ -1,5 +1,7 @@
 {
   "description": "A UTM Link Builder App",
+  "name": "link-maker",
+  "productName": "Link Maker",
   "keywords": [
     "electron",
     "react",

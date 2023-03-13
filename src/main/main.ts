@@ -48,9 +48,9 @@ const electronApp = require('electron').app;
 const home = process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH || './';
 const store = new Store();
 const defaultConfig: UtmParams = defaultUTMParams;
-const currentVersion = 'v1.1.1'
-const currentBuild = 'b14'
-const server = 'http://update-server-davidgs.vercel.app/';
+const currentVersion = 'v1.1.2'
+const currentBuild = 'b15'
+const server = 'http://link-maker.davidgs.com/';
 const url = `${server}/update/${process.platform}/${app.getVersion()}`;
 
 const up = autoUpdater;
@@ -59,13 +59,13 @@ class AppUpdater {
   constructor() {
     log.verbose('AppUpdater::constructor');
     log.transports.file.level = 'debug';
-    // up.checkForUpdates();
+    up.checkForUpdates();
   }
 }
 
-// setInterval(() => {
-//   up.checkForUpdates();
-// }, 86400);
+setInterval(() => {
+  up.checkForUpdates();
+}, 86400);
 
 up.on('update-downloaded', (event, releaseNotes, releaseName) => {
   const dialogOpts = {
