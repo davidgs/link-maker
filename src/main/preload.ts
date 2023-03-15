@@ -34,11 +34,13 @@ export type Events =
   | 'get-params'
   | 'save-config'
   | 'check-passwd'
-  | 'set-passwd';
+  | 'set-passwd'
+  | 'get-main-config'
+  | 'save-main-config';
 
 export type electronAPI = {
-  getQRSettings: () => Promise<string>;
-  saveQRSettings: (params: string) => Promise<string>;
+  getQRConfig: () => Promise<string>;
+  saveQRConfig: (params: string) => Promise<string>;
   saveLink: (linkData: string) => Promise<string>;
   saveSVG: (svgData: string) => Promise<string>;
   clearHistory: () => Promise<string>;
@@ -51,13 +53,15 @@ export type electronAPI = {
   clearForm: () => void;
   saveDarkMode: (darkMode: boolean) => void;
   getDarkMode: () => Promise<boolean>;
+  getMainConfig: () => Promise<string>;
+  saveMainConfig: (config: string) => Promise<string>;
 };
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  getQRSettings: () => {
+  getQRConfig: () => {
     return ipcRenderer.invoke('get-qr-settings');
   },
-  saveQRSettings: (params: string) => {
+  saveQRConfig: (params: string) => {
     return ipcRenderer.invoke('save-qr-settings', params);
   },
   saveLink: (linkData: string) => {
@@ -95,7 +99,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   getDarkMode: () => {
     return ipcRenderer.invoke('get-dark-mode');
-  }
+  },
+  getMainConfig: () => {
+    return ipcRenderer.invoke('get-main-config');
+  },
+  saveMainConfig: (config: string) => {
+    return ipcRenderer.invoke('save-main-config', config);
+  },
 });
 
 // Path: src/main/preload.ts
@@ -103,8 +113,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 declare global {
   interface Window {
     electronAPI: {
-      getQRSettings: () => Promise<string>;
-      saveQRSettings: (params: string) => Promise<string>;
+      getQRConfig: () => Promise<string>;
+      saveQRConfig: (params: string) => Promise<string>;
       saveLink: (linkData: string) => Promise<string>;
       saveSVG: (svgData: string) => Promise<string>;
       clearHistory: () => Promise<string>;
@@ -117,6 +127,8 @@ declare global {
       clearForm: () => Promise<string>;
       saveDarkMode: (darkMode: boolean) => Promise<string>;
       getDarkMode: () => Promise<string>;
+      getMainConfig: () => Promise<string>;
+      saveMainConfig: (config: string) => Promise<string>;
     };
   }
 }

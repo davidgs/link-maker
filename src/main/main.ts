@@ -35,7 +35,7 @@ import { app, BrowserWindow, autoUpdater, dialog, shell, ipcMain } from 'electro
 // import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import Store from 'electron-store';
-import { UtmParams, defaultUTMParams, QRSettings, defaultQRSettings } from '../renderer/types';
+import { UtmParams, defaultUTMParams, QRSettings, defaultQRSettings, defaultMainSettings } from '../renderer/types';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { LinkData } from '../renderer/types';
@@ -48,8 +48,8 @@ const electronApp = require('electron').app;
 const home = process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH || './';
 const store = new Store();
 const defaultConfig: UtmParams = defaultUTMParams;
-const currentVersion = 'v1.1.2'
-const currentBuild = 'b15'
+const currentVersion = 'v1.2.0'
+const currentBuild = 'b45'
 const server = 'http://link-maker.davidgs.com/';
 const url = `${server}/update/${process.platform}/${app.getVersion()}`;
 
@@ -59,13 +59,13 @@ class AppUpdater {
   constructor() {
     log.verbose('AppUpdater::constructor');
     log.transports.file.level = 'debug';
-    up.checkForUpdates();
+    // up.checkForUpdates();
   }
 }
 
-setInterval(() => {
-  up.checkForUpdates();
-}, 86400);
+// setInterval(() => {
+//   up.checkForUpdates();
+// }, 86400);
 
 up.on('update-downloaded', (event, releaseNotes, releaseName) => {
   const dialogOpts = {
@@ -191,6 +191,15 @@ ipcMain.handle('set-passwd', (event: Event, passwd: string) => {
   return(JSON.stringify(store.get('admin-passwd', '')));
 });
 
+ipcMain.handle('save-main-config', (event: Event, config: string) => {
+  store.delete('main-config');
+  store.set('main-config', JSON.parse(config));
+  return JSON.stringify(store.get('main-config', defaultMainSettings));
+});
+
+ipcMain.handle('get-main-config', () => {
+  return JSON.stringify(store.get('main-config', defaultMainSettings));
+});
 /*
  * get the params from the store
  * @param event - Just send null, but it's required?

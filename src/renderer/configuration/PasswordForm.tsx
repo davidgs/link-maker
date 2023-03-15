@@ -85,6 +85,7 @@ export default function PasswordForm({
   useEffect(() => {
     setShowPassword(show);
     if (show) {
+      loadPass();
       setPassword('');
       setMatchPass('');
       setBadPass(false);
@@ -97,13 +98,18 @@ export default function PasswordForm({
     }
   }, [show]);
 
-  useEffect(() => {
+  const loadPass = () => {
     window.electronAPI
       .checkPass()
       .then((response: string) => {
         const s = JSON.parse(response);
+        console.log(`checkPass: ${s}`)
         if (s === '') {
           setConfigPass(true);
+        } else if (s === 'skip') {
+          setConfigPass(false);
+          callback(true);
+          return;
         } else {
           setConfigPass(false);
           setAdminPassword(s);
@@ -115,7 +121,7 @@ export default function PasswordForm({
       .catch((error: unknown) => {
         console.log(`Error: ${error}`);
       });
-  }, []);
+  };
 
   const handleSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
@@ -168,6 +174,33 @@ export default function PasswordForm({
       setBadPass(true);
       // callback(false);
     }
+  };
+
+  const handleNoPassword = (event: SyntheticEvent) => {
+    event.preventDefault();
+    setNewPassword('skip');
+    window.electronAPI
+        .setPass('skip')
+        .then((response: string) => {
+          callback(true);
+          setNewPassword('');
+          setPassGood(false);
+          setMatchPass('');
+          setBadPass(false);
+          setLenGood(false);
+          setNumGood(false);
+          setUpperGood(false);
+          setLowerGood(false);
+          setSpecialGood(false);
+          setValid(false);
+          setConfigPass(false);
+          setChangePass(false);
+          return '';
+        })
+        .catch((error: unknown) => {
+          console.log(`Error: ${error}`);
+        });
+      callback(true);
   };
 
   const checkPassword = (event: SyntheticEvent) => {
@@ -232,23 +265,28 @@ export default function PasswordForm({
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form onSubmit={configPass || changePass ? handleSubmitNew : handleSubmit} noValidate>
+        <Form
+          onSubmit={configPass || changePass ? handleSubmitNew : handleSubmit}
+          noValidate
+        >
           {/* password field */}
-          {!configPass ? (<Form.Group controlId="formBasicPassword">
-            <FloatingLabel label="Password">
-              <Form.Control
-                type="password"
-                value={password}
-                onChange={(event) => {
-                  setPassword(event.target.value);
-                  checkPassMatch(event.target.value);
-                }}
-              />
-              <Form.Control.Feedback type="invalid">
-                You must provide a valid password.
-              </Form.Control.Feedback>
-            </FloatingLabel>
-          </Form.Group>) : null}
+          {!configPass ? (
+            <Form.Group controlId="formBasicPassword">
+              <FloatingLabel label="Password">
+                <Form.Control
+                  type="password"
+                  value={password}
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                    checkPassMatch(event.target.value);
+                  }}
+                />
+                <Form.Control.Feedback type="invalid">
+                  You must provide a valid password.
+                </Form.Control.Feedback>
+              </FloatingLabel>
+            </Form.Group>
+          ) : null}
           {!configPass ? (
             <OverlayTrigger
               placement="right"
@@ -268,7 +306,7 @@ export default function PasswordForm({
                 }}
               />
             </OverlayTrigger>
-          ) : null }
+          ) : null}
           {configPass || changePass ? (
             <>
               <Form.Group controlId="formBasicPassword">
@@ -309,15 +347,21 @@ export default function PasswordForm({
             <></>
           )}
           <Form.Group as={Row}>
-            <Col sm={4}>
+            <Col sm={2}>
               <Button variant="primary" type="submit">
                 Submit
               </Button>
             </Col>
-            <Col sm={4}>&nbsp;</Col>
-            <Col sm={4}>
+
+            <Col sm={2}>
               <Button variant="secondary" onClick={handleCancel}>
                 Cancel
+              </Button>
+            </Col>
+            <Col sm={6}>&nbsp;</Col>
+            <Col sm={2}>
+              <Button variant="warning" onClick={handleNoPassword}>
+                No Password
               </Button>
             </Col>
           </Form.Group>

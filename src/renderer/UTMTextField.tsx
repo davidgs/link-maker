@@ -57,17 +57,12 @@ function UTMTextField({
 
   // get the configuration
   useEffect(() => {
-    console.log(`UTMTextField: ${targetType} useEffect`)
     window.electronAPI
       .getParams(targetType)
       .then((response: string) => {
         const c: UtmObj = JSON.parse(response);
-        if(targetType === 'utm_content' || targetType === 'utm_keyword') {
-          console.log(`UTMTextField: ${targetType} useEffect: ${c.label} ${c.ariaLabel} ${c.error} ${c.showName} ${c.tooltip}`)
-        }
         setAriaLabel(c.ariaLabel);
         setLabel(c.label);
-        console.log(`Label: ${c.label}`);
         setErrorLabel(c.error);
         setShowName(c.showName);
         setTooltip(c.tooltip);

@@ -275,7 +275,7 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
 
   // If Bitly switch is turned on, get the Bitly configuration
   useEffect(() => {
-    if (useBitly) {
+    if (mainConfig.bitly_config?.useValue && useBitly) {
       window.electronAPI
         .getParams('bitly_config')
         .then((response: string) => {
@@ -337,7 +337,7 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
   }, [target, source, medium, campaign, term, content, keyword]);
 
   useEffect(() => {
-    if (bitlyConfig.bitlyEnabled) {
+    if (mainConfig.bitly_config?.useValue && bitlyConfig.bitlyEnabled) {
       // only call bitly if the link is complete.
       if (
         target !== 'https://www.example.com/' &&
@@ -401,7 +401,7 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
     <div className="link-form">
       <div>
         <QCode
-          link={!useBitly ? longLink : shortLink}
+          link={!useBitly ? longLink as string : shortLink as string}
           ext="png"
           qrOnly={qrOnly}
           dark={darkMode}

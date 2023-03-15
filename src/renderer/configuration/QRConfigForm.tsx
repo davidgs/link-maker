@@ -57,8 +57,6 @@ export default function QRConfigForm({
     setShowConfig(show);
   }, [show]);
 
-  
-
   useEffect(() => {
     setMyQRSettings(qrSettings);
     setInitSize(qrSettings.QRProps?.size ? qrSettings.QRProps.size : 220);
@@ -66,14 +64,14 @@ export default function QRConfigForm({
   }, [qrSettings]);
 
   const onExtensionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const qSet: QRSettings = {...myQRSettings};
+    const qSet: QRSettings = { ...myQRSettings };
     qSet.QRType = event.target.id.split('-')[2];
     setMyQRSettings(qSet);
   };
 
   const onSizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const qSet: QRSettings = {...myQRSettings};
-    const qProp = {...qSet.QRProps};
+    const qSet: QRSettings = { ...myQRSettings };
+    const qProp = { ...qSet.QRProps };
     qProp.size = parseInt(event.target.value, 10);
     qSet.QRProps = qProp;
     setMyQRSettings(qSet);
@@ -84,9 +82,18 @@ export default function QRConfigForm({
     event.preventDefault();
     setShowConfig(false);
     window.electronAPI
-      .saveQRSettings(JSON.stringify(myQRSettings))
-      .then(() => {
-        return '';
+      .getMainConfig()
+      .then((config: string) => {
+        const mainConfig = JSON.parse(config);
+        mainConfig.QRSettings = myQRSettings;
+        window.electronAPI
+          .saveMainConfig(JSON.stringify(mainConfig))
+          .then(() => {
+            return '';
+          })
+          .catch((error: unknown) => {
+            console.log(`Error: ${error}`);
+          });
       })
       .catch((error: unknown) => {
         console.log(`Error: ${error}`);
@@ -216,7 +223,7 @@ export default function QRConfigForm({
               </div>
             </Col>
           </Row>
-          <Form.Group as={Row} style={{margin: 'auto'}}>
+          <Form.Group as={Row} style={{ margin: 'auto' }}>
             <Col sm={8}>&nbsp;</Col>
             <Col sm={1}>
               <Button variant="primary" type="submit">

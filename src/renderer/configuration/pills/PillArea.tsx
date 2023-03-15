@@ -38,10 +38,10 @@ export default function PillArea({
     callback(id, type);
   };
 
-  useEffect(() => {
-    // console.log(`PillArea: ${type} pills changed`, pills);
-    console.log(`PillArea: ${type} pills: ${pills.length}`)
-  }, [pills])
+  // useEffect(() => {
+  //   // console.log(`PillArea: ${type} pills changed`, pills);
+  //   console.log(`PillArea: ${type} pills: ${pills.length}`)
+  // }, [pills])
 
   return (
     <div className="pillArea" key={`${type}-pillArea`} style={{paddingTop: "0.5rem"}}>

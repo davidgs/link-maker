@@ -5,9 +5,9 @@ A simple Electron/React JS application to help you generate useful UTM links and
 
 ## Features
 
-- Generate UTM links
-- Generate QR codes
-- Integrated with Bit.ly API to also shorten links for you
+- Generate UTM-encoded links
+- Generate QR codes for those links
+- Integrated with [Bit.ly](https://bit.ly) API to also shorten links for you (requires a Bit.ly account and API Key)
 - Highly configurable interface with a configuration-page that allows you to change everything from menu contents to tool tip messages, etc.
 - Password-protected settings page
 - Restrict referral links to pre-defined domain(s)
@@ -76,9 +76,9 @@ Key-Value entries displayed in the Configuration Page:
 
 ## The Configuration File:
 
-The configuration file is a JSON file that is stored on the user's computer. The location of the configuration file is platform-dependent but on macOS, it is stored in `~/Library/Application Support/Electron/config.json`
+The configuration file is a JSON file that is stored on the user's computer. The location of the configuration file is platform-dependent but on macOS, it is stored in `~/Library/Application Support/Link Builder/config.json`
 
-**Note:** The complete configuration file will *only* appear once changes to the configuration settings have been saved. Until then, the application will use a set of default values.
+**Note:** The complete configuration file will *only* appear once changes to the configuration settings have been saved. Until then, the application will use a set of default values that is hard-coded in the app (see contents below).
 
 ### Configuration File Format
 
