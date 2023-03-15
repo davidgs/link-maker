@@ -22,7 +22,9 @@
  */
 
 import { IProps } from 'react-qrcode-logo';
-import logo from '../../assets/images/logo-mark_fill.png';
+// import logo from '../../assets/images/logo-mark_fill.png';
+// import MainLogo from '../../assets/images/NewLinkerLogo.svg';
+// import logo from '../../assets/images/logo-mark_fill.png';
 
 export type UtmKeyValue = {
   key: string;
@@ -69,7 +71,7 @@ export type UtmParams = {
 };
 
 export const defaultBitlyConfig: BitlyConfig = {
-  useValue: true,
+  useValue: false,
   label: 'Use Bitly',
   ariaLabel: 'Shorten Link with Bitly',
   tooltip: 'Shorten Link with Bitly',
@@ -287,9 +289,11 @@ export type QRSettings = {
   QRType: string;
 };
 
-export type mainSettings = {
+export type MainSettings = {
   brandImage: string;
-  logoImage: string;
+  brandHeight: number;
+  brandWidth: number;
+  brandOpacity: number;
   QRSettings: QRSettings;
 };
 
@@ -299,7 +303,7 @@ export const DefaultQRStyle: IProps = {
   size: 220,
   quietZone: 0,
   enableCORS: true,
-  bgColor: '#FFFFFF',
+  bgColor: 'rgba(255, 255, 255, 1)',
   fgColor: 'rgba(11, 38, 62, 1)',
   logoImage: '',
   logoWidth: 60,
@@ -320,8 +324,10 @@ export const defaultQRSettings: QRSettings = {
   QRType: 'png',
 };
 
-export const defaultMainSettings: mainSettings = {
-  brandImage: '../../assets/images/NewLinkerLogo.svg',
-  logoImage: '',
+export const defaultMainSettings: MainSettings = {
+  brandImage: '',
+  brandHeight: 0,
+  brandWidth: 0,
+  brandOpacity: 10,
   QRSettings: defaultQRSettings,
 };

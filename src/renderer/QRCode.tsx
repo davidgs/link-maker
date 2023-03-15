@@ -31,8 +31,8 @@ import { Button, OverlayTrigger, Tooltip, Row, Col } from 'react-bootstrap';
 import { ClipboardData, Clipboard2CheckFill } from 'react-bootstrap-icons';
 import uuid from 'react-uuid';
 import QRConfigForm from './configuration/QRConfigForm';
-import logo from '../../assets/images/logo-mark_fill.png';
-import { defaultQRSettings, DefaultQRStyle, QRSettings } from './types';
+// import logo from '../../assets/images/logo-mark_fill.png';
+import { defaultMainSettings, defaultQRSettings, DefaultQRStyle, MainSettings, QRSettings } from './types';
 import { Gear, GearFill, Download } from 'react-bootstrap-icons';
 import PropTypes from 'prop-types';
 import potrace from 'potrace';
@@ -41,7 +41,7 @@ export default function QCode({
   link,
   ext,
   qrOnly,
-  dark
+  dark,
 }: {
   link: string;
   ext: string;
@@ -51,30 +51,38 @@ export default function QCode({
   const [fileExt, setFileExt] = useState<string>('png');
   const [dataLink, setDataLink] = useState<string>('https://example.com/');
   const [copied, setCopied] = useState<boolean>(false);
-  const [qrSettings, setQRSettings] = useState<QRSettings>(defaultQRSettings);
+  const [qrSettings, setQRSettings] = useState<QRSettings>(defaultMainSettings.QRSettings);
   const [qrSize, setQRSize] = useState<number>(220);
   const [qrState, setQrState] = useState<boolean>(false);
   const [showConfig, setShowConfig] = useState<boolean>(false);
   const [darkMode, setDarkMode] = useState<boolean>(dark);
-  const [darkIconClass, setDarkIconClass] = useState<string>('copy-icon header-stuff');
-  const [iconButtonClass, setIconButtonClass] = useState<string>('button-icon header-stuff');
+  const [darkIconClass, setDarkIconClass] = useState<string>(
+    'copy-icon header-stuff'
+  );
+  const [iconButtonClass, setIconButtonClass] = useState<string>(
+    'button-icon header-stuff'
+  );
   const [darkClass, setDarkClass] = useState<string>('header-stuff');
   const ref = useRef(null);
 
   useEffect(() => {
     setDarkMode(dark);
-    dark ? setDarkIconClass('copy-icon header-stuff-dark') : setDarkClass('copy-icon header-stuff');
-    dark ? setIconButtonClass('button-icon header-stuff-dark') : setIconButtonClass('button-icon header-stuff');
+    dark
+      ? setDarkIconClass('copy-icon header-stuff-dark')
+      : setDarkClass('copy-icon header-stuff');
+    dark
+      ? setIconButtonClass('button-icon header-stuff-dark')
+      : setIconButtonClass('button-icon header-stuff');
     dark ? setDarkClass('header-stuff-dark') : setDarkClass('header-stuff');
   }, [dark]);
 
   useEffect(() => {
     window.electronAPI
-      .getQRSettings()
+      .getMainConfig()
       .then((result) => {
-        const qrS: QRSettings = JSON.parse(result);
-        const qr = {...qrS.QRProps};
-        qr.logoImage = logo;
+        const mainS: MainSettings = JSON.parse(result);
+        const qrS: QRSettings = { ...mainS.QRSettings };
+        const qr = { ...qrS.QRProps };
         setQRSettings(qrS);
         setFileExt(qrS.QRType);
         setQRSize(qrS.QRProps?.size ? qrS.QRProps.size : 220);
@@ -83,33 +91,33 @@ export default function QCode({
       .catch((error: unknown) => {
         console.log(`Error: ${error}`);
       });
-   }, []);
+  }, []);
 
-   const saveSVG = () => {
-      const canvas = document.getElementById(
-        'react-qrcode-logo'
-      ) as HTMLCanvasElement;
-      const params = {
-        background: qrSettings.QRProps?.bgColor,
-        color: '#0B263E',
-      };
-      const dataURL = canvas?.toDataURL(`image/${fileExt}`);
-      // const a = document.createElement('a');
-      // a.href = dataURL;
-      potrace.trace(dataURL, params, function (err: any, svg: any) {
-        if (err) throw err;
-        window.electronAPI
-          .saveSVG(svg)
-          .then((result) => {
-            return '';
-          })
-          .catch((error: unknown) => {
-            console.log(`Error: ${error}`);
-          });
-      });
+  const saveSVG = () => {
+    const canvas = document.getElementById(
+      'react-qrcode-logo'
+    ) as HTMLCanvasElement;
+    const params = {
+      background: qrSettings.QRProps?.bgColor,
+      color: '#0B263E',
     };
+    const dataURL = canvas?.toDataURL(`image/${fileExt}`);
+    // const a = document.createElement('a');
+    // a.href = dataURL;
+    potrace.trace(dataURL, params, function (err: any, svg: any) {
+      if (err) throw err;
+      window.electronAPI
+        .saveSVG(svg)
+        .then((result) => {
+          return '';
+        })
+        .catch((error: unknown) => {
+          console.log(`Error: ${error}`);
+        });
+    });
+  };
   const onDownloadClick = () => {
-    if(qrSettings.QRType === 'svg') {
+    if (qrSettings.QRType === 'svg') {
       saveSVG();
       return;
     }
@@ -138,10 +146,10 @@ export default function QCode({
   }
 
   const updateQRProps = (link: string) => {
-    const qSet: QRSettings = {...qrSettings};
-    const qrProps: IProps = {...qSet.QRProps};
+    const qSet: QRSettings = { ...qrSettings };
+    const qrProps: IProps = { ...qSet.QRProps };
     qrProps.value = link;
-    qrProps.logoImage = logo;
+    // qrProps.logoImage = logo;
     qSet.QRProps = qrProps;
     setQRSettings(qSet);
   };
@@ -274,11 +282,15 @@ export default function QCode({
             </OverlayTrigger>
           </Row>
           <Row style={{ textAlign: 'center', margin: 'auto' }}>
-            <Col sm="8"  />
+            <Col sm="8" />
             <Col sm="2">
               <OverlayTrigger
                 placement="auto"
-                overlay={<Tooltip id='download-qr-tooltip'>Download your QR Code</Tooltip>}
+                overlay={
+                  <Tooltip id="download-qr-tooltip">
+                    Download your QR Code
+                  </Tooltip>
+                }
               >
                 <Button
                   variant={darkMode ? 'icon-only-dark' : 'icon-only'}
@@ -296,7 +308,9 @@ export default function QCode({
             <Col sm="2">
               <OverlayTrigger
                 placement="auto"
-                overlay={<Tooltip id='adjust-qr-tooltip'>Adjust your QR Code</Tooltip>}
+                overlay={
+                  <Tooltip id="adjust-qr-tooltip">Adjust your QR Code</Tooltip>
+                }
               >
                 <Button
                   variant={darkMode ? 'icon-only-dark' : 'icon-only'}
@@ -327,8 +341,8 @@ export default function QCode({
 }
 
 QCode.propTypes = {
-  link : PropTypes.string.isRequired,
-  ext : PropTypes.string.isRequired,
-  qrOnly : PropTypes.bool.isRequired,
-  dark: PropTypes.bool.isRequired
+  link: PropTypes.string.isRequired,
+  ext: PropTypes.string.isRequired,
+  qrOnly: PropTypes.bool.isRequired,
+  dark: PropTypes.bool.isRequired,
 };

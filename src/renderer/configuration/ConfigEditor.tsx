@@ -24,10 +24,31 @@
 import { useState, useEffect, ChangeEvent, SyntheticEvent } from 'react';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import { Accordion, Modal } from 'react-bootstrap';
+import {
+  Accordion,
+  Col,
+  Modal,
+  OverlayTrigger,
+  Row,
+  Tooltip,
+  Alert,
+} from 'react-bootstrap';
+import RangeSlider from 'react-bootstrap-range-slider';
+import { IProps } from 'react-qrcode-logo';
+import { SketchPicker } from 'react-color';
+import NumberSpinner from './NumberSpinner';
 import PropTypes from 'prop-types';
-import { UtmParams, defaultUTMParams, UtmKeyValue } from '../types';
-import PillArea from './pills/PillArea';
+import { RGBColor } from 'react-color';
+import {
+  UtmParams,
+  defaultUTMParams,
+  QRSettings,
+  defaultQRSettings,
+  UtmObj,
+  MainSettings,
+  defaultMainSettings,
+} from '../types';
+import UTMAccordianItem from './UTMAccordianItem';
 
 export default function ConfigEditor({
   showMe,
@@ -38,26 +59,89 @@ export default function ConfigEditor({
 }): JSX.Element {
   const [show, setShow] = useState(false);
   const [config, setConfig] = useState<UtmParams>(defaultUTMParams);
-  const [baseVal, setBaseVal] = useState('');
-  const [termVal, setTermVal] = useState('');
-  const [teamVal, setTeamVal] = useState('');
-  const [contentVal, setContentVal] = useState('');
-  const [sourceVal, setSourceVal] = useState('');
-  const [campaignVal, setCampaignVal] = useState('');
-  const [keyVal, setKeyVal] = useState('');
-  const [campValid, setCampValid] = useState(true);
-  const [teamValid, setTeamValid] = useState(true);
-  const [sourceValid, setSourceValid] = useState(true);
-  const [regionVal, setRegionVal] = useState('');
-  const [regValid, setRegValid] = useState(true);
-  const [mediumVal, setMediumVal] = useState('');
-  const [medValid, setMedValid] = useState(true);
   const [targetValidated, setTargetValidated] = useState(false);
+  const [mainConfig, setMainConfig] =
+    useState<MainSettings>(defaultMainSettings);
+  const [isQrAspectLocked, setIsQrAspectLocked] = useState(false);
+  const [isMainAspectLocked, setIsMainAspectLocked] = useState(false);
+  const [qrImgAspect, setQrImgAspect] = useState(1);
+  const [mainImgAspect, setMainImgAspect] = useState(1);
+  const [displayForeColorPicker, setDisplayForeColorPicker] = useState(false);
+  const [displayEyeColorPicker, setDisplayEyeColorPicker] = useState(false);
+  const [displayBackColorPicker, setDisplayBackColorPicker] = useState(false);
+  const [showQRLogo, setShowQRLogo] = useState(false);
+  const [showMainLogo, setShowMainLogo] = useState(false);
+  const [logoImage, setLogoImage] = useState(mainConfig?.QRSettings.QRProps.logoImage);
+  const [mainLogoImage, setMainLogoImage] = useState(mainConfig.brandImage);
+  const [mainLogoChanged, setMainLogoChanged] = useState(false);
+  const [qrLogoChanged, setQrLogoChanged] = useState(false);
+
+  // Foreground Color
+  const [foreColor, setForeColor] = useState<RGBColor>({
+    r: 66,
+    g: 11,
+    b: 95,
+    a: 1,
+  });
+
+  // Background Color
+  const [backColor, setBackColor] = useState<RGBColor>({
+    r: 255,
+    g: 255,
+    b: 255,
+    a: 1,
+  });
+
+  // Eye Color
+  const [eyeColor, setEyeColor] = useState<RGBColor>({
+    r: 66,
+    g: 11,
+    b: 95,
+    a: 1,
+  });
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  // get the configuration
-  useEffect(() => {
+  const locked = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      fill="currentColor"
+      className="bi bi-lock-fill"
+      viewBox="0 0 16 16"
+    >
+      <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+    </svg>
+  );
+  const unlocked = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      fill="currentColor"
+      className="bi bi-unlock"
+      viewBox="0 0 16 16"
+    >
+      <path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2zM3 8a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H3z" />
+    </svg>
+  );
+
+  const setLockQRAspectRatio = () => {
+    setIsQrAspectLocked(!isQrAspectLocked);
+  };
+  const setLockMainAspectRatio = () => {
+    setIsMainAspectLocked(!isMainAspectLocked);
+  };
+  const setAspectRatio = (width: number, height: number, which: string) => {
+    if (which === 'qr') {
+      setQrImgAspect(width / height);
+    } else {
+      setMainImgAspect(width / height);
+    }
+  };
+
+  const getUTMProps = () => {
     window.electronAPI
       .getConfig()
       .then((response: string) => {
@@ -68,567 +152,258 @@ export default function ConfigEditor({
       .catch((error: unknown) => {
         console.log(`Error: ${error}`);
       });
+  };
+
+  // get the utm_props configuration
+  useEffect(() => {
+    getUTMProps();
   }, []);
+
+  const getMainProps = () => {
+    window.electronAPI
+      .getMainConfig()
+      .then((response: string) => {
+        const c: MainSettings = JSON.parse(response);
+        setMainConfig(c);
+        const q = c.QRSettings;
+        const fg = q.QRProps.fgColor || 'rgba(66, 11, 95, 1)';
+        // rgba(255, 255, 255, 1)
+        const frgb = fg
+          .substring(fg.indexOf('(') + 1, fg.indexOf(')'))
+          .split(',');
+        const newF = {
+          r: parseInt(frgb[0], 10),
+          g: parseInt(frgb[1], 10),
+          b: parseInt(frgb[2], 10),
+          a: parseInt(frgb[3], 10),
+        };
+        setForeColor(newF);
+
+        const bg = q.QRProps.bgColor || 'rgba(255, 255, 255, 1)';
+        const brgb = bg
+          .substring(bg.indexOf('(') + 1, bg.indexOf(')')).split(',');
+        const newB = {
+          r: parseInt(brgb[0], 10),
+          g: parseInt(brgb[1], 10),
+          b: parseInt(brgb[2], 10),
+          a: parseInt(brgb[3], 10),
+        };
+        setBackColor(newB);
+
+        const ec = q.QRProps.eyeColor as string || 'rgba(66, 11, 95, 1)';
+        const rgb = ec.substring(ec.indexOf('(') + 1, ec.indexOf(')')).split(',');
+        const newColor = {
+          r: parseInt(rgb[0], 10),
+          g: parseInt(rgb[1], 10),
+          b: parseInt(rgb[2], 10),
+          a: parseInt(rgb[3], 10),
+        };
+        setEyeColor(newColor);
+        if (c.brandImage !== '') {
+          const f = new Image();
+          f.src = c.brandImage;
+          f.onload = () => {
+            setAspectRatio(f.width, f.height, 'main');
+            setMainLogoImage(f.src);
+            setShowMainLogo(true);
+          };
+        }
+        if (c.QRSettings.QRProps.logoImage !== '') {
+          const f = new Image();
+          f.src = c.QRSettings.QRProps?.logoImage as string || '';
+          f.onload = () => {
+            setAspectRatio(f.width, f.height, 'qr');
+            setLogoImage(f.src);
+            setShowQRLogo(true);
+          };
+        }
+        return '';
+      })
+      .catch((error: unknown) => {
+        console.log(`Error: ${error}`);
+      });
+  };
+  // get the main_config configuration
+  useEffect(() => {
+    getMainProps();
+  }, []);
+
+  const updateAspectRatio = (
+    event: SyntheticEvent, //React.ChangeEvent<HTMLInputElement>,
+    setting: string,
+    which: string
+  ) => {
+    const ev = event as React.ChangeEvent<HTMLInputElement>;
+    const v = event.target?.value as string;
+    if (v !== '') {
+      if (which === 'qr') {
+        if (isQrAspectLocked) {
+          setMainConfig((prevState) => {
+            const p = { ...prevState };
+            const q = { ...p.QRSettings };
+            (q.QRProps.logoHeight = parseInt(v, 10)),
+              (q.QRProps.logoWidth = (parseInt(v, 10) * qrImgAspect).toFixed(
+                0
+              ) as unknown as number);
+            p.QRSettings = q;
+            return p;
+          });
+        } else if (setting === 'logoHeight') {
+          setMainConfig((prevState) => {
+            const p = { ...prevState };
+            const q = { ...p.QRSettings };
+            q.QRProps.logoHeight = parseInt(event.target.value, 10);
+            p.QRSettings = q;
+            return p;
+          });
+        } else {
+          setMainConfig((prevState) => {
+            const r = { ...prevState };
+            const q = { ...r.QRSettings };
+            q.QRProps.logoWidth = parseInt(event.target.value, 10);
+            r.QRSettings = q;
+            return r;
+          });
+        }
+      } else {
+        if (isMainAspectLocked) {
+          setMainConfig((prevState) => {
+            const p = { ...prevState };
+            (p.brandHeight = parseInt(v, 10)),
+              (p.brandWidth = (parseInt(v, 10) * qrImgAspect).toFixed(
+                0
+              ) as unknown as number);
+            return p;
+          });
+        } else if (setting === 'logoHeight') {
+          setMainConfig((prevState) => {
+            const q = { ...prevState };
+            q.brandHeight = parseInt(event.target.value, 10);
+            return q;
+          });
+        } else {
+          setMainConfig((prevState) => {
+            const r = { ...prevState };
+            r.brandWidth = parseInt(event.target.value, 10);
+            return r;
+          });
+        }
+      }
+    }
+  };
+
+  // Styles for the Color Pickers
+  const styles = {
+    foreground: {
+      color: {
+        width: '36px',
+        height: '14px',
+        borderRadius: '2px',
+        background: `rgba(${foreColor.r}, ${foreColor.g}, ${foreColor.b}, ${foreColor.a})`,
+      },
+    },
+    background: {
+      color: {
+        width: '36px',
+        height: '14px',
+        borderRadius: '2px',
+        background: `rgba(${backColor.r}, ${backColor.g}, ${backColor.b}, ${backColor.a})`,
+      },
+    },
+    eye: {
+      color: {
+        width: '36px',
+        height: '14px',
+        borderRadius: '2px',
+        background: `rgba(${eyeColor.r}, ${eyeColor.g}, ${eyeColor.b}, ${eyeColor.a})`,
+      },
+    },
+    swatch: {
+      padding: '5px',
+      background: '#fff',
+      borderRadius: '1px',
+      boxShadow: '0 0 0 1px rgba(66,11,95,.5)',
+      display: 'inline-block',
+      cursor: 'pointer',
+    },
+    popover: {
+      zIndex: 2,
+      position: 'absolute',
+    },
+    cover: {
+      position: 'fixed',
+      top: '0px',
+      right: '0px',
+      bottom: '0px',
+      left: '0px',
+    },
+  };
 
   useEffect(() => {
     setShow(showMe);
+    if (showMe) {
+      getMainProps();
+      getUTMProps();
+    }
   }, [showMe]);
 
-  const deletePillValue = (value: string, type: string) => {
-    switch (type) {
-      case 'utm_target':
-        const newB = Object.entries(config?.utm_bases);
-        const bLen = newB.length;
-        const entries: UtmKeyValue[] = newB[bLen - 1][1] as UtmKeyValue[];
-        for (let i = 0; i < entries.length; i += 1) {
-          if (entries[i].value === value) {
-            entries.splice(i, 1);
-          }
-        }
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newBase = {
-            ...newConfig.utm_bases,
-          };
-          newBase.value = entries;
-          newConfig.utm_bases = newBase;
-          return newConfig;
-        });
-        break;
-      case 'utm_term':
-        const newT = Object.entries(config?.utm_term);
-        const tLen = newT.length;
-        const tEntries: UtmKeyValue[] = newT[tLen - 1][1] as UtmKeyValue[];
-        for (let t = 0; t < tEntries.length; t += 1) {
-          if (tEntries[t].value === value) {
-            tEntries.splice(t, 1);
-          }
-        }
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newTerm = {
-            ...newConfig.utm_term,
-          };
-          newTerm.value = tEntries;
-          newConfig.utm_term = newTerm;
-          return newConfig;
-        });
-        break;
-      case 'utm_medium':
-        const newM = Object.entries(config?.utm_medium);
-        const mLen = newM.length;
-        const mEntries: UtmKeyValue[] = newM[mLen - 1][1] as UtmKeyValue[];
-        for (let n = 0; n < mEntries.length; n += 1) {
-          if (mEntries[n].value === value) {
-            mEntries.splice(n, 1);
-          }
-        }
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newMed = {
-            ...newConfig.utm_medium,
-          };
-          newMed.value = mEntries;
-          newConfig.utm_medium = newMed;
-          return newConfig;
-        });
-        break;
-      case 'utm_source':
-        const newS = Object.entries(config?.utm_source);
-        const sLen = newS.length;
-        const sEntries: UtmKeyValue[] = newS[sLen - 1][1] as UtmKeyValue[];
-        for (let n = 0; n < sEntries.length; n += 1) {
-          if (sEntries[n].value === value) {
-            sEntries.splice(n, 1);
-          }
-        }
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newSource = {
-            ...newConfig.utm_source,
-          };
-          newSource.value = sEntries;
-          newConfig.utm_source = newSource;
-          return newConfig;
-        });
-        break;
-      case 'utm_content':
-        const newC = Object.entries(config?.utm_content);
-        const cLen = newC.length;
-        const cEntries: UtmKeyValue[] = newC[cLen - 1][1] as UtmKeyValue[];
-        for (let n = 0; n < cEntries.length; n += 1) {
-          if (cEntries[n].value === value) {
-            cEntries.splice(n, 1);
-          }
-        }
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newCont = {
-            ...newConfig.utm_content,
-          };
-          newCont.value = cEntries;
-          newConfig.utm_content = newCont;
-          return newConfig;
-        });
-        break;
-      case 'utm_keyword':
-        const newK = Object.entries(config?.utm_keyword);
-        const kLen = newK.length;
-        const kEntries: UtmKeyValue[] = newK[kLen - 1][1] as UtmKeyValue[];
-        for (let n = 0; n < kEntries.length; n += 1) {
-          if (kEntries[n].value === value) {
-            kEntries.splice(n, 1);
-          }
-        }
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newKey = {
-            ...newConfig.utm_keyword,
-          };
-          newKey.value = mEntries;
-          newConfig.utm_keyword = newKey;
-          return newConfig;
-        });
-        break;
-      case 'utm_campaign':
-        const newCam = Object.entries(config?.utm_campaign);
-        const camLen = newCam.length;
-        const camEntries: UtmKeyValue[] = newCam[camLen - 1][1] as UtmKeyValue[];
-        for (let n = 0; n < camEntries.length; n += 1) {
-          if (camEntries[n].value === value) {
-            camEntries.splice(n, 1);
-          }
-        }
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newCa = {
-            ...newConfig.utm_campaign,
-          };
-          newCa.value = camEntries;
-          newConfig.utm_keyword = newCa;
-          return newConfig;
-        });
-        break;
-      case 'team_name':
-        const newTea = Object.entries(config?.team_name);
-        const len = newTea.length;
-        const teaEntries: UtmKeyValue[] = newTea[len - 1][1] as UtmKeyValue[];
-        for (let tn = 0; tn < teaEntries.length; tn += 1) {
-          if (teaEntries[tn].value === value) {
-            teaEntries.splice(tn, 1);
-          }
-        }
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newTeam = {
-            ...newConfig.team_name,
-          };
-          newTeam.value = teaEntries;
-          newConfig.team_name = newTeam;
-          return newConfig;
-        });
-        break;
-      case 'region_name':
-        const newReg = Object.entries(config?.region_name);
-        const gLen = newReg.length;
-        const rEntries: UtmKeyValue[] = newReg[gLen - 1][1] as UtmKeyValue[];
-        for (let i = 0; i < rEntries.length; i += 1) {
-          if (rEntries[i].value === value) {
-            rEntries.splice(i, 1);
-          }
-        }
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newTeam = {
-            ...newConfig.region_name,
-          };
-          newTeam.value = rEntries;
-          newConfig.region_name = newTeam;
-          return newConfig;
-        });
-        break;
-      default:
-        break;
-    }
-  };
-
-  const addPill = (event: SyntheticEvent, type: string) => {
-    const target = event.target as HTMLInputElement;
-    switch (type) {
-      case 'utm_target':
-        setBaseVal(target?.value);
-        if (!target?.value.includes(',')) {
-          return;
-        }
-        setBaseVal('');
-        const newTar = config?.utm_bases?.value;
-        const newTarPill = {
-          key: target?.value?.replace(/,/g, ''),
-          value: target?.value?.replace(/,/g, ''),
-        };
-        newTar.push(newTarPill);
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newBase = {
-            ...newConfig.utm_bases,
-          };
-          newBase.value = newTar;
-          newConfig.utm_bases = newBase;
-          return newConfig;
-        });
-        break;
-      case 'utm_term':
-        setTermVal(target?.value);
-        if (!target?.value.includes(',')) {
-          return;
-        }
-        if (target?.value.indexOf('=') === -1) {
-          setSourceValid(false);
-          return;
-        }
-        setTermVal('');
-        const newTrm = config?.utm_term?.value;
-        const newTrmPill = {
-          key: target?.value?.replace(/,/g, '').split('=')[1].trim(),
-          value: target?.value?.replace(/,/g, '').split('=')[0].trim(),
-        };
-        newTrm.push(newTrmPill);
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newTerm = {
-            ...newConfig.utm_term,
-          };
-          newTerm.value = newTrm;
-          newConfig.utm_term = newTerm;
-          return newConfig;
-        });
-        break;
-      case 'utm_medium':
-        setMediumVal(target?.value);
-        if (!target?.value.includes(',')) {
-          return;
-        }
-        if (target?.value.indexOf('=') === -1) {
-          setMedValid(false);
-          return;
-        }
-        setMediumVal('');
-        const newMeds = config?.utm_medium?.value;
-        const newMedPill = {
-          key: target?.value?.replace(/,/g, '').split('=')[1].trim(),
-          value: target?.value?.replace(/,/g, '').split('=')[0].trim(),
-        };
-        newMeds.push(newMedPill);
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newMed = {
-            ...newConfig.utm_medium,
-          };
-          newMed.value = newMeds;
-          newConfig.utm_medium = newMed;
-          return newConfig;
-        });
-        break;
-      case 'utm_source':
-        setSourceVal(target?.value);
-        if (!target?.value.includes(',')) {
-          return;
-        }
-        if (target?.value.indexOf('=') === -1) {
-          setSourceValid(false);
-          return;
-        }
-        setSourceVal('');
-        const newSou = config?.utm_source?.value as UtmKeyValue[];
-        const newSouPill = {
-          key: target?.value?.replace(/,/g, '').split('=')[1].trim(),
-          value: target?.value?.replace(/,/g, '').split('=')[0].trim(),
-        };
-        newSou.push(newSouPill);
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newSource = {
-            ...newConfig.utm_source,
-          };
-          newSource.value = newSou;
-          newConfig.utm_source = newSource;
-          return newConfig;
-        });
-        break;
-      case 'utm_content':
-        setContentVal(target?.value);
-        if (!target?.value.includes(',')) {
-          return;
-        }
-        if (target?.value.indexOf('=') === -1) {
-          setTeamValid(false);
-          return;
-        }
-        setContentVal('');
-        const newCont = config?.utm_content?.value as UtmKeyValue[];
-        const newContPill = {
-          key: target?.value?.replace(/,/g, '').split('=')[1].trim(),
-          value: target?.value?.replace(/,/g, '').split('=')[0].trim(),
-        };
-        newCont.push(newContPill);
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newSource = {
-            ...newConfig.utm_content,
-          };
-          newSource.value = newCont;
-          newConfig.utm_content = newSource;
-          return newConfig;
-        });
-        break;
-      case 'utm_keyword':
-        setKeyVal(target?.value);
-        if (!target?.value.includes(',')) {
-          return;
-        }
-        setKeyVal('');
-        if (target?.value.indexOf('=') === -1) {
-          setTeamValid(false);
-          return;
-        }
-        setTeamVal('');
-        const newKey = config?.utm_keyword?.value as UtmKeyValue[];
-        const newKeyPill = {
-          key: target?.value?.replace(/,/g, '').split('=')[1].trim(),
-          value: target?.value?.replace(/,/g, '').split('=')[0].trim(),
-        };
-        newKey.push(newKeyPill);
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newKeyW = {
-            ...newConfig.utm_keyword,
-          };
-          newKeyW.value = newKey;
-          newConfig.utm_source = newKeyW;
-          return newConfig;
-        });
-        break;
-      case 'utm_campaign':
-        setCampaignVal(target?.value);
-        if (!target?.value.includes(',')) {
-          return;
-        }
-        setCampaignVal('');
-        if (target?.value.indexOf('=') === -1) {
-          setTeamValid(false);
-          return;
-        }
-        setTeamVal('');
-        const newCam = config?.utm_campaign?.value as UtmKeyValue[];
-        const newCamPill = {
-          key: target?.value?.replace(/,/g, '').split('=')[1].trim(),
-          value: target?.value?.replace(/,/g, '').split('=')[0].trim(),
-        };
-        newCam.push(newCamPill);
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newCamp = {
-            ...newConfig.utm_campaign,
-          };
-          newCamp.value = newCam;
-          newConfig.utm_campaign = newCamp;
-          return newConfig;
-        });
-        break;
-      case 'team_name':
-        setTeamVal(target?.value);
-        if (!target?.value.includes(',')) {
-          return;
-        }
-        if (target?.value.indexOf('=') === -1) {
-          setTeamValid(false);
-          return;
-        }
-        setTeamVal('');
-        const newTm = config?.team_name?.value as UtmKeyValue[];
-        const newTmPill = {
-          key: target?.value?.replace(/,/g, '').split('=')[1].trim(),
-          value: target?.value?.replace(/,/g, '').split('=')[0].trim(),
-        };
-        newTm.push(newTmPill);
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newTeam = {
-            ...newConfig.team_name,
-          };
-          newTeam.value = newTm;
-          newConfig.team_name = newTeam;
-          return newConfig;
-        });
-        break;
-      case 'region_name':
-        setRegionVal(target?.value);
-        if (!target?.value.includes(',')) {
-          return;
-        }
-        if (target?.value.indexOf('=') === -1) {
-          setRegValid(false);
-          return;
-        }
-        setRegionVal('');
-        const newR = config?.region_name?.value;
-        const newRPill = {
-          key: target?.value?.replace(/,/g, '').split('=')[1],
-          value: target?.value?.replace(/,/g, '').split('=')[0],
-        };
-        newR.push(newRPill);
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newTeam = {
-            ...newConfig.region_name,
-          };
-          newTeam.value = newR;
-          newConfig.region_name = newTeam;
-          return newConfig;
-        });
-        break;
-      default:
-        break;
-    }
-  };
-
-  const setFieldValue = (event: ChangeEvent, type: string) => {
-    const target = event.target as HTMLInputElement;
-    const ind = target?.value.indexOf('(');
-    const nv =
-      target?.value.indexOf('(') > -1
-        ? target?.value.substring(0, target?.value.indexOf('(') - 1).trim()
-        : target?.value;
-    switch (type) {
-      case 'utm_target':
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newVal = {
-            ...newConfig.utm_target,
-          };
-          newVal.label = nv;
-          newConfig.utm_target = newVal;
-          return newConfig;
-        });
-        break;
-      case 'utm_term':
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newVal = {
-            ...newConfig.utm_term,
-          };
-          newVal.label = nv;
-          newConfig.utm_term = newVal;
-          return newConfig;
-        });
-        break;
-      case 'utm_medium':
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newVal = {
-            ...newConfig.utm_medium,
-          };
-          newVal.label = nv;
-          newConfig.utm_medium = newVal;
-          return newConfig;
-        });
-        break;
-      case 'utm_source':
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newSou = {
-            ...newConfig.utm_source,
-          };
-          newSou.label = nv;
-          newConfig.utm_source = newSou;
-          return newConfig;
-        });
-        break;
-      case 'utm_content':
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newCon = {
-            ...newConfig.utm_content,
-          };
-          newCon.label = nv;
-          newConfig.utm_content = newCon;
-          return newConfig;
-        });
-        break;
-      case 'utm_keyword':
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newKey = {
-            ...newConfig.utm_keyword,
-          };
-          newKey.label = nv;
-          newConfig.utm_keyword = newKey;
-          return newConfig;
-        });
-        break;
-      case 'utm_campaign':
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newCamp = {
-            ...newConfig.utm_campaign,
-          };
-          newCamp.label = nv;
-          newConfig.utm_campaign = newCamp;
-          return newConfig;
-        });
-        break;
-      case 'team_name':
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newVal = {
-            ...newConfig.team_name,
-          };
-          newVal.label = nv;
-          newConfig.team_name = newVal;
-          return newConfig;
-        });
-        break;
-      case 'region_name':
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newReg = {
-            ...newConfig.region_name,
-          };
-          newReg.label = nv;
-          newConfig.region_name = newReg;
-          return newConfig;
-        });
-        break;
-      case 'bitly_config':
-        setConfig((prevConfig) => {
-          const newConfig = { ...prevConfig };
-          const newBit = {
-            ...newConfig.bitly_config,
-          };
-          newBit.label = nv;
-          newConfig.bitly_config = newBit;
-          return newConfig;
-        });
-        break;
-      default:
-        break;
-    }
-  };
   /* handle closing without saving */
   const handleCancel = () => {
     handleClose();
     callback(false);
   };
 
-  const handleRadioChange = (event: ChangeEvent) => {
-    event.persist();
-    const target = event.target as HTMLInputElement;
-    // setItem(prevState => ({
-    //   ...prevState,
-    //   kindOfStand: e.target.value
-    // }));
+  const setMainFileName = (result: SyntheticEvent) => {
+    const read = new FileReader();
+    read.readAsDataURL(result.target.files[0]);
+    read.onloadend = () => {
+      const fi = new Image();
+      fi.src = read.result as string;
+      fi.onload = () => {
+        const h = fi.height;
+        const w = fi.width;
+        setMainConfig((prevMainConfig) => {
+          const con = { ...prevMainConfig };
+          con.brandImage = fi.src;
+          con.brandHeight = h;
+          con.brandWidth = w;
+          con.brandOpacity = 10.0;
+          return con;
+        });
+        setAspectRatio(w, h, 'main');
+        setIsMainAspectLocked(true);
+        setShowMainLogo(true);
+      };
+    };
+    setMainLogoChanged(true);
   };
 
+  const setQRFileName = (result: SyntheticEvent) => {
+    const read = new FileReader();
+    read.readAsDataURL(result.target.files[0]);
+    read.onloadend = () => {
+      const fi = new Image();
+      fi.src = read.result as string;
+      fi.onload = () => {
+        const h = fi.height;
+        const w = fi.width;
+        setMainConfig((prevQrConfig) => {
+          const c = { ...prevQrConfig };
+          const con = { ...c.QRSettings };
+          con.QRProps.logoImage = fi.src;
+          con.QRProps.logoHeight = h;
+          con.QRProps.logoWidth = w;
+          con.QRProps.logoOpacity = 10.0;
+          c.QRSettings = con;
+          return c;
+        });
+        setAspectRatio(w, h, 'qr');
+        setIsQrAspectLocked(true);
+        setShowQRLogo(true);
+      };
+    };
+    setQrLogoChanged(true);
+  };
   function callDone() {
     callback(false);
   }
@@ -644,1983 +419,1000 @@ export default function ConfigEditor({
     window.electronAPI
       .saveConfig(c)
       .then((response: string) => {
-        callDone();
-        return '';
+        return;
       })
       .catch((error: unknown) => {
         console.log(`Error: ${error}`);
       });
+    const m = JSON.stringify(mainConfig);
+    window.electronAPI
+      .saveMainConfig(m)
+      .then((response: string) => {
+        return;
+      })
+      .catch((error: unknown) => {
+        console.log(`Error: ${error}`);
+      });
+    callDone();
+    handleClose();
+  };
+
+  // Handle clicking on the Foreground Color
+  const handleForeColorClick = () => {
+    setDisplayForeColorPicker(!displayForeColorPicker);
+  };
+
+  // Handle closing the Foreground Color Picker
+  const handleForeColorClose = () => {
+    setDisplayForeColorPicker(false);
+  };
+
+  // Handle the Foreground Color Change
+  const handleForeColorChange = (color: any) => {
+    setForeColor(color.rgb);
+    setMainConfig((prevQrConfig) => {
+      const newFore = { ...prevQrConfig };
+      const con = { ...newFore.QRSettings };
+      con.QRProps.fgColor = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
+      newFore.QRSettings = con;
+      return newFore;
+    });
+  };
+
+  // Handle clicking on the Background Color
+  const handleBackColorClick = () => {
+    setDisplayBackColorPicker(!displayBackColorPicker);
+  };
+
+  // Handle closing the background Color Picker
+  const handleBackColorClose = () => {
+    setDisplayBackColorPicker(false);
+  };
+
+  // Handle the Background Color Change
+  const handleBackColorChange = (color: any) => {
+    setBackColor(color.rgb);
+    setMainConfig((prevQrConfig) => {
+      const newBack = { ...prevQrConfig };
+      const con = { ...newBack.QRSettings };
+      con.QRProps.bgColor = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
+      newBack.QRSettings = con;
+      return newBack;
+    });
+  };
+  // Handle the Eye Color Change
+  const handleEyeColorChange = (color: any) => {
+    setEyeColor(color.rgb);
+    setMainConfig((prevQrConfig) => {
+      const newEye = { ...prevQrConfig };
+      const con = { ...newEye.QRSettings };
+      con.QRProps.eyeColor = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
+      newEye.QRSettings = con;
+      return newEye;
+    });
+  };
+
+  // Handle clicking on the Eye Color Picker
+  const handleEyeColorClick = () => {
+    setDisplayEyeColorPicker(!displayEyeColorPicker);
+  };
+
+  // Handle closing the Eye Color Picker
+  const handleEyeColorClose = () => {
+    setDisplayEyeColorPicker(false);
+  };
+
+  const updateConfig = (type: string, updateConfig: UtmObj | UtmParams) => {
+    switch (type) {
+      case 'utm_source':
+        setConfig((prevConfig) => {
+          const newConfig = { ...prevConfig };
+          newConfig.utm_source = updateConfig as UtmObj;
+          return newConfig;
+        });
+        break;
+      case 'utm_medium':
+        setConfig((prevConfig) => {
+          const newConfig = { ...prevConfig };
+          newConfig.utm_medium = updateConfig as UtmObj;
+          return newConfig;
+        });
+        break;
+      case 'utm_campaign':
+        setConfig((prevConfig) => {
+          const newConfig = { ...prevConfig };
+          newConfig.utm_campaign = updateConfig as UtmObj;
+          return newConfig;
+        });
+        break;
+      case 'utm_term':
+        setConfig((prevConfig) => {
+          const newConfig = { ...prevConfig };
+          newConfig.utm_term = updateConfig as UtmObj;
+          return newConfig;
+        });
+        break;
+      case 'utm_content':
+        setConfig((prevConfig) => {
+          const newConfig = { ...prevConfig };
+          newConfig.utm_content = updateConfig as UtmObj;
+          return newConfig;
+        });
+        break;
+      case 'team_name':
+        setConfig((prevConfig) => {
+          const newConfig = { ...prevConfig };
+          newConfig.team_name = updateConfig as UtmObj;
+          return newConfig;
+        });
+        break;
+      case 'region_name':
+        setConfig((prevConfig) => {
+          const newConfig = { ...prevConfig };
+          newConfig.region_name = updateConfig as UtmObj;
+          return newConfig;
+        });
+        break;
+      case 'utm_target':
+        setConfig(updateConfig as UtmParams);
+      default:
+        break;
+    }
   };
 
   return (
-    <Modal
-      show={show}
-      onHide={handleCancel}
-      size="xl"
-      dialogClassName="modal-90w"
-      backdrop="static"
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>Configuration Editor</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Accordion>
-          {/* General Config */}
-          <Accordion.Item eventKey="0">
-            <Accordion.Header>
-              <strong>General Configuration</strong>
-            </Accordion.Header>
-            <Accordion.Body id="general">
-              <Accordion>
-                <Accordion.Item eventKey="0">
-                  <Accordion.Header>
-                    <strong>Bit.ly Configuration</strong>
-                  </Accordion.Header>
-                  <Accordion.Body id="bitly">
-                    <Form noValidate validated={targetValidated}>
-                {/*
-                  - bitly token
-                  label: string;
-  ariaLabel: string;
-  tooltip: string;
-  error: string;
-  bitlyToken: string;
-  bitlyDomain: string;
-  bitlyAddr: string;
-  bitlyEnabled: boolean;
-                  - Header Image
-                  - QR Code Logo Image
-                  - QR Code Design
-                 */}
-                { config?.bitly_config?.useValue ? (
-                  <>
-                  <Form.Label>
-                    <strong>Label</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="bitly_config-label"
-                    placeholder="Enter Bitly Switch label"
-                    value={`${config?.bitly_config?.label}`}
-                    onChange={(e) => {
-                      setFieldValue(e, 'bitly_config');
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>ToolTip Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="bitly_config-tooltip"
-                    placeholder="Enter utm_source field tooltip"
-                    value={config?.bitly_config?.tooltip}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newBit = { ...newConfig.bitly_config };
-                        newBit.tooltip = e.target.value;
-                        newConfig.bitly_config = newBit;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>ARIA (Accessibility) Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="bitly_config-aria"
-                    placeholder="Enter bitly switch field ARIA (Accessibility) label"
-                    value={config?.bitly_config?.ariaLabel}
-                    required
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newSource = { ...newConfig.bitly_config };
-                        newSource.ariaLabel = e.target.value;
-                        newConfig.bitly_config = newSource;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                    <Form.Label>
-                      <strong>Bitly Token</strong>
-                    </Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="The Bit.ly API Token"
-                      value={config?.bitly_config?.bitlyToken}
-                      required
-                      id="bitly_token-value"
-                      onChange={(eventKey) => {
-                        setConfig((prevConfig) => {
-                          const newConfig = { ...prevConfig };
-                          const newBit = { ...newConfig.bitly_config };
-                          newBit.bitlyToken = eventKey.target.value;
-                          newConfig.bitly_config = newBit;
-                          return newConfig;
-                        });
-                      }}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      You must provide a Bit.ly Token.
-                    </Form.Control.Feedback>
-                    <Form.Label>
-                      <strong>Bitly Domain (if any)</strong>
-                    </Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Your Custom Bit.ly Domain"
-                      value={config?.bitly_config?.bitlyDomain}
-                      required
-                      id="bitly_domain-value"
-                      onChange={(eventKey) => {
-                        setConfig((prevConfig) => {
-                          const newConfig = { ...prevConfig };
-                          const newBit = { ...newConfig.bitly_config };
-                          newBit.bitlyDomain = eventKey.target.value;
-                          newConfig.bitly_config = newBit;
-                          return newConfig;
-                        });
-                      }}
-                    />
-                </>
-                ) : (
-                  <></>
-                )}
-                <Form.Check
-                  type="checkbox"
-                  id="bitly_config-use"
-                  // key="show-utm_source"
-                  label="Enable using Bit.ly?"
-                  checked={config?.bitly_config?.useValue}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newSource = { ...newConfig.bitly_config };
-                      newSource.useValue = e.target.checked;
-                      newConfig.bitly_config = newSource;
-                      return newConfig;
-                    });
-                  }}
-              />
-              </Form>
+    <>
+      <Modal
+        show={show}
+        onHide={handleCancel}
+        size="xl"
+        dialogClassName="modal-90w"
+        backdrop="static"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Configuration Editor</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Accordion>
+            {/* General Config */}
+            <Accordion.Item eventKey="0">
+              <Accordion.Header>
+                <strong>General Configuration</strong>
+              </Accordion.Header>
+              <Accordion.Body id="general">
+                <Accordion>
+                  {/* Bitly Configuration */}
+                  <Accordion.Item eventKey="0">
+                    <Accordion.Header>
+                      <strong>Bit.ly Configuration</strong>
+                    </Accordion.Header>
+                    <Accordion.Body id="bitly">
+                      <Form noValidate validated={targetValidated}>
+                        {config?.bitly_config?.useValue ? (
+                          <>
+                            <Form.Label>
+                              <strong>Label</strong>
+                            </Form.Label>
+                            <Form.Control
+                              type="text"
+                              id="bitly_config-label"
+                              placeholder="Enter Bitly Switch label"
+                              value={`${config?.bitly_config?.label}`}
+                              onChange={(e) => {
+                                setConfig((prevConfig) => {
+                                  const newConfig = { ...prevConfig };
+                                  const newBit = { ...newConfig.bitly_config };
+                                  newBit.label = e.target.value;
+                                  newConfig.bitly_config = newBit;
+                                  return newConfig;
+                                });
+                              }}
+                            />
+                            <Form.Label>
+                              <strong>ToolTip Text</strong>
+                            </Form.Label>
+                            <Form.Control
+                              type="text"
+                              id="bitly_config-tooltip"
+                              placeholder="Enter utm_source field tooltip"
+                              value={config?.bitly_config?.tooltip}
+                              onChange={(e) => {
+                                setConfig((prevConfig) => {
+                                  const newConfig = { ...prevConfig };
+                                  const newBit = { ...newConfig.bitly_config };
+                                  newBit.tooltip = e.target.value;
+                                  newConfig.bitly_config = newBit;
+                                  return newConfig;
+                                });
+                              }}
+                            />
+                            <Form.Label>
+                              <strong>ARIA (Accessibility) Text</strong>
+                            </Form.Label>
+                            <Form.Control
+                              type="text"
+                              id="bitly_config-aria"
+                              placeholder="Enter bitly switch field ARIA (Accessibility) label"
+                              value={config?.bitly_config?.ariaLabel}
+                              required
+                              onChange={(e) => {
+                                setConfig((prevConfig) => {
+                                  const newConfig = { ...prevConfig };
+                                  const newSource = {
+                                    ...newConfig.bitly_config,
+                                  };
+                                  newSource.ariaLabel = e.target.value;
+                                  newConfig.bitly_config = newSource;
+                                  return newConfig;
+                                });
+                              }}
+                            />
+                            <Form.Label>
+                              <strong>Bitly Token</strong>
+                            </Form.Label>
+                            <Form.Control
+                              type="text"
+                              placeholder="The Bit.ly API Token"
+                              value={config?.bitly_config?.bitlyToken}
+                              required
+                              id="bitly_token-value"
+                              onChange={(eventKey) => {
+                                setConfig((prevConfig) => {
+                                  const newConfig = { ...prevConfig };
+                                  const newBit = { ...newConfig.bitly_config };
+                                  newBit.bitlyToken = eventKey.target.value;
+                                  newConfig.bitly_config = newBit;
+                                  return newConfig;
+                                });
+                              }}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                              You must provide a Bit.ly Token.
+                            </Form.Control.Feedback>
+                            <Form.Label>
+                              <strong>Bitly Domain (if any)</strong>
+                            </Form.Label>
+                            <Form.Control
+                              type="text"
+                              placeholder="Your Custom Bit.ly Domain"
+                              value={config?.bitly_config?.bitlyDomain}
+                              id="bitly_domain-value"
+                              onChange={(eventKey) => {
+                                setConfig((prevConfig) => {
+                                  const newConfig = { ...prevConfig };
+                                  const newBit = { ...newConfig.bitly_config };
+                                  newBit.bitlyDomain = eventKey.target.value;
+                                  newConfig.bitly_config = newBit;
+                                  return newConfig;
+                                });
+                              }}
+                            />
+                          </>
+                        ) : (
+                          <></>
+                        )}
+                        <Form.Check
+                          type="checkbox"
+                          id="bitly_config-use"
+                          label="Enable using Bit.ly?"
+                          checked={config?.bitly_config?.useValue}
+                          onChange={(e) => {
+                            setConfig((prevConfig) => {
+                              const newConfig = { ...prevConfig };
+                              const newSource = { ...newConfig.bitly_config };
+                              newSource.useValue = e.target.checked;
+                              newConfig.bitly_config = newSource;
+                              return newConfig;
+                            });
+                          }}
+                        />
+                      </Form>
                     </Accordion.Body>
-                </Accordion.Item>
-                {/* <Accordion.Item eventKey="1">
-                  <Accordion.Header>
-                    <strong>Configure Images</strong>
-                  </Accordion.Header>
-                  <Accordion.Body id="images">
-                    <Form noValidate validated={targetValidated}>
-                { config?.bitly_config?.useValue ? (
-                  <>
-                  <Form.Label>
-                    <strong>Label</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="bitly_config-label"
-                    placeholder="Enter Bitly Switch label"
-                    value={`${config?.bitly_config?.label}`}
-                    onChange={(e) => {
-                      setFieldValue(e, 'bitly_config');
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>ToolTip Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="bitly_config-tooltip"
-                    placeholder="Enter utm_source field tooltip"
-                    value={config?.bitly_config?.tooltip}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newBit = { ...newConfig.bitly_config };
-                        newBit.tooltip = e.target.value;
-                        newConfig.bitly_config = newBit;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>ARIA (Accessibility) Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="bitly_config-aria"
-                    placeholder="Enter bitly switch field ARIA (Accessibility) label"
-                    value={config?.bitly_config?.ariaLabel}
-                    required
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newSource = { ...newConfig.bitly_config };
-                        newSource.ariaLabel = e.target.value;
-                        newConfig.bitly_config = newSource;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                    <Form.Label>
-                      <strong>Bitly Token</strong>
-                    </Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="The Bit.ly API Token"
-                      value={config?.bitly_config?.bitlyToken}
-                      required
-                      id="bitly_token-value"
-                      onChange={(eventKey) => {
-                        setConfig((prevConfig) => {
-                          const newConfig = { ...prevConfig };
-                          const newBit = { ...newConfig.bitly_config };
-                          newBit.bitlyToken = eventKey.target.value;
-                          newConfig.bitly_config = newBit;
-                          return newConfig;
-                        });
-                      }}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      You must provide a Bit.ly Token.
-                    </Form.Control.Feedback>
-                    <Form.Label>
-                      <strong>Bitly Domain (if any)</strong>
-                    </Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Your Custom Bit.ly Domain"
-                      value={config?.bitly_config?.bitlyDomain}
-                      required
-                      id="bitly_domain-value"
-                      onChange={(eventKey) => {
-                        setConfig((prevConfig) => {
-                          const newConfig = { ...prevConfig };
-                          const newBit = { ...newConfig.bitly_config };
-                          newBit.bitlyDomain = eventKey.target.value;
-                          newConfig.bitly_config = newBit;
-                          return newConfig;
-                        });
-                      }}
-                    />
-                </>
-                ) : (
-                  <></>
-                )}
-                <Form.Check
-                  type="checkbox"
-                  id="bitly_config-use"
-                  // key="show-utm_source"
-                  label="Enable using Bit.ly?"
-                  checked={config?.bitly_config?.useValue}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newSource = { ...newConfig.bitly_config };
-                      newSource.useValue = e.target.checked;
-                      newConfig.bitly_config = newSource;
-                      return newConfig;
-                    });
-                  }}
-              />
-              </Form>
+                  </Accordion.Item>
+                  {/* UI Images */}
+                  <Accordion.Item eventKey="1">
+                    <Accordion.Header>
+                      <strong>Configure Images</strong>
+                    </Accordion.Header>
+                    <Accordion.Body id="images">
+                      <Form noValidate validated={targetValidated}>
+                        {/* Main Logo */}
+                        <Row>
+                          <Col sm={8}>
+                            <Form.Group controlId="formFile" className="mb-3">
+                              <Form.Label>Choose Main Image</Form.Label>
+                              <Form.Control
+                                type="file"
+                                onChange={setMainFileName}
+                                accept=".png,.jpg,.jpeg"
+                              />
+                            </Form.Group>
+                          </Col>
+                          {showMainLogo ? (
+                            <Col sm={4}>
+                              <img
+                                src={mainConfig.brandImage as string}
+                                alt="Main Logo"
+                                style={{
+                                  width: `${mainConfig.brandWidth}px`,
+                                  height: `${mainConfig.brandHeight}px`,
+                                  opacity: mainConfig.brandOpacity
+                                    ? mainConfig.brandOpacity / 10
+                                    : 1,
+                                }}
+                                // height={mainConfig.brandHeight as number}
+                                // width={mainConfig.brandWidth as number}
+                                // style={{ opacity: `"${mainConfig.brandOpacity as number}"` }}
+                              />
+                            </Col>
+                          ) : null}
+                        </Row>
+                        {/* Show Main Logo */}
+                        <Form.Group as={Row}>
+                          <Col lg="2">
+                            <Form.Label>Show Logo</Form.Label>
+                          </Col>
+                          <Col lg="2">
+                            <Form.Check
+                              type="switch"
+                              id="custom-switch"
+                              label=""
+                              checked={showMainLogo}
+                              onChange={(e) => {
+                                // setLogoImage(
+                                //   e.target.checked ? mainConfig.brandImage : ''
+                                // );
+                                setShowMainLogo(e.target.checked);
+                              }}
+                            />
+                          </Col>
+                          <Col lg="8" />
+                        </Form.Group>
+                        {/* Main Logo Height */}
+                        <Form.Group as={Row}>
+                          <Col lg="2">
+                            <Form.Label>Logo Height</Form.Label>
+                          </Col>
+                          <Col lg="2">
+                            <Form.Control
+                              defaultValue={mainConfig.brandHeight}
+                              value={mainConfig.brandHeight}
+                              onChange={(e) => {
+                                updateAspectRatio(e, 'logoWidth', 'qr');
+                              }}
+                              disabled={!showMainLogo}
+                            />
+                          </Col>
+                          <Col lg="6">
+                            <RangeSlider
+                              value={mainConfig.brandHeight || 20}
+                              min={5}
+                              max={300}
+                              onChange={(e) => {
+                                updateAspectRatio(e, 'logoHeight', 'main');
+                                setMainConfig((prevMainConfig) => {
+                                  const qp = { ...prevMainConfig };
+                                  qp.brandHeight = parseInt(e.target.value, 10);
+                                  return qp;
+                                });
+                              }}
+                              disabled={!showMainLogo}
+                            />
+                          </Col>
+                        </Form.Group>
+                        {/*  Main Logo Lock Aspect */}
+                        <Form.Group as={Row}>
+                          <Col lg="8" />
+                          <Col lg="4">
+                            <OverlayTrigger
+                              placement="top"
+                              overlay={<Tooltip>Lock Aspect Ratio</Tooltip>}
+                            >
+                              <Button
+                                variant="outline-secondary"
+                                style={{ width: '20%' }}
+                                onClick={setLockMainAspectRatio}
+                                disabled={!showMainLogo}
+                              >
+                                {isMainAspectLocked ? locked : unlocked}
+                              </Button>
+                            </OverlayTrigger>
+                          </Col>
+                        </Form.Group>
+                        {/*  Main Logo Width */}
+                        <Form.Group as={Row}>
+                          <Col lg="2">
+                            <Form.Label>Logo Width</Form.Label>
+                          </Col>
+                          <Col lg="2">
+                            <Form.Control
+                              defaultValue={mainConfig.brandWidth}
+                              value={mainConfig.brandWidth}
+                              disabled={!showMainLogo}
+                              onChange={(e) => {
+                                updateAspectRatio(e, 'logoWidth', 'main');
+                              }}
+                            />
+                          </Col>
+                          <Col lg="6">
+                            <RangeSlider
+                              value={mainConfig.brandWidth}
+                              min={5}
+                              max={300}
+                              disabled={!showMainLogo}
+                              onChange={(e) => {
+                                updateAspectRatio(e, 'logoWidth', 'main');
+                              }}
+                            />
+                          </Col>
+                        </Form.Group>
+                        {/*  Main Logo Opacity */}
+                        <Form.Group as={Row}>
+                          <Col lg="4">
+                            <Form.Label>Logo Opacity</Form.Label>
+                          </Col>
+                          <Col lg="6">
+                            <RangeSlider
+                              value={
+                                mainConfig.brandOpacity
+                                  ? mainConfig.brandOpacity
+                                  : 10
+                              }
+                              min={0}
+                              max={10}
+                              disabled={!showMainLogo}
+                              onChange={(e) => {
+                                const opacity = parseInt(e.target.value, 10);
+                                setMainConfig((prevMainConfig) => {
+                                  const Op = { ...prevMainConfig };
+                                  Op.brandOpacity = opacity;
+                                  return Op;
+                                });
+                              }}
+                            />
+                          </Col>
+                        </Form.Group>
+                        {mainLogoChanged ? (
+                          <Row>
+                            <Col lg="12">
+                              <Alert variant="warning">
+                                <Alert.Heading>
+                                  <strong>Warning!</strong>
+                                </Alert.Heading>
+                                <p>
+                                  The Main Logo Change will be reflected after
+                                  restarting the application.
+                                </p>
+                              </Alert>
+                            </Col>
+                          </Row>
+                        ) : null}
+                      </Form>
                     </Accordion.Body>
-                </Accordion.Item> */}
-              </Accordion>
-            </Accordion.Body>
-          </Accordion.Item>
-          {/* utm configuration */}
-          {/* UTM Target */}
-          <Accordion.Item eventKey="1">
-            <Accordion.Header>
-              <strong>utm_target</strong>
-            </Accordion.Header>
-            <Accordion.Body id="utm_target">
-              <Form noValidate validated={targetValidated}>
-                <Form.Group>
-                  <Form.Label>
-                    <strong>Label</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    // key="utm_target_label"
-                    id="utm_target-label"
-                    placeholder="Enter utm_target field label"
-                    value={
-                      config?.utm_target?.showName
-                        ? `${config?.utm_target?.label} (utm_target)`
-                        : `${config?.utm_target?.label}`
-                    }
-                    onChange={(e) => {
-                      setFieldValue(e, 'utm_target');
-                    }}
-                  />
-                  <Form.Check
-                    type="checkbox"
-                    // key="show-utm_target"
-                    id="utm_target-show"
-                    label="Show 'utm_target' in Field Label?"
-                    checked={config?.utm_target?.showName}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newTarget = {
-                          ...newConfig.utm_target,
-                        };
-                        newTarget.showName = e.target.checked;
-                        newConfig.utm_target = newTarget;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>ToolTip Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    // key="utm_target_tooltip"
-                    id="utm_target-tooltip"
-                    placeholder="Enter utm_target field tooltip"
-                    value={config?.utm_target?.tooltip}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newTarget = {
-                          ...newConfig.utm_target,
-                        };
-                        newTarget.tooltip = e.target.value;
-                        newConfig.utm_target = newTarget;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>ARIA (Accessibility) Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    // key="utm_target_aria"
-                    id="utm_target-aria"
-                    placeholder="Enter utm_target field ARIA (Accessibility) label"
-                    required
-                    value={config?.utm_target?.ariaLabel}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newTarget = {
-                          ...newConfig.utm_target,
-                        };
-                        newTarget.ariaLabel = e.target.value;
-                        newConfig.utm_target = newTarget;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>Error Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    // key="utm_target_error"
-                    id="utm_target-error"
-                    placeholder="Enter utm_target field tooltip"
-                    value={config?.utm_target?.error}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newTarget = {
-                          ...newConfig.utm_target,
-                        };
-                        newTarget.error = e.target.value;
-                        newConfig.utm_target = newTarget;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Check
-                    type="checkbox"
-                    id="utm_target-restrict_bases"
-                    // key="restrict-bases"
-                    label="Restrict base URLs for utm_targets?"
-                    checked={config?.restrict_bases}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        newConfig.restrict_bases = e.target.checked;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  {config?.restrict_bases && (
-                    <Form.Group>
+                  </Accordion.Item>
+                  {/* QR Code Configuration */}
+                  <Accordion.Item eventKey="2">
+                    <Accordion.Header>
+                      <strong>Configure QR Code</strong>
+                    </Accordion.Header>
+                    <Accordion.Body id="qr">
                       <Form.Label>
-                        <strong>Base URLs</strong>
+                        <strong>Colors:</strong>
                       </Form.Label>
-                      <Form.Control
-                        type="text"
-                        // key="utm_target-bases"
-                        id="utm_target-bases"
-                        placeholder="Enter comma-separated list of URLs to use for restricted utm_target bases"
-                        value={baseVal}
-                        required
-                        pattern="/^(http[s]*)|(^ftp):\/\/ /"
-                        onChange={(eventKey) => {
-                          addPill(eventKey, 'utm_target');
-                        }}
-                      />
-                      <PillArea
-                        pills={config?.utm_bases?.value}
-                        type="utm_target"
-                        callback={deletePillValue}
-                      />
-                    </Form.Group>
-                  )}
-                </Form.Group>
-              </Form>
-            </Accordion.Body>
-          </Accordion.Item>
-          {/* UTM Source */}
-          <Accordion.Item eventKey="2">
-            <Accordion.Header>
-              <strong>utm_source</strong>
-            </Accordion.Header>
-            <Accordion.Body id="utm_source">
-              <Form.Group>
-                { config?.utm_source?.useValue ? (
-                  <>
-                  <Form.Label>
-                    <strong>Label</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    // key="utm_source_label"
-                    id="utm_source-label"
-                    placeholder="Enter utm_source field label"
-                    value={
-                      config?.utm_source?.showName
-                        ? `${config?.utm_source?.label} (utm_source)`
-                        : `${config?.utm_source?.label}`
-                    }
-                    onChange={(e) => {
-                      setFieldValue(e, 'utm_source');
-                    }}
-                  />
-                  <Form.Check
-                    type="checkbox"
-                    id="utm_source-show"
-                    // key="show-utm_source"
-                    label="Show 'utm_source' in Field Label?"
-                    checked={config?.utm_source?.showName}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newSource = { ...newConfig.utm_source };
-                        newSource.showName = e.target.checked;
-                        newConfig.utm_source = newSource;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>ToolTip Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    // key="utm_source_tooltip"
-                    id="utm_source-tooltip"
-                    placeholder="Enter utm_source field tooltip"
-                    value={config?.utm_source?.tooltip}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newSource = { ...newConfig.utm_source };
-                        newSource.tooltip = e.target.value;
-                        newConfig.utm_source = newSource;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>ARIA (Accessibility) Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="utm_source-aria"
-                    placeholder="Enter utm_source field ARIA (Accessibility) label"
-                    value={config?.utm_source?.ariaLabel}
-                    required
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newSource = { ...newConfig.utm_source };
-                        newSource.ariaLabel = e.target.value;
-                        newConfig.utm_source = newSource;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>Error Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    // key="utm_source_error"
-                    id="utm_source-error"
-                    placeholder="Enter utm_source field error mesage"
-                    value={config?.utm_source?.error}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newSource = { ...newConfig.utm_source };
-                        newSource.error = e.target.value;
-                        newConfig.utm_source = newSource;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  { config?.utm_source?.isChooser ? (
-                    <>
-                    <Form.Label>
-                      <strong>Source Values</strong>
-                    </Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Enter comma-separated list of key=value pairs to use"
-                      value={sourceVal}
-                      required
-                      id="utm_source-values"
-                      isInvalid={!sourceValid}
-                      onChange={(eventKey) => {
-                        addPill(eventKey, 'utm_source');
-                      }}
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      You must provide a key=value pair.
-                    </Form.Control.Feedback>
-                    <PillArea
-                      pills={config?.utm_source?.value}
-                      type="utm_source"
-                      callback={deletePillValue}
-                    />
-                    </> ) : (
-                      <></>
-                    )}
-                </>
-                ) : (
-                  <></>
-                )}
-              </Form.Group>
-              <Form.Check
-                  type="checkbox"
-                  id="utm_source-use"
-                  // key="show-utm_source"
-                  label="Use 'utm_source' value?"
-                  checked={config?.utm_source?.useValue}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newSource = { ...newConfig.utm_source };
-                      newSource.useValue = e.target.checked;
-                      newConfig.utm_source = newSource;
-                      return newConfig;
-                    });
-                  }}
-              />
-              { config?.utm_source?.useValue ? (
-                  <Form.Group>
-                    <Form.Check
-                    inline
-                    type="radio"
-                    value='utm_source-chooser'
-                    id="utm_source-use-chooser"
-                    // key="show-utm_source"
-                    label="Use Chooser"
-                    checked={config?.utm_source?.isChooser}
-                    onChange={(e) => {
-                      console.log(`e.target.checked: ${e.target.checked}`)
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newSource = { ...newConfig.utm_source };
-                        newSource.isChooser = e.target.checked;
-                        newConfig.utm_source = newSource;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Check
-                    inline
-                    type="radio"
-                    value='utm_source-text'
-                    id="utm_source-use-text"
-                    // key="show-utm_source"
-                    label="Use Text Input"
-                    checked={!config?.utm_source?.isChooser}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newSource = { ...newConfig.utm_source };
-                        newSource.isChooser = !e.target.checked;
-                        newConfig.utm_source = newSource;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  </Form.Group>
-                ) : (
-                  <></>
-                )
-              }
-            </Accordion.Body>
-          </Accordion.Item>
-          {/* UTM Medium */}
-          <Accordion.Item eventKey="3">
-            <Accordion.Header>
-              <strong>utm_medium</strong>
-            </Accordion.Header>
-            <Accordion.Body>
-              <Form.Group>
-                {config?.utm_medium?.useValue ? (
-                  <>
-                  <Form.Label>
-                  <strong>Label</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="utm_medium-label"
-                    // key="utm_medium-label"
-                    placeholder="Enter utm_medium field label"
-                    value={
-                      config?.utm_medium?.showName
-                        ? `${config?.utm_medium?.label} (utm_medium)`
-                        : `${config?.utm_medium?.label}`
-                    }
-                    onChange={(e) => {
-                      setFieldValue(e, 'utm_medium');
-                    }}
-                  />
-                  <Form.Check
-                    type="checkbox"
-                    // key="show-utm_medium"
-                    id="show-utm-medium"
-                    label="Show 'utm_medium' in Field Label?"
-                    checked={config?.utm_medium?.showName}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newMedium = { ...newConfig.utm_medium };
-                        newMedium.showName = e.target.checked;
-                        newConfig.utm_medium = newMedium;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>ToolTip Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    // key="utm_medium-tooltip"
-                    id="utm_medium-tooltip"
-                    placeholder="Enter utm_medium field tooltip"
-                    value={config?.utm_medium?.tooltip}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newMedium = { ...newConfig.utm_medium };
-                        newMedium.tooltip = e.target.value;
-                        newConfig.utm_medium = newMedium;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>ARIA (Accessibility) Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    // key="utm_medium-aria"
-                    id="utm_medium-aria"
-                    placeholder="Enter utm_medium field ARIA (Accessibility) label"
-                    value={config?.utm_medium?.ariaLabel}
-                    required
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newMedium = { ...newConfig.utm_medium };
-                        newMedium.ariaLabel = e.target.value;
-                        newConfig.utm_medium = newMedium;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>Error Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    // key="utm_medium-error"
-                    id="utm_medium-error"
-                    placeholder="Enter utm_medium field error mesage"
-                    value={config?.utm_medium?.error}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newMedium = { ...newConfig.utm_medium };
-                        newMedium.error = e.target.value;
-                        newConfig.utm_medium = newMedium;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                {config?.utm_medium?.isChooser ? (
-                  <>
-                <Form.Label>
-                  <strong>Medium Values</strong>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  // key="utm_medium-values"
-                  placeholder="Enter comma-separated list of values to use"
-                  value={mediumVal}
-                  required
-                  id="utm_medium-values"
-                  isInvalid={!medValid}
-                  onChange={(eventKey) => {
-                    addPill(eventKey, 'utm_medium');
-                  }}
-                />
-                <Form.Control.Feedback type="invalid">
-                  You must provide a key=value pair.
-                </Form.Control.Feedback>
-                <PillArea
-                  pills={config?.utm_medium?.value}
-                  type="utm_medium"
-                  callback={deletePillValue}
-                />
-                </>
-                ) : (
-                  <></>
-                )}
-                </>) : (
-                  <></>
-                )}
-              </Form.Group>
-              <Form.Check
-                  type="checkbox"
-                  id="utm_source-use"
-                  // key="show-utm_source"
-                  label="Use 'utm_medium' value?"
-                  checked={config?.utm_medium?.useValue}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newSource = { ...newConfig.utm_medium };
-                      newSource.useValue = e.target.checked;
-                      newConfig.utm_medium = newSource;
-                      return newConfig;
-                    });
-                  }}
-              />
-              { config?.utm_source?.useValue ? (
-                  <Form.Group>
-                    <Form.Check
-                    inline
-                    type="radio"
-                    value='utm_medium-chooser'
-                    id="utm_medium-use-chooser"
-                    // key="show-utm_source"
-                    label="Use Chooser"
-                    checked={config?.utm_medium?.isChooser}
-                    onChange={(e) => {
-                      console.log(`e.target.checked: ${e.target.checked}`)
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newSource = { ...newConfig.utm_medium };
-                        newSource.isChooser = e.target.checked;
-                        newConfig.utm_medium = newSource;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Check
-                    inline
-                    type="radio"
-                    value='utm_medium-text'
-                    id="utm_medium-use-text"
-                    // key="show-utm_source"
-                    label="Use Text Input"
-                    checked={!config?.utm_medium?.isChooser}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newSource = { ...newConfig.utm_medium };
-                        newSource.isChooser = !e.target.checked;
-                        newConfig.utm_medium = newSource;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  </Form.Group>
-                ) : (
-                  <></>
-                )
-              }
-            </Accordion.Body>
-          </Accordion.Item>
-          {/* UTM Campaign */}
-          <Accordion.Item eventKey="4">
-            <Accordion.Header>
-              <strong>utm_campaign</strong>
-            </Accordion.Header>
-            <Accordion.Body id="utm_campaign">
-              {config?.utm_campaign?.useValue ? (
-                <>
-              <Form.Group>
-                <Form.Label>
-                  <strong>Label</strong>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  // key="utm_campaign_label"
-                  id="utm_campaign-label"
-                  placeholder="Enter utm_campaign field label"
-                  value={
-                    config?.utm_campaign?.showName
-                      ? `${config?.utm_campaign?.label} (utm_campaign)`
-                      : `${config?.utm_campaign?.label}`
-                  }
-                  onChange={(e) => {
-                    setFieldValue(e, 'utm_campaign');
-                  }}
-                />
-                <Form.Check
-                  type="checkbox"
-                  id="utm_campaign-show"
-                  // key="show-utm_campaign"
-                  label="Show 'utm_campaign' in Field Label?"
-                  checked={config?.utm_campaign?.showName}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newCampaign = {
-                        ...newConfig.utm_campaign,
-                      };
-                      newCampaign.showName = e.target.checked;
-                      newConfig.utm_campaign = newCampaign;
-                      return newConfig;
-                    });
-                  }}
-                />
-                <Form.Label>
-                  <strong>ToolTip Text</strong>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  // key="utm_campaign_tooltip"
-                  id="utm_campaign-tooltip"
-                  placeholder="Enter utm_campaign field tooltip"
-                  value={config?.utm_campaign?.tooltip}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newCampaign = {
-                        ...newConfig.utm_campaign,
-                      };
-                      newCampaign.tooltip = e.target.value;
-                      newConfig.utm_campaign = newCampaign;
-                      return newConfig;
-                    });
-                  }}
-                />
-                <Form.Label>
-                  <strong>ARIA (Accessibility) Text</strong>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  // key="utm_campaign_aria"
-                  id="utm_campaign-aria"
-                  required
-                  placeholder="Enter utm_campaign field ARIA (Accessibility) label"
-                  value={config?.utm_campaign?.ariaLabel}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newCampaign = {
-                        ...newConfig.utm_campaign,
-                      };
-                      newCampaign.ariaLabel = e.target.value;
-                      newConfig.utm_campaign = newCampaign;
-                      return newConfig;
-                    });
-                  }}
-                />
-                <Form.Label>
-                  <strong>Error Text</strong>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  // key="utm_campaign_error"
-                  id="utm_campaign-error"
-                  placeholder="Enter utm_campaign field error message"
-                  value={config?.utm_campaign?.error}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newCampaign = {
-                        ...newConfig.utm_campaign,
-                      };
-                      newCampaign.error = e.target.value;
-                      newConfig.utm_campaign = newCampaign;
-                      return newConfig;
-                    });
-                  }}
-                />
-                {config?.utm_campaign?.isChooser ? (
-                  <>
-                  <Form.Label>
-                    <strong>Campaign Values</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    // key="utm_medium-values"
-                    placeholder="Enter comma-separated list of values to use"
-                    value={campaignVal}
-                    required
-                    id="utm_medium-values"
-                    isInvalid={!campValid}
-                    onChange={(eventKey) => {
-                      addPill(eventKey, 'utm_campaign');
-                    }}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    You must provide a key=value pair.
-                  </Form.Control.Feedback>
-                  <PillArea
-                    pills={config?.utm_campaign?.value}
-                    type="utm_campaign"
-                    callback={deletePillValue}
-                  />
-                  </>
-                ) : (
-                  <></>
-                )}
-              </Form.Group>
-              </> ) : (
-                <></>
-              )}
-              <Form.Check
-                  type="checkbox"
-                  id="utm_campaign-use"
-                  // key="show-utm_source"
-                  label="Use 'utm_campaign' value?"
-                  checked={config?.utm_campaign?.useValue}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newSource = { ...newConfig.utm_campaign };
-                      newSource.useValue = e.target.checked;
-                      newConfig.utm_campaign = newSource;
-                      return newConfig;
-                    });
-                  }}
-              />
-              {config?.utm_campaign?.useValue ? (
-                <>
-                <Form.Check
-                  type="radio"
-                  inline
-                  id="utm_campaign-chooser"
-                  // key="show-utm_source"
-                  label="Use Chooser"
-                  checked={config?.utm_campaign?.isChooser}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newRegion = { ...newConfig.utm_campaign };
-                      newRegion.isChooser = e.target.checked;
-                      newConfig.utm_campaign = newRegion;
-                      return newConfig;
-                    });
-                  }}
-                />
-              <Form.Check
-                  type="radio"
-                  inline
-                  id="utm_campaign-chooser"
-                  // key="show-utm_source"
-                  label="Use Text Input"
-                  checked={!config?.utm_campaign?.isChooser}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newRegion = { ...newConfig.utm_campaign };
-                      newRegion.isChooser = !e.target.checked;
-                      newConfig.utm_campaign = newRegion;
-                      return newConfig;
-                    });
-                  }}
-                />
-                </>
-              ) : (
-                <></>
-              )}
-            </Accordion.Body>
-          </Accordion.Item>
-          {/* UTM Term */}
-          <Accordion.Item eventKey="5">
-              <Accordion.Header>
-                <strong>utm_term</strong>
-              </Accordion.Header>
-              <Accordion.Body id="utm_term">
-              {config?.utm_term?.useValue ? (
-              <>
-                <Form.Group>
-                  <Form.Label>
-                    <strong>Label</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="utm_term-label"
-                    placeholder="Enter utm_term field label"
-                    value={
-                      config?.utm_term?.showName
-                        ? `${config?.utm_term?.label} (utm_term)`
-                        : `${config?.utm_term?.label}`
-                    }
-                    onChange={(e) => {
-                      setFieldValue(e, 'utm_term');
-                    }}
-                  />
-                  <Form.Check
-                    type="checkbox"
-                    id="utm_term-show"
-                    label="Show 'utm_term' in Field Label?"
-                    checked={config?.utm_term?.showName}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newTerm = { ...newConfig.utm_term };
-                        newTerm.showName = e.target.checked;
-                        newConfig.utm_term = newTerm;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>ToolTip Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="utm_term-tooltip"
-                    placeholder="Enter utm_term field tooltip"
-                    value={config?.utm_term?.tooltip}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newTerm = { ...newConfig.utm_term };
-                        newTerm.tooltip = e.target.value;
-                        newConfig.utm_term = newTerm;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>ARIA (Accessibility) Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="utm_term-aria"
-                    placeholder="Enter utm_term field ARIA (Accessibility) label"
-                    value={config?.utm_term?.ariaLabel}
-                    required
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newTerm = { ...newConfig.utm_term };
-                        newTerm.ariaLabel = e.target.value;
-                        newConfig.utm_term = newTerm;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>Error Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="utm_term-error"
-                    placeholder="Enter utm_term field error mesage"
-                    value={config?.utm_term?.error}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newTerm = { ...newConfig.utm_term };
-                        newTerm.error = e.target.value;
-                        newConfig.utm_term = newTerm;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  { config?.utm_term?.isChooser ? (
-                    <>
-                    <Form.Label>
-                    <strong>Terms</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter comma-separated list of terms to use"
-                    value={termVal}
-                    required
-                    id="utm_term-values"
-                    onChange={(eventKey) => {
-                      addPill(eventKey, 'utm_term');
-                    }}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    You must provide at least one term.
-                  </Form.Control.Feedback>
-                  <PillArea
-                    pills={config?.utm_term?.value}
-                    type="utm_term"
-                    callback={deletePillValue}
-                  />
-                  </> ) : (
-                    <></>
-                  )}
-                </Form.Group>
-                </>
-              ) : (
-                <></>
-              )}
-              <Form.Check
-                  type="checkbox"
-                  id="utm_term-use"
-                  // key="show-utm_source"
-                  label="Use 'utm_term' value?"
-                  checked={config?.utm_term?.useValue}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newTerm = { ...newConfig.utm_term };
-                      newTerm.useValue = e.target.checked;
-                      newConfig.utm_term = newTerm;
-                      return newConfig;
-                    });
-                  }}
-              />
-              { config?.utm_term?.useValue ? (
-                <>
-                <Form.Check
-                  type="radio"
-                  inline
-                  id="utm_term-chooser"
-                  // key="show-utm_source"
-                  label="Use Chooser"
-                  checked={config?.utm_term?.isChooser}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newRegion = { ...newConfig.utm_term };
-                      newRegion.isChooser = e.target.checked;
-                      newConfig.utm_term = newRegion;
-                      return newConfig;
-                    });
-                  }}
-                />
-                <Form.Check
-                  type="radio"
-                  inline
-                  id="utm_term-text"
-                  // key="show-utm_source"
-                  label="Use Text Input"
-                  checked={!config?.utm_term?.isChooser}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newRegion = { ...newConfig.utm_term };
-                      newRegion.isChooser = !e.target.checked;
-                      newConfig.utm_term = newRegion;
-                      return newConfig;
-                    });
-                  }}
-                />
-                </>
-              ) : (
-                <></>
-              )
-              }
-              </Accordion.Body>
-          </Accordion.Item>
-          {/* UTM Content */}
-          <Accordion.Item eventKey="6">
-              <Accordion.Header>
-                <strong>utm_content</strong>
-              </Accordion.Header>
-              <Accordion.Body id="utm_content">
-              {config?.utm_content?.useValue ? (
-              <>
-                <Form.Group>
-                  <Form.Label>
-                    <strong>Label</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="utm_content-label"
-                    placeholder="Enter utm_content field label"
-                    value={
-                      config?.utm_content?.showName
-                        ? `${config?.utm_content?.label} (utm_content)`
-                        : `${config?.utm_content?.label}`
-                    }
-                    onChange={(e) => {
-                      setFieldValue(e, 'utm_content');
-                    }}
-                  />
-                  <Form.Check
-                    type="checkbox"
-                    id="utm_content-show"
-                    label="Show 'utm_content' in Field Label?"
-                    checked={config?.utm_content?.showName}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newCont = { ...newConfig.utm_content };
-                        newCont.showName = e.target.checked;
-                        newConfig.utm_content = newCont;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>ToolTip Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="utm_content-tooltip"
-                    placeholder="Enter utm_content field tooltip"
-                    value={config?.utm_content?.tooltip}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newCont = { ...newConfig.utm_content };
-                        newCont.tooltip = e.target.value;
-                        newConfig.utm_content = newCont;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>ARIA (Accessibility) Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="utm_content-aria"
-                    placeholder="Enter utm_content field ARIA (Accessibility) label"
-                    value={config?.utm_content?.ariaLabel}
-                    required
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newCont = { ...newConfig.utm_content };
-                        newCont.ariaLabel = e.target.value;
-                        newConfig.utm_content = newCont;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>Error Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="utm_content-error"
-                    placeholder="Enter utm_content field error mesage"
-                    value={config?.utm_content?.error}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newCont = { ...newConfig.utm_content };
-                        newCont.error = e.target.value;
-                        newConfig.utm_content = newCont;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  { config?.utm_content?.isChooser ? (
-                    <>
-                    <Form.Label>
-                    <strong>Content</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter comma-separated list of key=value pairs to use"
-                    value={termVal}
-                    required
-                    id="utm_content-values"
-                    onChange={(eventKey) => {
-                      addPill(eventKey, 'utm_content');
-                    }}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    You must provide at least one content value.
-                  </Form.Control.Feedback>
-                  <PillArea
-                    pills={config?.utm_content?.value}
-                    type="utm_content"
-                    callback={deletePillValue}
-                  />
-                  </> ) : (
-                    <></>
-                  )}
-                </Form.Group>
-                </>
-              ) : (
-                <></>
-              )}
-              <Form.Check
-                  type="checkbox"
-                  id="utm_content-use"
-                  label="Use 'utm_content' value?"
-                  checked={config?.utm_content?.useValue}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newCont = { ...newConfig.utm_content };
-                      newCont.useValue = e.target.checked;
-                      newConfig.utm_content = newCont;
-                      return newConfig;
-                    });
-                  }}
-              />
-              { config?.utm_content?.useValue ? (
-                <>
-                <Form.Check
-                  type="radio"
-                  inline
-                  id="utm_content-chooser"
-                  label="Use Chooser"
-                  checked={config?.utm_content?.isChooser}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newCont = { ...newConfig.utm_content };
-                      newCont.isChooser = e.target.checked;
-                      newConfig.utm_content = newCont;
-                      return newConfig;
-                    });
-                  }}
-                />
-                <Form.Check
-                  type="radio"
-                  inline
-                  id="utm_content-text"
-                  // key="show-utm_source"
-                  label="Use Text Input"
-                  checked={!config?.utm_content?.isChooser}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newCont = { ...newConfig.utm_content };
-                      newCont.isChooser = !e.target.checked;
-                      newConfig.utm_content = newCont;
-                      return newConfig;
-                    });
-                  }}
-                />
-                </>
-              ) : (
-                <></>
-              )
-              }
-              </Accordion.Body>
-          </Accordion.Item>
-          {/* UTM Keyword */}
-          <Accordion.Item eventKey="7">
-              <Accordion.Header>
-                <strong>utm_keyword</strong>
-              </Accordion.Header>
-              <Accordion.Body id="utm_keyword">
-              {config?.utm_keyword?.useValue ? (
-              <>
-                <Form.Group>
-                  <Form.Label>
-                    <strong>Label</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="utm_keyword-label"
-                    placeholder="Enter utm_keyword field label"
-                    value={
-                      config?.utm_keyword?.showName
-                        ? `${config?.utm_keyword?.label} (utm_keyword)`
-                        : `${config?.utm_keyword?.label}`
-                    }
-                    onChange={(e) => {
-                      setFieldValue(e, 'utm_keyword');
-                    }}
-                  />
-                  <Form.Check
-                    type="checkbox"
-                    id="utm_keyword-show"
-                    label="Show 'utm_keyword' in Field Label?"
-                    checked={config?.utm_keyword?.showName}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newKey = { ...newConfig.utm_keyword };
-                        newKey.showName = e.target.checked;
-                        newConfig.utm_keyword = newKey;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>ToolTip Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="utm_keyword-tooltip"
-                    placeholder="Enter utm_keyword field tooltip"
-                    value={config?.utm_keyword?.tooltip}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newKey = { ...newConfig.utm_keyword };
-                        newKey.tooltip = e.target.value;
-                        newConfig.utm_keyword = newKey;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>ARIA (Accessibility) Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="utm_keyword-aria"
-                    placeholder="Enter utm_keyword field ARIA (Accessibility) label"
-                    value={config?.utm_keyword?.ariaLabel}
-                    required
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newKey = { ...newConfig.utm_keyword };
-                        newKey.ariaLabel = e.target.value;
-                        newConfig.utm_keyword = newKey;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  <Form.Label>
-                    <strong>Error Text</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    id="utm_keyword-error"
-                    placeholder="Enter utm_keyword field error mesage"
-                    value={config?.utm_keyword?.error}
-                    onChange={(e) => {
-                      setConfig((prevConfig) => {
-                        const newConfig = { ...prevConfig };
-                        const newKey = { ...newConfig.utm_keyword };
-                        newKey.error = e.target.value;
-                        newConfig.utm_keyword = newKey;
-                        return newConfig;
-                      });
-                    }}
-                  />
-                  { config?.utm_keyword?.isChooser ? (
-                    <>
-                    <Form.Label>
-                    <strong>Keywords</strong>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter comma-separated list of keyword key=value pairs to use"
-                    value={termVal}
-                    required
-                    id="utm_keyword-values"
-                    onChange={(eventKey) => {
-                      addPill(eventKey, 'utm_keyword');
-                    }}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    You must provide at least one keyword.
-                  </Form.Control.Feedback>
-                  <PillArea
-                    pills={config?.utm_keyword?.value}
-                    type="utm_keyword"
-                    callback={deletePillValue}
-                  />
-                  </> ) : (
-                    <></>
-                  )}
-                </Form.Group>
-                </>
-              ) : (
-                <></>
-              )}
-              <Form.Check
-                  type="checkbox"
-                  id="utm_keyword-use"
-                  label="Use 'utm_keyword' value?"
-                  checked={config?.utm_keyword?.useValue}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newKey = { ...newConfig.utm_keyword };
-                      newKey.useValue = e.target.checked;
-                      newConfig.utm_keyword = newKey;
-                      return newConfig;
-                    });
-                  }}
-              />
-              { config?.utm_keyword?.useValue ? (
-                <>
-                <Form.Check
-                  type="radio"
-                  inline
-                  id="utm_keyword-chooser"
-                  label="Use Chooser"
-                  checked={config?.utm_keyword?.isChooser}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newKey = { ...newConfig.utm_keyword };
-                      newKey.isChooser = e.target.checked;
-                      newConfig.utm_keyword = newKey;
-                      return newConfig;
-                    });
-                  }}
-                />
-                <Form.Check
-                  type="radio"
-                  inline
-                  id="utm_keyword-text"
-                  // key="show-utm_source"
-                  label="Use Text Input"
-                  checked={!config?.utm_keyword?.isChooser}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newKey = { ...newConfig.utm_keyword };
-                      newKey.isChooser = !e.target.checked;
-                      newConfig.utm_keyword = newKey;
-                      return newConfig;
-                    });
-                  }}
-                />
-                </>
-              ) : (
-                <></>
-              )
-              }
-              </Accordion.Body>
-          </Accordion.Item>
-          {/* UTM Team */}
-          <Accordion.Item eventKey="8">
-            <Accordion.Header>
-              <strong>team_name</strong>
-            </Accordion.Header>
-            <Accordion.Body id="team_name">
-              {config?.team_name?.useValue ? (
-                <>
-                <Form.Group>
-                <Form.Label>
-                  <strong>Label</strong>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  id="team_name-label"
-                  placeholder="Enter team_name field label"
-                  value={
-                    config?.team_name?.showName
-                      ? `${config?.team_name?.label} (team_name)`
-                      : `${config?.team_name?.label}`
-                  }
-                  onChange={(e) => {
-                    setFieldValue(e, 'team_name');
-                  }}
-                />
-                <Form.Check
-                  type="checkbox"
-                  id="team_name-show"
-                  label="Show 'team_name' in Field Label?"
-                  checked={config?.team_name?.showName}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newTeam = { ...newConfig.team_name };
-                      newTeam.showName = e.target.checked;
-                      newConfig.team_name = newTeam;
-                      return newConfig;
-                    });
-                  }}
-                />
-                <Form.Label>
-                  <strong>ToolTip Text</strong>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  id="team_name-tooltip"
-                  placeholder="Enter team_name field tooltip"
-                  value={config?.team_name?.tooltip}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newTeam = { ...newConfig.team_name };
-                      newTeam.tooltip = e.target.value;
-                      newConfig.team_name = newTeam;
-                      return newConfig;
-                    });
-                  }}
-                />
-                <Form.Label>
-                  <strong>ARIA (Accessibility) Text</strong>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  id="team_name-aria"
-                  placeholder="Enter team_name field ARIA (Accessibility) label"
-                  value={config?.team_name?.ariaLabel}
-                  required
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newTeam = { ...newConfig.team_name };
-                      newTeam.ariaLabel = e.target.value;
-                      newConfig.team_name = newTeam;
-                      return newConfig;
-                    });
-                  }}
-                />
-                <Form.Label>
-                  <strong>Error Text</strong>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  id="team_name-error"
-                  placeholder="Enter team_name field error mesage"
-                  value={config?.team_name?.error}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newTeam = { ...newConfig.team_name };
-                      newTeam.error = e.target.value;
-                      newConfig.team_name = newTeam;
-                      return newConfig;
-                    });
-                  }}
-                />
-                {config?.team_name?.isChooser ? (
-                  <>
-                  <Form.Label>
-                  <strong>Teams</strong>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter comma-separated list of key=value pairs for teams to use"
-                  value={teamVal}
-                  isInvalid={!teamValid}
-                  required
-                  id="team_name-values"
-                  onChange={(eventKey) => {
-                    addPill(eventKey, 'team_name');
-                  }}
-                />
-                <Form.Control.Feedback type="invalid">
-                  You must provide at least one key=value pair for a team.
-                </Form.Control.Feedback>
-                <PillArea
-                  pills={config?.team_name?.value}
-                  type="team_name"
-                  callback={deletePillValue}
-                />
-                </>) : (
-                  <></>
-                )}
-              </Form.Group>
-              </> ) : (
-                <></>
-              )}
-              <Form.Check
-                  type="checkbox"
-                  id="team_name-use"
-                  // key="show-utm_source"
-                  label="Use 'team_name' value?"
-                  checked={config?.team_name?.useValue}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newTeam = { ...newConfig.team_name };
-                      newTeam.useValue = e.target.checked;
-                      newConfig.team_name = newTeam;
-                      return newConfig;
-                    });
-                  }}
-              />
-              {config?.team_name?.useValue ? (
-                <>
-                <Form.Check
-                  type="radio"
-                  inline
-                  id="team_name-chooser"
-                  // key="show-utm_source"
-                  label="Use Chooser"
-                  checked={config?.team_name?.isChooser}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newTeam = { ...newConfig.team_name };
-                      newTeam.isChooser = e.target.checked;
-                      newConfig.team_name = newTeam;
-                      return newConfig;
-                    });
-                  }}
-                />
-                <Form.Check
-                  type="radio"
-                  inline
-                  id="team_name-chooser"
-                  // key="show-utm_source"
-                  label="Use Text Input"
-                  checked={!config?.team_name?.isChooser}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newTeam = { ...newConfig.team_name };
-                      newTeam.isChooser = !e.target.checked;
-                      newConfig.team_name = newTeam;
-                      return newConfig;
-                    });
-                  }}
-                />
-                </>) : (
-                  <></>
-                )}
-            </Accordion.Body>
-          </Accordion.Item>
-          {/* UTM Region */}
-          <Accordion.Item eventKey="9">
-            <Accordion.Header>
-              <strong>region_name</strong>
-            </Accordion.Header>
-            <Accordion.Body id="region_name">
-              { config?.region_name?.useValue ? (
-                <>
-                <Form.Group>
-                <Form.Label>
-                  <strong>Label</strong>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  id="region_name-label"
-                  placeholder="Enter region_name field label"
-                  value={
-                    config?.region_name?.showName
-                      ? `${config?.region_name?.label} (region_name)`
-                      : `${config?.region_name?.label}`
-                  }
-                  onChange={(e) => {
-                    setFieldValue(e, 'region_name');
-                  }}
-                />
-                <Form.Check
-                  type="checkbox"
-                  id="region_name-show"
-                  label="Show 'region_name' in Field Label?"
-                  checked={config?.region_name?.showName}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newTeam = { ...newConfig.region_name };
-                      newTeam.showName = e.target.checked;
-                      newConfig.region_name = newTeam;
-                      return newConfig;
-                    });
-                  }}
-                />
-                <Form.Label>
-                  <strong>ToolTip Text</strong>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  id="region_name-tooltip"
-                  placeholder="Enter region_name field tooltip"
-                  value={config?.region_name?.tooltip}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newTeam = { ...newConfig.region_name };
-                      newTeam.tooltip = e.target.value;
-                      newConfig.region_name = newTeam;
-                      return newConfig;
-                    });
-                  }}
-                />
-                <Form.Label>
-                  <strong>ARIA (Accessibility) Text</strong>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  id="region_name-aria"
-                  placeholder="Enter region_name field ARIA (Accessibility) label"
-                  value={config?.region_name?.ariaLabel}
-                  required
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newTeam = { ...newConfig.region_name };
-                      newTeam.ariaLabel = e.target.value;
-                      newConfig.region_name = newTeam;
-                      return newConfig;
-                    });
-                  }}
-                />
-                <Form.Label>
-                  <strong>Error Text</strong>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  id="region_name-error"
-                  placeholder="Enter region_name field error mesage"
-                  value={config?.region_name?.error}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newTeam = { ...newConfig.region_name };
-                      newTeam.error = e.target.value;
-                      newConfig.region_name = newTeam;
-                      return newConfig;
-                    });
-                  }}
-                />
-                {config?.region_name?.isChooser ? (
-                  <>
-                <Form.Label>
-                  <strong>Regions</strong>
-                </Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter comma-separated list of key=value pairs for regions to use"
-                  value={regionVal}
-                  isInvalid={!regValid}
-                  required
-                  id="region_name-values"
-                  onChange={(eventKey) => {
-                    addPill(eventKey, 'region_name');
-                  }}
-                />
-                <Form.Control.Feedback type="invalid">
-                  You must provide a key=value pair for a region.
-                </Form.Control.Feedback>
-                <PillArea
-                  pills={config?.region_name?.value}
-                  type="region_name"
-                  callback={deletePillValue}
-                />
-                </>) : (
-                  <></>
-                )}
+                      <Form.Group as={Row}>
+                        <Col lg="2">
+                          <Form.Label>Foreground:</Form.Label>
+                        </Col>
+                        <Col lg="2">
+                          <div
+                            style={{
+                              padding: '5px',
+                              background: '#fff',
+                              borderRadius: '1px',
+                              boxShadow: '0 0 0 1px rgba(66,11,95,.5)',
+                              display: 'inline-block',
+                              cursor: 'pointer',
+                            }}
+                            onClick={handleForeColorClick}
+                          >
+                            <div style={{
+                              width: '36px',
+                              height: '14px',
+                              borderRadius: '2px',
+                              backgroundColor: `rgba(${foreColor.r}, ${foreColor.g}, ${foreColor.b}, ${foreColor.a})`,
+                            }} />
+                          </div>
+                          {displayForeColorPicker ? (
+                            <div style={{ zIndex: 2, position: 'absolute' }}>
+                              <div
+                                style={{
+                                  position: 'fixed',
+                                  top: '0px',
+                                  right: '0px',
+                                  bottom: '0px',
+                                  left: '0px',
+                                }}
+                                onClick={handleForeColorClose}
+                              />
+                              <SketchPicker
+                                color={mainConfig.QRSettings.QRProps.fgColor}
+                                onChange={handleForeColorChange}
+                              />
+                            </div>
+                          ) : null}
+                        </Col>
+                        {/* QR Code Background Color */}
+                        <Col lg="2">
+                          <Form.Label>Background:</Form.Label>
+                        </Col>
+                        <Col lg="2">
+                          <div
+                            style={styles.swatch}
+                            onClick={handleBackColorClick}
+                          >
+                            <div style={styles.background.color} />
+                          </div>
+                          {displayBackColorPicker ? (
+                            <div style={{ zIndex: 2, position: 'absolute' }}>
+                              <div
+                                style={{
+                                  position: 'fixed',
+                                  top: '0px',
+                                  right: '0px',
+                                  bottom: '0px',
+                                  left: '0px',
+                                }}
+                                onClick={handleBackColorClose}
+                              />
+                              <SketchPicker
+                                color={backColor as RGBColor}
+                                onChange={handleBackColorChange}
+                              />
+                            </div>
+                          ) : null}
+                        </Col>
+                        <Col lg="2">
+                          <Form.Label>Eye Color:</Form.Label>
+                        </Col>
+                        <Col lg="2">
+                          <div
+                            style={styles.swatch}
+                            onClick={handleEyeColorClick}
+                          >
+                            <div style={styles.eye.color} />
+                          </div>
+                          {displayEyeColorPicker ? (
+                            <div style={{ zIndex: 2, position: 'absolute' }}>
+                              <div
+                                style={{
+                                  position: 'fixed',
+                                  top: '0px',
+                                  right: '0px',
+                                  bottom: '0px',
+                                  left: '0px',
+                                }}
+                                onClick={handleEyeColorClose}
+                              />
+                              <SketchPicker
+                                color={eyeColor}
+                                onChange={handleEyeColorChange}
+                              />
+                            </div>
+                          ) : null}
+                        </Col>
+                      </Form.Group>
+                      <hr />
+                      <Form.Group as={Row}>
+                        <Col lg="6">
+                          <Form.Label>
+                            <strong>QR Code Style</strong>
+                          </Form.Label>
+                        </Col>
+                        <Col lg="6">
+                          <Form.Select
+                            aria-label="Default select example"
+                            onChange={(e) => {
+                              const ds = e.target.value as 'dots' | 'squares';
+                              setMainConfig((prevQrConfig) => {
+                                const qst = { ...prevQrConfig };
+                                const qr = { ...qst.QRSettings };
+                                qr.QRProps.qrStyle = ds;
+                                qst.QRSettings = qr;
+                                return qst;
+                              });
+                            }}
+                          >
+                            <option value="dots">Dots</option>
+                            <option value="squares">Squares</option>
+                          </Form.Select>
+                        </Col>
+                      </Form.Group>
+                      <hr />
+                      <Form.Group as={Row}>
+                        <Col lg="6">
+                          <Form.Label>
+                            <strong>Error Correction: </strong>
+                          </Form.Label>
+                        </Col>
+                        <Col lg="6">
+                          <Form.Select
+                            aria-label="Default select example"
+                            onChange={(e) => {
+                              const eq = e.target.value as
+                                | 'L'
+                                | 'M'
+                                | 'Q'
+                                | 'H';
+                              setMainConfig((prevQrConfig) => {
+                                const newEq = { ...prevQrConfig };
+                                const q = { ...newEq.QRSettings };
+                                q.QRProps.ecLevel = eq;
+                                newEq.QRSettings = q;
+                                return newEq;
+                              });
+                            }}
+                          >
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="Q">Q</option>
+                            <option value="H">H</option>
+                          </Form.Select>
+                        </Col>
+                      </Form.Group>
+                      <hr />
+                      <Form.Group as={Row}>
+                        <Col sm="6">
+                          <Form.Label>
+                            <strong>Quiet Zone:</strong>
+                          </Form.Label>
+                        </Col>
+                        <Col lg="6">
+                          <NumberSpinner
+                            min={0}
+                            max={50}
+                            step={1}
+                            style={{ width: '100%' }}
+                            value={
+                              mainConfig.QRSettings.QRProps.quietZone as number
+                            }
+                            callback={(value: number) => {
+                              setMainConfig((prevQrConfig) => {
+                                const qp = { ...prevQrConfig };
+                                const qps = { ...qp.QRSettings };
+                                qps.QRProps.quietZone = value;
+                                qp.QRSettings = qps;
+                                return qp;
+                              });
+                            }}
+                          />
+                        </Col>
+                      </Form.Group>
+                      <hr />
+                      <Row>
+                        <Col sm={8}>
+                          <Form.Group controlId="formFile" className="mb-3">
+                            <Form.Label>Choose Image</Form.Label>
+                            <Form.Control
+                              type="file"
+                              onChange={setQRFileName}
+                              accept=".png,.jpg,.jpeg"
+                            />
+                          </Form.Group>
+                        </Col>
+                        {showQRLogo ? (
+                          <Col sm={4}>
+                            <img
+                              src={mainConfig.QRSettings.QRProps.logoImage}
+                              alt="QR Code logo"
+                              style={{
+                                width: `${mainConfig.QRSettings.QRProps.logoWidth}px`,
+                                height: `${mainConfig.QRSettings.QRProps.logoHeight}px`,
+                                opacity: mainConfig.QRSettings.QRProps
+                                  .logoOpacity
+                                  ? mainConfig.QRSettings.QRProps.logoOpacity /
+                                    10
+                                  : 1,
+                              }}
+                            />
+                          </Col>
+                        ) : null}
+                      </Row>
+                      <Form.Group as={Row}>
+                        <Col lg="2">
+                          <Form.Label>Show Logo</Form.Label>
+                        </Col>
+                        <Col lg="2">
+                          <Form.Check
+                            type="switch"
+                            id="custom-switch"
+                            label=""
+                            checked={showQRLogo}
+                            onChange={(e) => {
+                              setLogoImage(
+                                e.target.checked
+                                  ? mainConfig.QRSettings.QRProps.logoImage
+                                  : ''
+                              );
+                              setShowQRLogo(e.target.checked);
+                            }}
+                          />
+                        </Col>
+                        <Col lg="8" />
+                      </Form.Group>
 
-                </Form.Group>
-                </> ) : (
-                <></>
-              )}
-              <Form.Group>
-                <Form.Check
-                  type="checkbox"
-                  id="region_name-use"
-                  // key="show-utm_source"
-                  label="Use 'region_name' value?"
-                  checked={config?.region_name?.useValue}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConf = { ...prevConfig };
-                      const newS = { ...newConf.region_name };
-                      newS.useValue = e.target.checked;
-                      newConf.region_name = newS;
-                      return newConf;
-                    });
-                  }}
-              />
-                {config?.region_name?.useValue ? (
-                  <>
-                  <Form.Check
-                  type="radio"
-                  inline
-                  id="region_name-chooser"
-                  // key="show-utm_source"
-                  label="Use Chooser"
-                  checked={config?.region_name?.isChooser}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newRegion = { ...newConfig.region_name };
-                      newRegion.isChooser = e.target.checked;
-                      newConfig.region_name = newRegion;
-                      return newConfig;
-                    });
-                  }}
-                />
-                <Form.Check
-                  type="radio"
-                  inline
-                  id="region_name-chooser"
-                  // key="show-utm_source"
-                  label="Use Text Input"
-                  checked={!config?.region_name?.isChooser}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      const newRegion = { ...newConfig.region_name };
-                      newRegion.isChooser = !e.target.checked;
-                      newConfig.region_name = newRegion;
-                      return newConfig;
-                    });
-                  }}
-                />
-                </>) : (
-                  <></>
-                )}
-              </Form.Group>
-            </Accordion.Body>
-          </Accordion.Item>
-          <Accordion.Item eventKey="10">
-            <Accordion.Header>
-              <strong>show_country</strong>
-            </Accordion.Header>
-            <Accordion.Body id="show_country">
-              <Form.Group>
-                <Form.Check
-                  type="checkbox"
-                  id="show_country-show"
-                  label="Show Country Selector?"
-                  checked={config?.show_country}
-                  onChange={(e) => {
-                    setConfig((prevConfig) => {
-                      const newConfig = { ...prevConfig };
-                      newConfig.show_country = e.target.checked;
-                      return newConfig;
-                    });
-                  }}
-                />
-              </Form.Group>
-            </Accordion.Body>
-          </Accordion.Item>
-        </Accordion>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button type="button" variant="secondary" onClick={handleCancel}>
-          Close
-        </Button>
-        <Button type="button" variant="primary" onClick={handleSave}>
-          Save Changes
-        </Button>
-      </Modal.Footer>
-    </Modal>
+                      <Form.Group as={Row}>
+                        <Col lg="2">
+                          <Form.Label>Logo Height</Form.Label>
+                        </Col>
+                        <Col lg="2">
+                          <Form.Control
+                            defaultValue={
+                              mainConfig.QRSettings.QRProps.logoHeight
+                            }
+                            value={mainConfig.QRSettings.QRProps.logoHeight}
+                            onChange={(e) => {
+                              updateAspectRatio(e, 'logoWidth', 'qr');
+                            }}
+                            disabled={!showQRLogo}
+                          />
+                        </Col>
+                        <Col lg="6">
+                          <RangeSlider
+                            value={
+                              mainConfig.QRSettings.QRProps.logoHeight as number
+                            }
+                            min={5}
+                            max={300}
+                            onChange={(e) => {
+                              updateAspectRatio(e, 'logoHeight', 'qr');
+                              setMainConfig((prevQrConfig) => {
+                                const qp = { ...prevQrConfig };
+                                const q = { ...qp.QRSettings };
+                                q.QRProps.logoHeight = parseInt(
+                                  e.target.value,
+                                  10
+                                );
+                                qp.QRSettings = q;
+                                return qp;
+                              });
+                            }}
+                            disabled={!showQRLogo}
+                          />
+                        </Col>
+                      </Form.Group>
+                      <Form.Group as={Row}>
+                        <Col lg="8" />
+                        <Col lg="4">
+                          <OverlayTrigger
+                            placement="top"
+                            overlay={<Tooltip>Lock Aspect Ratio</Tooltip>}
+                          >
+                            <Button
+                              variant="outline-secondary"
+                              style={{ width: '20%' }}
+                              onClick={setLockQRAspectRatio}
+                              disabled={!showQRLogo}
+                            >
+                              {isQrAspectLocked ? locked : unlocked}
+                            </Button>
+                          </OverlayTrigger>
+                        </Col>
+                      </Form.Group>
+                      <Form.Group as={Row}>
+                        <Col lg="2">
+                          <Form.Label>Logo Width</Form.Label>
+                        </Col>
+                        <Col lg="2">
+                          <Form.Control
+                            defaultValue={
+                              mainConfig.QRSettings.QRProps.logoWidth
+                            }
+                            value={mainConfig.QRSettings.QRProps.logoWidth}
+                            disabled={!showQRLogo}
+                            onChange={(e) => {
+                              updateAspectRatio(e, 'logoWidth', 'qr');
+                            }}
+                          />
+                        </Col>
+                        <Col lg="6">
+                          <RangeSlider
+                            value={
+                              mainConfig.QRSettings.QRProps.logoWidth as number
+                            }
+                            min={5}
+                            max={300}
+                            disabled={!showQRLogo}
+                            onChange={(e) => {
+                              updateAspectRatio(e, 'logoWidth', 'qr');
+                            }}
+                          />
+                        </Col>
+                      </Form.Group>
+                      {/* Logo Opacity */}
+                      <Form.Group as={Row}>
+                        <Col lg="4">
+                          <Form.Label>Logo Opacity</Form.Label>
+                        </Col>
+                        <Col lg="6">
+                          <RangeSlider
+                            value={
+                              mainConfig.QRSettings.QRProps.logoOpacity
+                                ? mainConfig.QRSettings.QRProps.logoOpacity * 10
+                                : 10
+                            }
+                            min={0}
+                            max={10}
+                            disabled={!showQRLogo}
+                            onChange={(e) => {
+                              setMainConfig((prevQrConfig) => {
+                                const Op = { ...prevQrConfig };
+                                const Qp = { ...Op.QRSettings };
+                                Qp.QRProps.logoOpacity =
+                                  parseInt(e.target.value, 10) / 10;
+                                Op.QRSettings = Qp;
+                                return Op;
+                              });
+                            }}
+                          />
+                        </Col>
+                      </Form.Group>
+                      {qrLogoChanged ? (
+                        <Row>
+                          <Col lg="12">
+                            <Alert variant="warning">
+                              <Alert.Heading>
+                                <strong>Warning!</strong>
+                              </Alert.Heading>
+                              <p>
+                                The QR Code Logo Change will be reflected after
+                                restarting the application.
+                              </p>
+                            </Alert>
+                          </Col>
+                        </Row>
+                      ) : null}
+                      {/* Hide QR Behind Logo */}
+                      <Form.Group as={Row}>
+                        <Col lg="4">
+                          <Form.Label>Hide QR Behind Logo</Form.Label>
+                        </Col>
+                        <Col lg="6">
+                          <Form.Check
+                            type="switch"
+                            id="custom-switch"
+                            label=""
+                            checked={
+                              mainConfig.QRSettings.QRProps
+                                .removeQrCodeBehindLogo
+                            }
+                            disabled={!showQRLogo}
+                            onChange={(e) => {
+                              setMainConfig((prevQrConfig) => {
+                                const rc = { ...prevQrConfig };
+                                const qr = { ...rc.QRSettings };
+                                qr.QRProps.removeQrCodeBehindLogo =
+                                  e.target.checked;
+                                rc.QRSettings = qr;
+                                return rc;
+                              });
+                            }}
+                          />
+                        </Col>
+                      </Form.Group>
+                    </Accordion.Body>
+                  </Accordion.Item>
+                </Accordion>
+              </Accordion.Body>
+            </Accordion.Item>
+            {/* UTM Codes */}
+            <Accordion.Item eventKey="1">
+              <Accordion.Header>
+                <strong>UTM Code Configuration</strong>
+              </Accordion.Header>
+              <Accordion.Body id="utm_codes">
+                {/* utm configuration */}
+                <Accordion>
+                  {/* UTM Target */}
+                  <UTMAccordianItem
+                    type="utm_target"
+                    itemNo="1"
+                    value={config}
+                    callback={updateConfig}
+                  />
+                  {/* UTM Source */}
+                  <UTMAccordianItem
+                    type="utm_source"
+                    itemNo="2"
+                    value={config.utm_source}
+                    callback={updateConfig}
+                  />
+                  {/* UTM Medium */}
+                  <UTMAccordianItem
+                    type="utm_medium"
+                    itemNo="3"
+                    value={config.utm_medium}
+                    callback={updateConfig}
+                  />
+                  {/* UTM Campaign */}
+                  <UTMAccordianItem
+                    type="utm_campaign"
+                    itemNo="4"
+                    value={config.utm_campaign}
+                    callback={updateConfig}
+                  />
+                  {/* UTM Term */}
+                  <UTMAccordianItem
+                    type="utm_term"
+                    itemNo="5"
+                    value={config.utm_term}
+                    callback={updateConfig}
+                  />
+                  {/* UTM Content */}
+                  <UTMAccordianItem
+                    type="utm_content"
+                    itemNo="6"
+                    value={config.utm_content}
+                    callback={updateConfig}
+                  />
+                  {/* UTM Keyword */}
+                  <UTMAccordianItem
+                    type="utm_keyword"
+                    itemNo="7"
+                    value={config.utm_keyword}
+                    callback={updateConfig}
+                  />
+                  {/* Team Name */}
+                  <UTMAccordianItem
+                    type="team_name"
+                    itemNo="8"
+                    value={config.team_name}
+                    callback={updateConfig}
+                  />
+                  {/* Region Name */}
+                  <UTMAccordianItem
+                    type="region_name"
+                    itemNo="9"
+                    value={config.region_name}
+                    callback={updateConfig}
+                  />
+                  {/* Country Selector */}
+                  <Accordion.Item eventKey="10">
+                    <Accordion.Header>
+                      <strong>show_country</strong>
+                    </Accordion.Header>
+                    <Accordion.Body id="show_country">
+                      <Form.Group>
+                        <Form.Check
+                          type="checkbox"
+                          id="show_country-show"
+                          label="Show Country Selector?"
+                          checked={config?.show_country}
+                          onChange={(e) => {
+                            setConfig((prevConfig) => {
+                              const newConfig = { ...prevConfig };
+                              newConfig.show_country = e.target.checked;
+                              return newConfig;
+                            });
+                          }}
+                        />
+                      </Form.Group>
+                    </Accordion.Body>
+                  </Accordion.Item>
+                </Accordion>
+              </Accordion.Body>
+            </Accordion.Item>
+          </Accordion>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button type="button" variant="secondary" onClick={handleCancel}>
+            Close
+          </Button>
+          <Button type="button" variant="primary" onClick={handleSave}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 }
 

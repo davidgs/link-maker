@@ -33,6 +33,7 @@ import {
 import PasswordForm from './configuration/PasswordForm';
 import StarTree from '../../assets/images/NewLinkerLogo.png';
 import { Lightbulb, LightbulbFill } from 'react-bootstrap-icons';
+import { defaultMainSettings, MainSettings } from './types';
 import PropTypes from 'prop-types';
 
 export default function SideNav({
@@ -46,10 +47,24 @@ export default function SideNav({
 }) {
   const [showPasswd, setShowPasswd] = useState(false);
   const [darkMode, setDarkMode] = useState(dark);
+  const [mainConfig, setMainConfig] = useState<MainSettings>(defaultMainSettings);
 
   const passwdVisible = (show: boolean) => {
     setShowPasswd(show);
   };
+
+  useEffect(() => {
+    window.electronAPI
+      .getMainConfig()
+      .then((response: string) => {
+        setMainConfig(JSON.parse(response))
+        return '';
+      })
+      .catch((error: unknown) => {
+        console.log(`Error: ${error}`);
+      });
+  }, []);
+
 
   useEffect(() => {
     setDarkMode(dark);
@@ -70,7 +85,7 @@ export default function SideNav({
         <p />
         <div style={{ textAlign: 'center'}}>
         <a href="https://davidgs.com/" target="_blank" rel="noreferrer">
-          <img src={StarTree} alt="UTM Linker Logo" width="75%" />
+          <img src={mainConfig.brandImage ? mainConfig.brandImage : StarTree } alt="UTM Linker Logo" width={mainConfig.brandWidth > 0 ? `${mainConfig.brandWidth}px` : "75%"} height={mainConfig.brandHeight > 0 ? `${mainConfig.brandHeight}px` : 'auto'} />
         </a>
         </div>
         <p />
