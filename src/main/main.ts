@@ -59,13 +59,13 @@ class AppUpdater {
   constructor() {
     log.verbose('AppUpdater::constructor');
     log.transports.file.level = 'debug';
-    // up.checkForUpdates();
+    up.checkForUpdates();
   }
 }
 
-// setInterval(() => {
-//   up.checkForUpdates();
-// }, 86400);
+setInterval(() => {
+  up.checkForUpdates();
+}, 86400);
 
 up.on('update-downloaded', (event, releaseNotes, releaseName) => {
   const dialogOpts = {
