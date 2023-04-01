@@ -39,9 +39,8 @@ export default function HistoryChooser({
   const [historyList, setHistoryList] = useState<LinkData[]>([]);
   const [darkMode, setDarkMode] = useState<boolean>(dark);
   const [darkClass, setDarkClass] = useState<string>('header-stuff');
-  const [textStyle, setTextStyle] = useState<string>(`style={{ color: '#adb5bd'}}`);
-  const lightStyle = { color: '#0B3665' };
   const displayValue = 'History...';
+
   useEffect(() => {
     setHistoryList(history);
   }, [history]);
@@ -49,7 +48,6 @@ export default function HistoryChooser({
   useEffect(() => {
     setDarkMode(dark);
     dark ? setDarkClass('header-stuff-dark') : setDarkClass('header-stuff');
-    dark ? setTextStyle(`style={{ color: '#adb5bd'}}`) : setTextStyle(`style={{ color: '#0B3665'}}`);
   }, [dark]);
 
   const items = historyList.map((item: LinkData) => {
@@ -75,11 +73,14 @@ export default function HistoryChooser({
     <>
       <OverlayTrigger
         placement="auto"
-        overlay={<Tooltip>All of your saved links</Tooltip>}
+        overlay={
+          (historyList.length > 0) ? (<Tooltip>All of your saved links</Tooltip>) : (<Tooltip>No saved links</Tooltip>)
+        }
       >
         <DropdownButton
           variant={darkMode ? 'icon-only-dark' : 'icon-only'}
           size="sm"
+          disabled={historyList.length === 0}
           color={darkMode ? '#adb5bd' : '#0B3665'}
           className={darkClass}
           id="dropdown-basic-button"

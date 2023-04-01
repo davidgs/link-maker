@@ -1,7 +1,7 @@
 {
   "name": "link-builder",
   "productName": "Link Builder",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "A UTM Link Builder App",
   "license": "MIT",
   "author": {
@@ -15,5 +15,7 @@
     "postinstall": "npm run rebuild && npm run link-modules",
     "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "electron-rebuild": "^3.2.9"
+  }
 }

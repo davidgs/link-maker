@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 /* eslint-disable no-case-declarations */
-import { useState, useEffect, ChangeEvent, SyntheticEvent } from 'react';
+import { useState, useEffect, ChangeEvent, SyntheticEvent, useRef, RefObject } from 'react';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import {
@@ -34,27 +34,36 @@ import {
   Alert,
 } from 'react-bootstrap';
 import RangeSlider from 'react-bootstrap-range-slider';
-import { IProps } from 'react-qrcode-logo';
 import { SketchPicker } from 'react-color';
-import NumberSpinner from './NumberSpinner';
 import PropTypes from 'prop-types';
 import { RGBColor } from 'react-color';
+import { Knob } from 'primereact/knob';
+import 'primereact/resources/primereact.min.css';
 import {
   UtmParams,
   defaultUTMParams,
   QRSettings,
-  defaultQRSettings,
   UtmObj,
   MainSettings,
   defaultMainSettings,
 } from '../types';
 import UTMAccordianItem from './UTMAccordianItem';
+import { drawPositioningPattern } from 'renderer/components/EyePattern';
+
+declare type EyeColor = string | InnerOuterEyeColor;
+declare type InnerOuterEyeColor = {
+  inner: string;
+  outer: string;
+};
+declare type CornerRadii = [number, number, number, number];
 
 export default function ConfigEditor({
   showMe,
+  dark,
   callback,
 }: {
   showMe: boolean;
+  dark: boolean;
   callback: (value: boolean) => void;
 }): JSX.Element {
   const [show, setShow] = useState(false);
@@ -62,6 +71,7 @@ export default function ConfigEditor({
   const [targetValidated, setTargetValidated] = useState(false);
   const [mainConfig, setMainConfig] =
     useState<MainSettings>(defaultMainSettings);
+    const [darkMode, setDarkMode] = useState(false);
   const [isQrAspectLocked, setIsQrAspectLocked] = useState(false);
   const [isMainAspectLocked, setIsMainAspectLocked] = useState(false);
   const [qrImgAspect, setQrImgAspect] = useState(1);
@@ -71,10 +81,64 @@ export default function ConfigEditor({
   const [displayBackColorPicker, setDisplayBackColorPicker] = useState(false);
   const [showQRLogo, setShowQRLogo] = useState(false);
   const [showMainLogo, setShowMainLogo] = useState(false);
-  const [logoImage, setLogoImage] = useState(mainConfig?.QRSettings.QRProps.logoImage);
-  const [mainLogoImage, setMainLogoImage] = useState(mainConfig.brandImage);
+  const [qrLogoImage, setQrLogoImage] = useState('');
+  const [mainLogoImage, setMainLogoImage] = useState('');
   const [mainLogoChanged, setMainLogoChanged] = useState(false);
   const [qrLogoChanged, setQrLogoChanged] = useState(false);
+  const LeftUpperEye: RefObject<HTMLCanvasElement> = useRef(null);
+  const RightUpperEye: RefObject<HTMLCanvasElement> = useRef(null);
+  const LeftLowerEye: RefObject<HTMLCanvasElement> = useRef(null);
+  const darkColor = '#adb5bd';
+  const lightColor = '#000000';
+  const [color, setColor] = useState(darkMode ? darkColor : lightColor);
+
+  useEffect(() => {
+    setDarkMode(dark);
+    setColor(dark ? darkColor : lightColor);
+  }, [dark]);
+
+  const handleEyeRadiusChange = (e: number, index: number, corner: number) => {
+    const value = e;
+    const newEyeRadius: [CornerRadii, CornerRadii, CornerRadii] = [...mainConfig.QRSettings.QRProps.eyeRadius];
+    const newCorner: [number, number, number, number] = [...newEyeRadius[index] as [number, number, number, number]];
+    newCorner[corner] = value;
+    newEyeRadius[index] = newCorner;
+    setMainConfig({
+      ...mainConfig,
+      QRSettings: {
+        ...mainConfig.QRSettings,
+        QRProps: {
+          ...mainConfig.QRSettings.QRProps,
+          eyeRadius: newEyeRadius,
+        },
+      },
+    });
+    switch (index) {
+      case 0:
+        const ctxLU: CanvasRenderingContext2D = LeftUpperEye.current?.getContext(
+          '2d'
+        ) as CanvasRenderingContext2D;
+        ctxLU?.clearRect(0, 0, 50, 50);
+        drawPositioningPattern(ctxLU, 6, -1, 1, 1, color as EyeColor, mainConfig.QRSettings.QRProps.eyeRadius[0] as [number, number, number, number]);
+        break;
+      case 1:
+        const ctxRU: CanvasRenderingContext2D = RightUpperEye.current?.getContext(
+          '2d'
+        ) as CanvasRenderingContext2D;
+        ctxRU?.clearRect(0, 0, 50, 50);
+        drawPositioningPattern(ctxRU, 6, -1, 1, 1, color as EyeColor, mainConfig.QRSettings.QRProps.eyeRadius[1] as [number, number, number, number]);
+        break;
+      case 2:
+        const ctxLL: CanvasRenderingContext2D = LeftLowerEye.current?.getContext(
+          '2d'
+        ) as CanvasRenderingContext2D;
+        // const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
+        ctxLL?.clearRect(0, 0, 50, 50);
+        drawPositioningPattern(ctxLL, 6, -1, 1, 1, color as EyeColor, mainConfig.QRSettings.QRProps.eyeRadius[2] as [number, number, number, number]);
+        break;
+    }
+  };
+
 
   // Foreground Color
   const [foreColor, setForeColor] = useState<RGBColor>({
@@ -102,6 +166,7 @@ export default function ConfigEditor({
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+  /* Locked icon */
   const locked = (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -114,6 +179,8 @@ export default function ConfigEditor({
       <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
     </svg>
   );
+
+  /* Unlocked icon */
   const unlocked = (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -127,12 +194,21 @@ export default function ConfigEditor({
     </svg>
   );
 
+  /* lock/unlock the aspect ratio of the qr logo */
   const setLockQRAspectRatio = () => {
     setIsQrAspectLocked(!isQrAspectLocked);
   };
+
+  /* lock/unlock the aspect ratio of the main logo */
   const setLockMainAspectRatio = () => {
     setIsMainAspectLocked(!isMainAspectLocked);
   };
+
+  /* set the aspect ratio of the image
+     @param: width: the width of the image.
+     @param: height: the height of the image.
+     @param: which: which file to set aspect of main logo or qr logo
+  */
   const setAspectRatio = (width: number, height: number, which: string) => {
     if (which === 'qr') {
       setQrImgAspect(width / height);
@@ -141,6 +217,7 @@ export default function ConfigEditor({
     }
   };
 
+  /* Call the main process to get the utm-props configuration */
   const getUTMProps = () => {
     window.electronAPI
       .getConfig()
@@ -154,18 +231,29 @@ export default function ConfigEditor({
       });
   };
 
-  // get the utm_props configuration
-  useEffect(() => {
-    getUTMProps();
-  }, []);
 
+  /* Call the main process to load the config file */
   const getMainProps = () => {
     window.electronAPI
       .getMainConfig()
       .then((response: string) => {
         const c: MainSettings = JSON.parse(response);
         setMainConfig(c);
-        const q = c.QRSettings;
+        if(c.brandImageFile !== '' && c.brandImageFile !== undefined) {
+          window.electronAPI
+          .loadFile(c.brandImageFile)
+            .then((response: string) => {
+              const fType = c.brandImageFile.split('.').pop();
+              const image = Buffer.from(response, 'base64').toString('base64');
+              setMainLogoImage(`data:image/${fType};base64,${image}`);
+              setShowMainLogo(true);
+              setIsMainAspectLocked(true);
+            })
+            .catch((error: unknown) => {
+              console.log(`Error: ${error}`);
+            });
+        }
+        const q: QRSettings = c.QRSettings;
         const fg = q.QRProps.fgColor || 'rgba(66, 11, 95, 1)';
         // rgba(255, 255, 255, 1)
         const frgb = fg
@@ -178,7 +266,6 @@ export default function ConfigEditor({
           a: parseInt(frgb[3], 10),
         };
         setForeColor(newF);
-
         const bg = q.QRProps.bgColor || 'rgba(255, 255, 255, 1)';
         const brgb = bg
           .substring(bg.indexOf('(') + 1, bg.indexOf(')')).split(',');
@@ -189,7 +276,6 @@ export default function ConfigEditor({
           a: parseInt(brgb[3], 10),
         };
         setBackColor(newB);
-
         const ec = q.QRProps.eyeColor as string || 'rgba(66, 11, 95, 1)';
         const rgb = ec.substring(ec.indexOf('(') + 1, ec.indexOf(')')).split(',');
         const newColor = {
@@ -199,42 +285,58 @@ export default function ConfigEditor({
           a: parseInt(rgb[3], 10),
         };
         setEyeColor(newColor);
-        if (c.brandImage !== '') {
-          const f = new Image();
-          f.src = c.brandImage;
-          f.onload = () => {
-            setAspectRatio(f.width, f.height, 'main');
-            setMainLogoImage(f.src);
-            setShowMainLogo(true);
-          };
-        }
-        if (c.QRSettings.QRProps.logoImage !== '') {
-          const f = new Image();
-          f.src = c.QRSettings.QRProps?.logoImage as string || '';
-          f.onload = () => {
-            setAspectRatio(f.width, f.height, 'qr');
-            setLogoImage(f.src);
-            setShowQRLogo(true);
-          };
-        }
+        if (c.QRSettings.QRImageFile !== '' && c.QRSettings.QRImageFile !== undefined) {
+          window.electronAPI
+            .loadFile(c.QRSettings.QRImageFile as string)
+            .then((response: string) => {
+              const fType = c.QRSettings.QRImageFile.split('.').pop();
+              const image = Buffer.from(response, 'base64').toString('base64');
+              setQrLogoImage(`data:image/${fType};base64,${image}`);
+              setShowQRLogo(true);
+              setIsQrAspectLocked(true);
+              return '';
+            })
+            .catch((error: unknown) => {
+              console.log(`Error: ${error}`);
+            });
+          }
+          const ctxLU: CanvasRenderingContext2D = LeftUpperEye.current?.getContext(
+          '2d'
+        ) as CanvasRenderingContext2D;
+        ctxLU?.clearRect(0, 0, 50, 50);
+        drawPositioningPattern(ctxLU, 6, -1, 1, 1, color as EyeColor, c.QRSettings.QRProps.eyeRadius[0] as [number, number, number, number]);
+        const ctxRU: CanvasRenderingContext2D = RightUpperEye.current?.getContext('2d') as CanvasRenderingContext2D;
+        ctxRU?.clearRect(0, 0, 50, 50);
+        drawPositioningPattern(ctxRU, 6, -1, 1, 1, color as EyeColor, c.QRSettings.QRProps.eyeRadius[1] as [number, number, number, number]);
+        const ctxLL: CanvasRenderingContext2D = LeftLowerEye.current?.getContext(
+          '2d') as CanvasRenderingContext2D;
+        ctxLL?.clearRect(0, 0, 50, 50);
+        drawPositioningPattern(ctxLL, 6, -1, 1, 1, color as EyeColor, c.QRSettings.QRProps.eyeRadius[2] as [number, number, number, number]);
         return '';
       })
       .catch((error: unknown) => {
         console.log(`Error: ${error}`);
       });
   };
-  // get the main_config configuration
+
+  // get the main_config and utm_config configurations
   useEffect(() => {
+    getUTMProps();
     getMainProps();
   }, []);
 
+  /* set the aspet ratio of the image
+      @param: event: the event that triggered the function
+      @param: setting: the setting to change
+      @param: which: which file to set aspect of main logo or qr logo
+  */
   const updateAspectRatio = (
     event: SyntheticEvent, //React.ChangeEvent<HTMLInputElement>,
     setting: string,
     which: string
   ) => {
     const ev = event as React.ChangeEvent<HTMLInputElement>;
-    const v = event.target?.value as string;
+    const v = ev.target?.value as string;
     if (v !== '') {
       if (which === 'qr') {
         if (isQrAspectLocked) {
@@ -252,7 +354,7 @@ export default function ConfigEditor({
           setMainConfig((prevState) => {
             const p = { ...prevState };
             const q = { ...p.QRSettings };
-            q.QRProps.logoHeight = parseInt(event.target.value, 10);
+            q.QRProps.logoHeight = parseInt(v, 10);
             p.QRSettings = q;
             return p;
           });
@@ -260,7 +362,7 @@ export default function ConfigEditor({
           setMainConfig((prevState) => {
             const r = { ...prevState };
             const q = { ...r.QRSettings };
-            q.QRProps.logoWidth = parseInt(event.target.value, 10);
+            q.QRProps.logoWidth = parseInt(v, 10);
             r.QRSettings = q;
             return r;
           });
@@ -268,23 +370,22 @@ export default function ConfigEditor({
       } else {
         if (isMainAspectLocked) {
           setMainConfig((prevState) => {
+            const w = parseInt(v, 10) * qrImgAspect;
             const p = { ...prevState };
             (p.brandHeight = parseInt(v, 10)),
-              (p.brandWidth = (parseInt(v, 10) * qrImgAspect).toFixed(
-                0
-              ) as unknown as number);
+              (p.brandWidth = parseInt(w.toFixed(0), 10));
             return p;
           });
         } else if (setting === 'logoHeight') {
           setMainConfig((prevState) => {
             const q = { ...prevState };
-            q.brandHeight = parseInt(event.target.value, 10);
+            q.brandHeight = parseInt(v, 10);
             return q;
           });
         } else {
           setMainConfig((prevState) => {
             const r = { ...prevState };
-            r.brandWidth = parseInt(event.target.value, 10);
+            r.brandWidth = parseInt(v, 10);
             return r;
           });
         }
@@ -339,11 +440,14 @@ export default function ConfigEditor({
     },
   };
 
+  /* handle show */
   useEffect(() => {
     setShow(showMe);
     if (showMe) {
       getMainProps();
       getUTMProps();
+      setMainLogoChanged(false);
+      setQrLogoChanged(false);
     }
   }, [showMe]);
 
@@ -353,33 +457,56 @@ export default function ConfigEditor({
     callback(false);
   };
 
+  /* handle saving the main logo file for branding
+      @param: result: the result of the file read
+  */
   const setMainFileName = (result: SyntheticEvent) => {
+    const ev = result as React.ChangeEvent<HTMLInputElement>;
     const read = new FileReader();
-    read.readAsDataURL(result.target.files[0]);
-    read.onloadend = () => {
-      const fi = new Image();
-      fi.src = read.result as string;
-      fi.onload = () => {
-        const h = fi.height;
-        const w = fi.width;
-        setMainConfig((prevMainConfig) => {
-          const con = { ...prevMainConfig };
-          con.brandImage = fi.src;
-          con.brandHeight = h;
-          con.brandWidth = w;
-          con.brandOpacity = 10.0;
-          return con;
-        });
-        setAspectRatio(w, h, 'main');
-        setIsMainAspectLocked(true);
-        setShowMainLogo(true);
+    const f = ev.target.files[0];
+    if(f) {
+      const fName = f.name;
+      const fType = fName.split('.').pop() as string;
+      read.readAsDataURL(f);
+      read.onloadend = () => {
+        const fi = new Image();
+        fi.src = read.result as string;
+        fi.onload = () => {
+          const h = fi.height;
+          const w = fi.width;
+          setMainLogoImage(fi.src);
+          const ff = fi.src as string;
+          window.electronAPI
+            .saveFile('main_logo', fi.src, fType)
+            .then((res: string) => {
+              if (res !== '') {
+                setMainConfig((prevMainConfig) => {
+                  const con = { ...prevMainConfig };
+                  con.brandImageFile = res;
+                  con.brandHeight = h;
+                  con.brandWidth = w;
+                  return con;
+                });
+              }
+            })
+            .catch((error: string) => {
+              console.log(error);
+            });
+          setAspectRatio(w, h, 'main');
+          setIsMainAspectLocked(true);
+          setShowMainLogo(true);
+        };
       };
-    };
-    setMainLogoChanged(true);
+      setMainLogoChanged(true);
+    }
   };
 
+  /* handle saving the qr logo file for branding
+      @param: result: the result of the file read
+  */
   const setQRFileName = (result: SyntheticEvent) => {
     const read = new FileReader();
+    const fName = result.target.files[0].name;
     read.readAsDataURL(result.target.files[0]);
     read.onloadend = () => {
       const fi = new Image();
@@ -387,16 +514,27 @@ export default function ConfigEditor({
       fi.onload = () => {
         const h = fi.height;
         const w = fi.width;
-        setMainConfig((prevQrConfig) => {
-          const c = { ...prevQrConfig };
-          const con = { ...c.QRSettings };
-          con.QRProps.logoImage = fi.src;
-          con.QRProps.logoHeight = h;
-          con.QRProps.logoWidth = w;
-          con.QRProps.logoOpacity = 10.0;
-          c.QRSettings = con;
-          return c;
-        });
+        setQrLogoImage(fi.src);
+        const fType = fName.split('.').pop() as string;
+        window.electronAPI
+          .saveFile('qr_logo',fi.src,  fType)
+          .then((res: string) => {
+            if (res !== '') {
+              setMainConfig((prevMainConfig) => {
+                const con = { ...prevMainConfig };
+                const q = { ...con.QRSettings };
+                q.QRImageFile = res;
+                q.QRProps.logoHeight = h;
+                q.QRProps.logoWidth = w;
+                q.QRProps.logoOpacity = 10.0;
+                con.QRSettings = q;
+                return con;
+              });
+            }
+          })
+          .catch((error: string) => {
+            console.log(error);
+          });
         setAspectRatio(w, h, 'qr');
         setIsQrAspectLocked(true);
         setShowQRLogo(true);
@@ -404,10 +542,15 @@ export default function ConfigEditor({
     };
     setQrLogoChanged(true);
   };
+
+  /* All done! */
   function callDone() {
     callback(false);
   }
-  /* handle the save button */
+
+  /* handle the save button
+      @param: event: the event that triggered the save
+  */
   const handleSave = (event: SyntheticEvent) => {
     const form = event.currentTarget as HTMLFormElement;
     if (form != null && form.checkValidity() === false) {
@@ -447,7 +590,9 @@ export default function ConfigEditor({
     setDisplayForeColorPicker(false);
   };
 
-  // Handle the Foreground Color Change
+  /* Handle the Foreground Color Change
+      @param: color: the color that was selected
+  */
   const handleForeColorChange = (color: any) => {
     setForeColor(color.rgb);
     setMainConfig((prevQrConfig) => {
@@ -459,17 +604,19 @@ export default function ConfigEditor({
     });
   };
 
-  // Handle clicking on the Background Color
+  /* Handle clicking on the Background Color */
   const handleBackColorClick = () => {
     setDisplayBackColorPicker(!displayBackColorPicker);
   };
 
-  // Handle closing the background Color Picker
+  /* Handle closing the background Color Picker */
   const handleBackColorClose = () => {
     setDisplayBackColorPicker(false);
   };
 
-  // Handle the Background Color Change
+  /* Handle the Background Color Change
+      @param: color: the color that was selected
+  */
   const handleBackColorChange = (color: any) => {
     setBackColor(color.rgb);
     setMainConfig((prevQrConfig) => {
@@ -480,7 +627,10 @@ export default function ConfigEditor({
       return newBack;
     });
   };
-  // Handle the Eye Color Change
+
+  /* Handle the Eye Color Change
+      @param: color: the color that was selected
+  */
   const handleEyeColorChange = (color: any) => {
     setEyeColor(color.rgb);
     setMainConfig((prevQrConfig) => {
@@ -502,6 +652,17 @@ export default function ConfigEditor({
     setDisplayEyeColorPicker(false);
   };
 
+  /* Handle the Gradient Color Change
+      @param: color: the color that was selected
+  */
+ const knobChange = (value: number) => {
+  console.log(`value: ${value}`);
+ };
+
+  /* Update the UTM Parameters
+      @param: type: the type of UTM parameter to update
+      @param: updateConfig: the new UTM parameter
+  */
   const updateConfig = (type: string, updateConfig: UtmObj | UtmParams) => {
     switch (type) {
       case 'utm_source':
@@ -594,6 +755,7 @@ export default function ConfigEditor({
                               <strong>Label</strong>
                             </Form.Label>
                             <Form.Control
+                              size="sm"
                               type="text"
                               id="bitly_config-label"
                               placeholder="Enter Bitly Switch label"
@@ -614,7 +776,7 @@ export default function ConfigEditor({
                             <Form.Control
                               type="text"
                               id="bitly_config-tooltip"
-                              placeholder="Enter utm_source field tooltip"
+                              placeholder="Enter Bit.ly field tooltip"
                               value={config?.bitly_config?.tooltip}
                               onChange={(e) => {
                                 setConfig((prevConfig) => {
@@ -731,7 +893,7 @@ export default function ConfigEditor({
                           {showMainLogo ? (
                             <Col sm={4}>
                               <img
-                                src={mainConfig.brandImage as string}
+                                src={mainLogoImage}
                                 alt="Main Logo"
                                 style={{
                                   width: `${mainConfig.brandWidth}px`,
@@ -740,9 +902,6 @@ export default function ConfigEditor({
                                     ? mainConfig.brandOpacity / 10
                                     : 1,
                                 }}
-                                // height={mainConfig.brandHeight as number}
-                                // width={mainConfig.brandWidth as number}
-                                // style={{ opacity: `"${mainConfig.brandOpacity as number}"` }}
                               />
                             </Col>
                           ) : null}
@@ -759,9 +918,6 @@ export default function ConfigEditor({
                               label=""
                               checked={showMainLogo}
                               onChange={(e) => {
-                                // setLogoImage(
-                                //   e.target.checked ? mainConfig.brandImage : ''
-                                // );
                                 setShowMainLogo(e.target.checked);
                               }}
                             />
@@ -775,7 +931,6 @@ export default function ConfigEditor({
                           </Col>
                           <Col lg="2">
                             <Form.Control
-                              defaultValue={mainConfig.brandHeight}
                               value={mainConfig.brandHeight}
                               onChange={(e) => {
                                 updateAspectRatio(e, 'logoWidth', 'qr');
@@ -785,7 +940,7 @@ export default function ConfigEditor({
                           </Col>
                           <Col lg="6">
                             <RangeSlider
-                              value={mainConfig.brandHeight || 20}
+                              value={mainConfig.brandHeight}
                               min={5}
                               max={300}
                               onChange={(e) => {
@@ -826,7 +981,6 @@ export default function ConfigEditor({
                           </Col>
                           <Col lg="2">
                             <Form.Control
-                              defaultValue={mainConfig.brandWidth}
                               value={mainConfig.brandWidth}
                               disabled={!showMainLogo}
                               onChange={(e) => {
@@ -853,11 +1007,7 @@ export default function ConfigEditor({
                           </Col>
                           <Col lg="6">
                             <RangeSlider
-                              value={
-                                mainConfig.brandOpacity
-                                  ? mainConfig.brandOpacity
-                                  : 10
-                              }
+                              value={mainConfig.brandOpacity}
                               min={0}
                               max={10}
                               disabled={!showMainLogo}
@@ -896,10 +1046,12 @@ export default function ConfigEditor({
                       <strong>Configure QR Code</strong>
                     </Accordion.Header>
                     <Accordion.Body id="qr">
+                      {/* QR Colors */}
                       <Form.Label>
                         <strong>Colors:</strong>
                       </Form.Label>
                       <Form.Group as={Row}>
+                        {/* Foreground Colors */}
                         <Col lg="2">
                           <Form.Label>Foreground:</Form.Label>
                         </Col>
@@ -915,12 +1067,14 @@ export default function ConfigEditor({
                             }}
                             onClick={handleForeColorClick}
                           >
-                            <div style={{
-                              width: '36px',
-                              height: '14px',
-                              borderRadius: '2px',
-                              backgroundColor: `rgba(${foreColor.r}, ${foreColor.g}, ${foreColor.b}, ${foreColor.a})`,
-                            }} />
+                            <div
+                              style={{
+                                width: '36px',
+                                height: '14px',
+                                borderRadius: '2px',
+                                backgroundColor: `rgba(${foreColor.r}, ${foreColor.g}, ${foreColor.b}, ${foreColor.a})`,
+                              }}
+                            />
                           </div>
                           {displayForeColorPicker ? (
                             <div style={{ zIndex: 2, position: 'absolute' }}>
@@ -971,6 +1125,7 @@ export default function ConfigEditor({
                             </div>
                           ) : null}
                         </Col>
+                        {/* QR Code Eye Color */}
                         <Col lg="2">
                           <Form.Label>Eye Color:</Form.Label>
                         </Col>
@@ -1002,6 +1157,7 @@ export default function ConfigEditor({
                         </Col>
                       </Form.Group>
                       <hr />
+                      {/* QR Code Style -- dots or bars */}
                       <Form.Group as={Row}>
                         <Col lg="6">
                           <Form.Label>
@@ -1028,6 +1184,7 @@ export default function ConfigEditor({
                         </Col>
                       </Form.Group>
                       <hr />
+                      {/* QR Code Error Correction Level */}
                       <Form.Group as={Row}>
                         <Col lg="6">
                           <Form.Label>
@@ -1060,34 +1217,397 @@ export default function ConfigEditor({
                         </Col>
                       </Form.Group>
                       <hr />
+                      {/* QR Code Quiet Zone */}
                       <Form.Group as={Row}>
-                        <Col sm="6">
+                        <Col lg="6">
                           <Form.Label>
                             <strong>Quiet Zone:</strong>
                           </Form.Label>
                         </Col>
-                        <Col lg="6">
-                          <NumberSpinner
-                            min={0}
-                            max={50}
-                            step={1}
-                            style={{ width: '100%' }}
-                            value={
-                              mainConfig.QRSettings.QRProps.quietZone as number
-                            }
-                            callback={(value: number) => {
-                              setMainConfig((prevQrConfig) => {
-                                const qp = { ...prevQrConfig };
-                                const qps = { ...qp.QRSettings };
-                                qps.QRProps.quietZone = value;
-                                qp.QRSettings = qps;
-                                return qp;
-                              });
-                            }}
+                        <Col lg="3">
+                          <Row>
+                            <Col lg="8">
+                              <Knob
+                                size={55}
+                                className="p-knob"
+                                value={
+                                  mainConfig.QRSettings.QRProps
+                                    .quietZone as number
+                                }
+                                min={0}
+                                max={50}
+                                strokeWidth={5}
+                                textColor={dark ? 'white' : 'black'}
+                                onChange={(e) => {
+                                  setMainConfig((prevConfig) => {
+                                    const qp = { ...prevConfig };
+                                    const qps = { ...qp.QRSettings };
+                                    qps.QRProps.quietZone = e.value;
+                                    qp.QRSettings = qps;
+                                    return qp;
+                                  });
+                                }}
+                                valueColor={'#0B3665'}
+                                rangeColor={'#21C6DC'}
+                              />
+                            </Col>
+                          </Row>
+                        </Col>
+                        <Col lg="3" />
+                      </Form.Group>
+                      <hr />
+                      {/* QR Code eye styles */}
+                      {/* Tops left and right */}
+                      <Form.Group as={Row}>
+                        <Col lg="3">
+                          <Form.Label>
+                            <strong>QR Eye Styles:</strong>
+                          </Form.Label>
+                        </Col>
+                        <Col
+                          lg="1"
+                          style={{
+                            borderTop: `1px solid ${color}`,
+                            borderLeft: `1px solid ${color}`,
+                          }}
+                        >
+                          <canvas
+                            id="leftUpEye"
+                            ref={LeftUpperEye}
+                            width={50}
+                            height={50}
+                            style={{ marginLeft: '-10px' }}
                           />
+                        </Col>
+                        {/* Top Right Eye */}
+                        <Col
+                          lg="1"
+                          style={{
+                            borderTop: `1px solid ${color}`,
+                            borderRight: `1px solid ${color}`,
+                          }}
+                        >
+                          <canvas
+                            id="rightUpEye"
+                            ref={RightUpperEye}
+                            width={50}
+                            height={50}
+                            style={{ marginLeft: '20px' }}
+                          />
+                        </Col>
+                        <Col lg="1" />
+                        <Col lg="3">
+                          <Form.Label>Top Left: </Form.Label>
+                          {/* Top Left top */}
+                          <Row>
+                            {/* top left, top-left */}
+                            <Col lg="3">
+                              <Knob
+                                size={40}
+                                className="p-knob"
+                                value={
+                                  mainConfig.QRSettings.QRProps.eyeRadius[0][0]
+                                }
+                                min={0}
+                                max={25}
+                                strokeWidth={5}
+                                textColor={dark ? 'white' : 'black'}
+                                onChange={(e) => {
+                                  handleEyeRadiusChange(e.value, 0, 0);
+                                }}
+                                valueColor={'#0B3665'}
+                                rangeColor={'#21C6DC'}
+                              />
+                            </Col>
+                            {/* <Col lg="1" /> */}
+                            {/* top left, top-right */}
+                            <Col lg="3">
+                              <Knob
+                                size={40}
+                                className="p-knob"
+                                value={
+                                  mainConfig.QRSettings.QRProps.eyeRadius[0][1]
+                                }
+                                min={0}
+                                max={25}
+                                strokeWidth={5}
+                                textColor={dark ? 'white' : 'black'}
+                                onChange={(e) => {
+                                  handleEyeRadiusChange(e.value, 0, 1);
+                                }}
+                                valueColor={'#0B3665'}
+                                rangeColor={'#21C6DC'}
+                              />
+                            </Col>
+                            <Col lg="1" />
+                          </Row>
+                        </Col>
+                        <Col lg="3">
+                          <Form.Label>Top Right: </Form.Label>
+                          {/* Top Right top */}
+                          <Row>
+                            {/* top right, top-left */}
+                            <Col lg="3">
+                              <Knob
+                                size={40}
+                                className="p-knob"
+                                value={
+                                  mainConfig.QRSettings.QRProps.eyeRadius[1][0]
+                                }
+                                min={0}
+                                max={25}
+                                strokeWidth={5}
+                                textColor={dark ? 'white' : 'black'}
+                                onChange={(e) => {
+                                  handleEyeRadiusChange(e.value, 1, 0);
+                                }}
+                                valueColor={'#0B3665'}
+                                rangeColor={'#21C6DC'}
+                              />
+                            </Col>
+                            {/* <Col lg="1" /> */}
+                            {/* top right, top-right */}
+                            <Col lg="3">
+                              <Knob
+                                size={40}
+                                className="p-knob"
+                                value={
+                                  mainConfig.QRSettings.QRProps.eyeRadius[1][1]
+                                }
+                                min={0}
+                                max={25}
+                                strokeWidth={5}
+                                textColor={dark ? 'white' : 'black'}
+                                onChange={(e) => {
+                                  handleEyeRadiusChange(e.value, 1, 1);
+                                }}
+                                valueColor={'#0B3665'}
+                                rangeColor={'#21C6DC'}
+                              />
+                            </Col>
+                            <Col lg="1" />
+                          </Row>
+                        </Col>
+                      </Form.Group>
+                      {/* Top Left Eye */}
+                      <Form.Group as={Row}>
+                        <Col lg="3" />
+                        <Col
+                          lg="2"
+                          style={{
+                            borderLeft: `1px solid ${color}`,
+                            borderRight: `1px solid ${color}`,
+                          }}
+                        />
+                        <Col lg="1" />
+                        {/* Top Eyes, bottoms */}
+                        <Col lg="3">
+                          {/* top left, bottom */}
+                          <Row>
+                            {/* top left, bottom-left */}
+                            <Col lg="3">
+                              <Knob
+                                size={40}
+                                className="p-knob"
+                                value={
+                                  mainConfig.QRSettings.QRProps.eyeRadius[0][3]
+                                }
+                                min={0}
+                                max={25}
+                                strokeWidth={5}
+                                textColor={dark ? 'white' : 'black'}
+                                onChange={(e) => {
+                                  handleEyeRadiusChange(e.value, 0, 3);
+                                }}
+                                valueColor={'#0B3665'}
+                                rangeColor={'#21C6DC'}
+                              />
+                            </Col>
+                            {/* <Col lg="1" /> */}
+                            {/* top left, bottom-right */}
+                            <Col lg="3">
+                              <Knob
+                                size={40}
+                                className="p-knob"
+                                value={
+                                  mainConfig.QRSettings.QRProps.eyeRadius[0][2]
+                                }
+                                min={0}
+                                max={25}
+                                strokeWidth={5}
+                                textColor={dark ? 'white' : 'black'}
+                                onChange={(e) => {
+                                  handleEyeRadiusChange(e.value, 0, 2);
+                                }}
+                                valueColor={'#0B3665'}
+                                rangeColor={'#21C6DC'}
+                              />
+                            </Col>
+                            <Col lg="1" />
+                          </Row>
+                          <Row>
+                            <Col lg="12">
+                              <Form.Label>Bottom Left Eye:</Form.Label>
+                            </Col>
+                          </Row>
+                        </Col>
+                        {/* top right, bottom */}
+                        <Col lg="3">
+                          <Row>
+                            {/* top right */}
+                            <Col lg="3">
+                              <Knob
+                                size={40}
+                                className="p-knob"
+                                value={
+                                  mainConfig.QRSettings.QRProps.eyeRadius[1][3]
+                                }
+                                min={0}
+                                max={25}
+                                strokeWidth={5}
+                                textColor={dark ? 'white' : 'black'}
+                                onChange={(e) => {
+                                  handleEyeRadiusChange(e.value, 1, 3);
+                                }}
+                                valueColor={'#0B3665'}
+                                rangeColor={'#21C6DC'}
+                              />
+                            </Col>
+                            {/* top right, bottom right */}
+                            {/* <Col lg="1" /> */}
+                            <Col lg="3">
+                              <Knob
+                                size={40}
+                                className="p-knob"
+                                value={
+                                  mainConfig.QRSettings.QRProps.eyeRadius[1][2]
+                                }
+                                min={0}
+                                max={25}
+                                strokeWidth={5}
+                                textColor={dark ? 'white' : 'black'}
+                                onChange={(e) => {
+                                  handleEyeRadiusChange(e.value, 1, 2);
+                                }}
+                                valueColor={'#0B3665'}
+                                rangeColor={'#21C6DC'}
+                              />
+                            </Col>
+                            <Col lg="1" />
+                          </Row>
+                        </Col>
+                      </Form.Group>
+                      {/* Bottom Left Eye */}
+                      <Form.Group as={Row}>
+                        <Col lg="3"></Col>
+                        <Col
+                          lg="1"
+                          style={{
+                            borderLeft: `1px solid ${color}`,
+                            borderBottom: `1px solid ${color}`,
+                            marginBottom: '25px',
+                          }}
+                        >
+                          <canvas
+                            id="leftDownEye"
+                            ref={LeftLowerEye}
+                            width={50}
+                            height={50}
+                            style={{ marginLeft: '-10px', marginTop: '25px' }}
+                          />
+                        </Col>
+                        <Col
+                          lg="1"
+                          style={{
+                            borderBottom: `1px solid ${color}`,
+                            borderRight: `1px solid ${color}`,
+                            marginBottom: '25px',
+                          }}
+                        />
+                        <Col lg="1" />
+                        <Col lg="3">
+                          <Row>
+                            <Col lg="3">
+                              <Knob
+                                size={40}
+                                className="p-knob"
+                                value={
+                                  mainConfig.QRSettings.QRProps.eyeRadius[2][0]
+                                }
+                                min={0}
+                                max={25}
+                                strokeWidth={5}
+                                textColor={dark ? 'white' : 'black'}
+                                onChange={(e) => {
+                                  handleEyeRadiusChange(e.value, 2, 0);
+                                }}
+                                valueColor={'#0B3665'}
+                                rangeColor={'#21C6DC'}
+                              />
+                            </Col>
+                            <Col lg="3">
+                              <Knob
+                                size={40}
+                                className="p-knob"
+                                value={
+                                  mainConfig.QRSettings.QRProps.eyeRadius[2][1]
+                                }
+                                min={0}
+                                max={25}
+                                strokeWidth={5}
+                                textColor={dark ? 'white' : 'black'}
+                                onChange={(e) => {
+                                  handleEyeRadiusChange(e.value, 2, 1);
+                                }}
+                                valueColor={'#0B3665'}
+                                rangeColor={'#21C6DC'}
+                              />
+                            </Col>
+                            <Col lg="6" />
+                          </Row>
+                          <Row>
+                            <Col lg="3">
+                              <Knob
+                                size={40}
+                                className="p-knob"
+                                value={
+                                  mainConfig.QRSettings.QRProps.eyeRadius[2][3]
+                                }
+                                min={0}
+                                max={25}
+                                strokeWidth={5}
+                                textColor={dark ? 'white' : 'black'}
+                                onChange={(e) => {
+                                  handleEyeRadiusChange(e.value, 2, 3);
+                                }}
+                                valueColor={'#0B3665'}
+                                rangeColor={'#21C6DC'}
+                              />
+                            </Col>
+                            <Col lg="3">
+                              <Knob
+                                size={40}
+                                className="p-knob"
+                                value={
+                                  mainConfig.QRSettings.QRProps.eyeRadius[2][2]
+                                }
+                                min={0}
+                                max={25}
+                                strokeWidth={5}
+                                textColor={dark ? 'white' : 'black'}
+                                onChange={(e) => {
+                                  handleEyeRadiusChange(e.value, 2, 2);
+                                }}
+                                valueColor={'#0B3665'}
+                                rangeColor={'#21C6DC'}
+                              />
+                            </Col>
+                            <Col lg="1" />
+                          </Row>
                         </Col>
                       </Form.Group>
                       <hr />
+                      {/* QR Code Logo */}
                       <Row>
                         <Col sm={8}>
                           <Form.Group controlId="formFile" className="mb-3">
@@ -1102,7 +1622,7 @@ export default function ConfigEditor({
                         {showQRLogo ? (
                           <Col sm={4}>
                             <img
-                              src={mainConfig.QRSettings.QRProps.logoImage}
+                              src={qrLogoImage}
                               alt="QR Code logo"
                               style={{
                                 width: `${mainConfig.QRSettings.QRProps.logoWidth}px`,
@@ -1117,6 +1637,7 @@ export default function ConfigEditor({
                           </Col>
                         ) : null}
                       </Row>
+                      {/* QR Code Logo Opacity */}
                       <Form.Group as={Row}>
                         <Col lg="2">
                           <Form.Label>Show Logo</Form.Label>
@@ -1128,27 +1649,19 @@ export default function ConfigEditor({
                             label=""
                             checked={showQRLogo}
                             onChange={(e) => {
-                              setLogoImage(
-                                e.target.checked
-                                  ? mainConfig.QRSettings.QRProps.logoImage
-                                  : ''
-                              );
                               setShowQRLogo(e.target.checked);
                             }}
                           />
                         </Col>
                         <Col lg="8" />
                       </Form.Group>
-
+                      {/* QR Code Logo Size */}
                       <Form.Group as={Row}>
                         <Col lg="2">
                           <Form.Label>Logo Height</Form.Label>
                         </Col>
                         <Col lg="2">
                           <Form.Control
-                            defaultValue={
-                              mainConfig.QRSettings.QRProps.logoHeight
-                            }
                             value={mainConfig.QRSettings.QRProps.logoHeight}
                             onChange={(e) => {
                               updateAspectRatio(e, 'logoWidth', 'qr');
@@ -1204,9 +1717,6 @@ export default function ConfigEditor({
                         </Col>
                         <Col lg="2">
                           <Form.Control
-                            defaultValue={
-                              mainConfig.QRSettings.QRProps.logoWidth
-                            }
                             value={mainConfig.QRSettings.QRProps.logoWidth}
                             disabled={!showQRLogo}
                             onChange={(e) => {
@@ -1236,9 +1746,8 @@ export default function ConfigEditor({
                         <Col lg="6">
                           <RangeSlider
                             value={
-                              mainConfig.QRSettings.QRProps.logoOpacity
-                                ? mainConfig.QRSettings.QRProps.logoOpacity * 10
-                                : 10
+                              (mainConfig?.QRSettings?.QRProps
+                                ?.logoOpacity as number) * 10
                             }
                             min={0}
                             max={10}
@@ -1256,6 +1765,61 @@ export default function ConfigEditor({
                           />
                         </Col>
                       </Form.Group>
+                      {/* Logo Padding */}
+                      <Form.Group as={Row}>
+                        <Col lg="4">
+                          <Form.Label>Logo Padding</Form.Label>
+                        </Col>
+                        <Col lg="6">
+                          <Knob
+                            size={100}
+                            className="p-knob"
+                            value={
+                              mainConfig.QRSettings.QRProps.logoPadding as number
+                            }
+                            min={0}
+                            max={50}
+                            strokeWidth={5}
+                            textColor={dark ? 'white' : 'black'}
+                            onChange={(e) => {
+                              setMainConfig((prevConfig) => {
+                                const qp = { ...prevConfig };
+                                const q = { ...qp.QRSettings };
+                                q.QRProps.logoPadding = e.value;
+                                qp.QRSettings = q;
+                                return qp;
+                              });
+                            }}
+                          />
+                        </Col>
+                      </Form.Group>
+                      {/* Padding Style */}
+                      <Form.Group as={Row}>
+                        <Col lg="4">
+                          <Form.Label>Padding Style</Form.Label>
+                        </Col>
+                        <Col lg="6">
+                          <Form.Control
+                            as="select"
+                            value={
+                              mainConfig.QRSettings.QRProps.logoPaddingStyle as string
+                            }
+                            onChange={(e) => {
+                              setMainConfig((prevConfig) => {
+                                const qp = { ...prevConfig };
+                                const q = { ...qp.QRSettings };
+                                q.QRProps.logoPaddingStyle = e.target.value as 'circle' | 'square';
+                                qp.QRSettings = q;
+                                return qp;
+                              });
+                            }}
+                          >
+                            <option value="circle">Circle</option>
+                            <option value="square">Square</option>
+                          </Form.Control>
+                        </Col>
+                      </Form.Group>
+                      {/* QR Code Logo warning */}
                       {qrLogoChanged ? (
                         <Row>
                           <Col lg="12">

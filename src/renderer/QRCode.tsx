@@ -26,13 +26,13 @@ import React, {
   useRef,
   KeyboardEventHandler,
 } from 'react';
-import { QRCode, IProps } from 'react-qrcode-logo';
+import { QRCode } from 'react-qrcode-logo';
 import { Button, OverlayTrigger, Tooltip, Row, Col } from 'react-bootstrap';
 import { ClipboardData, Clipboard2CheckFill } from 'react-bootstrap-icons';
 import uuid from 'react-uuid';
 import QRConfigForm from './configuration/QRConfigForm';
 // import logo from '../../assets/images/logo-mark_fill.png';
-import { defaultMainSettings, defaultQRSettings, DefaultQRStyle, MainSettings, QRSettings } from './types';
+import { defaultMainSettings, DefaultQRStyle, MainSettings, QRSettings, IProps } from './types';
 import { Gear, GearFill, Download } from 'react-bootstrap-icons';
 import PropTypes from 'prop-types';
 import potrace from 'potrace';
@@ -54,6 +54,7 @@ export default function QCode({
   const [qrSettings, setQRSettings] = useState<QRSettings>(defaultMainSettings.QRSettings);
   const [qrSize, setQRSize] = useState<number>(220);
   const [qrState, setQrState] = useState<boolean>(false);
+  const [qrImage, setQrImage] = useState<string>('');
   const [showConfig, setShowConfig] = useState<boolean>(false);
   const [darkMode, setDarkMode] = useState<boolean>(dark);
   const [darkIconClass, setDarkIconClass] = useState<string>(
@@ -80,12 +81,25 @@ export default function QCode({
     window.electronAPI
       .getMainConfig()
       .then((result) => {
-        const mainS: MainSettings = JSON.parse(result);
-        const qrS: QRSettings = { ...mainS.QRSettings };
-        const qr = { ...qrS.QRProps };
+        const mainS: MainSettings = JSON.parse(result) as MainSettings;
+        const qrS: QRSettings = { ...mainS.QRSettings } as QRSettings;
+        const qr = { ...qrS.QRProps } as IProps;
         setQRSettings(qrS);
         setFileExt(qrS.QRType);
         setQRSize(qrS.QRProps?.size ? qrS.QRProps.size : 220);
+        if(qrS.QRImageFile){
+          window.electronAPI
+          .loadFile(qrS.QRImageFile)
+          .then((response) => {
+            const fType = qrS.QRImageFile.split('.').pop();
+            const image = Buffer.from(response, 'base64').toString('base64');
+            setQrImage(`data:image/${fType};base64,${image}`);
+            return '';
+          })
+          .catch((error: unknown) => {
+            console.log(`Error: ${error}`);
+          });
+        }
         return '';
       })
       .catch((error: unknown) => {
@@ -99,7 +113,7 @@ export default function QCode({
     ) as HTMLCanvasElement;
     const params = {
       background: qrSettings.QRProps?.bgColor,
-      color: '#0B263E',
+      color: qrSettings.QRProps?.fgColor,
     };
     const dataURL = canvas?.toDataURL(`image/${fileExt}`);
     // const a = document.createElement('a');
@@ -116,6 +130,7 @@ export default function QCode({
         });
     });
   };
+
   const onDownloadClick = () => {
     if (qrSettings.QRType === 'svg') {
       saveSVG();
@@ -149,7 +164,21 @@ export default function QCode({
     const qSet: QRSettings = { ...qrSettings };
     const qrProps: IProps = { ...qSet.QRProps };
     qrProps.value = link;
-    // qrProps.logoImage = logo;
+    qSet.QRProps = qrProps;
+    if(qSet.QRImageFile !== undefined && qSet.QRImageFile !== null && qSet.QRImageFile !== '') {
+      const fType = qSet.QRImageFile.split('.').pop() as string;
+      window.electronAPI
+
+        .saveFile(qSet.QRImageFile, 'qr-logo', fType)
+        .then((result) => {
+          qSet.QRImageFile = result;
+          setQRSettings(qSet);
+          return '';
+        })
+        .catch((error: unknown) => {
+          console.log(`Error: ${error}`);
+        });
+    }
     qSet.QRProps = qrProps;
     setQRSettings(qSet);
   };
@@ -267,7 +296,7 @@ export default function QCode({
                   size={qrSize}
                   bgColor={qrSettings.QRProps.bgColor}
                   fgColor={qrSettings.QRProps.fgColor}
-                  logoImage={qrSettings.QRProps.logoImage}
+                  logoImage={qrImage}
                   qrStyle={qrSettings.QRProps.qrStyle}
                   logoWidth={qrSettings.QRProps.logoWidth}
                   logoHeight={qrSettings.QRProps.logoHeight}
@@ -277,6 +306,9 @@ export default function QCode({
                   quietZone={qrSettings.QRProps.quietZone}
                   enableCORS={qrSettings.QRProps.enableCORS}
                   ecLevel={qrSettings.QRProps.ecLevel}
+                  logoPadding={qrSettings.QRProps.logoPadding}
+                  logoPaddingStyle={qrSettings.QRProps.logoPaddingStyle}
+
                 />
               </div>
             </OverlayTrigger>

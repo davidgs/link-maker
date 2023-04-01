@@ -66,7 +66,7 @@ body {
   text-align: center;
   padding: 2rem 1rem;
   color: rgba(255,255,255,.5);
-  background-color: #202020;
+  background-color: #0B3665;
   font-size: .75rem;
 
 }
@@ -557,3 +557,17 @@ a.sidebar-nav-item:focus {
 .form-control.invalid {
   border-color: red;
 }
+.knob {
+    width: 100px;
+}
+
+.knob .value {
+    font-family: sans-serif;
+    font-size: 5rem;
+    text-align: center;
+}
+
+.knobbly {
+  color: #0B3665;
+}
+

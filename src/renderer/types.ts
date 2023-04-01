@@ -21,10 +21,38 @@
  * SOFTWARE.
  */
 
-import { IProps } from 'react-qrcode-logo';
 // import logo from '../../assets/images/logo-mark_fill.png';
 // import MainLogo from '../../assets/images/NewLinkerLogo.svg';
 // import logo from '../../assets/images/logo-mark_fill.png';
+export interface IProps {
+  value: string;
+  ecLevel: 'L' | 'M' | 'Q' | 'H';
+  enableCORS: boolean;
+  size: number;
+  quietZone: number;
+  bgColor: string;
+  fgColor: string;
+  logoImage: string;
+  logoWidth: number;
+  logoHeight: number;
+  logoOpacity: number;
+  logoOnLoad?: () => void;
+  removeQrCodeBehindLogo: boolean;
+  logoPadding: number;
+  logoPaddingStyle: 'square' | 'circle';
+  eyeRadius: [CornerRadii, CornerRadii, CornerRadii];
+  eyeColor: EyeColor ;
+  qrStyle: 'squares' | 'dots';
+  style: object;
+  id: string;
+}
+declare type EyeColor = string | InnerOuterEyeColor;
+declare type InnerOuterEyeColor = {
+  inner: string;
+  outer: string;
+};
+declare type CornerRadii = [number, number, number, number]
+
 
 export type UtmKeyValue = {
   key: string;
@@ -287,10 +315,11 @@ export type LinkData = {
 export type QRSettings = {
   QRProps: IProps;
   QRType: string;
+  QRImageFile: string;
 };
 
 export type MainSettings = {
-  brandImage: string;
+  brandImageFile: string;
   brandHeight: number;
   brandWidth: number;
   brandOpacity: number;
@@ -317,15 +346,20 @@ export const DefaultQRStyle: IProps = {
     [16, 16, 16, 0],
     [16, 0, 16, 16],
   ],
+  logoPadding: 0,
+  logoPaddingStyle: 'circle',
+  style: {height: '100%', width: '100%'},
+  id: ""
 };
 
 export const defaultQRSettings: QRSettings = {
   QRProps: DefaultQRStyle,
   QRType: 'png',
+  QRImageFile: '',
 };
 
 export const defaultMainSettings: MainSettings = {
-  brandImage: '',
+  brandImageFile: '',
   brandHeight: 0,
   brandWidth: 0,
   brandOpacity: 10,

@@ -31,27 +31,28 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, autoUpdater, dialog, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, autoUpdater, dialog, shell, ipcMain, nativeImage } from 'electron';
 // import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import Store from 'electron-store';
-import { UtmParams, defaultUTMParams, QRSettings, defaultQRSettings, defaultMainSettings } from '../renderer/types';
+import { UtmParams, defaultUTMParams, QRSettings, defaultQRSettings, defaultMainSettings, MainSettings, LinkData } from '../renderer/types';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import { LinkData } from '../renderer/types';
 import uuid from 'react-uuid';
 
 
 
 const electronApp = require('electron').app;
 
+const appStorePath = path.join(electronApp.getPath('appData'), 'Link Builder');
 const home = process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH || './';
 const store = new Store();
 const defaultConfig: UtmParams = defaultUTMParams;
-const currentVersion = 'v1.2.0'
-const currentBuild = 'b45'
-const server = 'http://link-maker.davidgs.com/';
+const currentVersion = 'v1.2.3'
+const currentBuild = 'b48'
+const server = 'https://link-maker.davidgs.com/';
 const url = `${server}/update/${process.platform}/${app.getVersion()}`;
+
 
 const up = autoUpdater;
 up.setFeedURL({ url });
@@ -123,6 +124,7 @@ ipcMain.handle('save-config', (event: Event, config: string) => {
 ipcMain.handle('save-link', (event: Event, linkData: string) => {
   const links: LinkData[] = store.get('utm-links', []) as LinkData[];
   store.delete('utm-links');
+  const thislink: LinkData = JSON.parse(linkData);
   links.push(JSON.parse(linkData));
   store.set('utm-links', links);
   return JSON.stringify(links);
@@ -154,6 +156,9 @@ ipcMain.handle('save-svg', (event: Event, svg: string) => {
  * @returns the list of links
  */
 ipcMain.handle('get-links', () => {
+
+    // get the last insert id
+  const f = JSON.stringify(store.get('utm-links', [{}]));
   return JSON.stringify(store.get('utm-links', [{}]));
 });
 
@@ -239,6 +244,29 @@ ipcMain.handle('save-dark-mode', (e: Event, darkMode: boolean) => {
   store.delete('dark-mode');
   store.set('dark-mode', darkMode);
   return JSON.stringify(store.get('dark-mode', false));
+});
+
+ipcMain.handle('load-file', (e: Event, file: string) => {
+  const fs = require('fs');
+  const data = fs.readFileSync(file);
+  return data as string;
+});
+
+ipcMain.handle('save-file', (e: Event, file: string, data: string, fType: string) => {
+  const fs = require('fs');
+  const img = path.join(appStorePath, `images`);
+  if (!fs.existsSync(img)) {
+    fs.mkdirSync(img);
+  }
+  const fullPath = path.join(img, `${file}.${fType}`);
+  const base64Data = data.replace(/^data:image\/\w+;base64,/, '');
+  const buffer = Buffer.from(base64Data, 'base64');
+  fs.writeFile(fullPath, buffer, (err: any) => {
+    if (err) {
+      console.error(err);
+    }
+  });
+  return fullPath;
 });
 
 ipcMain.handle('get-dark-mode', () => {

@@ -11,6 +11,15 @@ A simple Electron/React JS application to help you generate useful UTM links and
 - Highly configurable interface with a configuration-page that allows you to change everything from menu contents to tool tip messages, etc.
 - Password-protected settings page
 - Restrict referral links to pre-defined domain(s)
+- Configure all aspects of the QR Code
+  - QR Code style (dots or bars)
+  - QR Code Colors (foreground and background)
+  - QR Code logo (optional) and logo size
+  - Padding around QR Code
+  - Padding as a square or a circle
+  - hide qr code behind logo (optional)
+  - opacity of logo (optional)
+  - Design the styles of the QR Code 'eyes' (the dark squares in the corners of the QR Code) and see your eye changes in real time.
 
 ## Screen shots
 

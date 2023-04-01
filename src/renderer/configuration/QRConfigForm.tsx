@@ -30,7 +30,7 @@ import {
   OverlayTrigger,
   Tooltip,
 } from 'react-bootstrap';
-import { QRSettings, defaultQRSettings } from 'renderer/types';
+import { QRSettings } from 'renderer/types';
 import PropTypes from 'prop-types';
 import { Gear, GearFill } from 'react-bootstrap-icons';
 

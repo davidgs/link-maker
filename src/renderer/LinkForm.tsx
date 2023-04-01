@@ -33,7 +33,7 @@ import {
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import axios from 'axios';
-import CountrySelect, { ICountry } from 'react-bootstrap-country-select';
+import CountrySelect from 'react-bootstrap-country-select';
 import uuid from 'react-uuid';
 import UTMTextField from './UTMTextField';
 import UTMChoice from './UTMChoice';
@@ -57,6 +57,14 @@ import {
 } from 'react-bootstrap-icons';
 import PropTypes from 'prop-types';
 
+interface ICountry {
+  id: string;
+  name: string;
+  flag: string;
+  alpha2: string;
+  alpha3: string;
+  ioc: string;
+}
 export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
   const [campaign, setCampaign] = useState<string>('');
   const [finalCampaign, setFinalCampaign] = useState<string>('');
@@ -86,24 +94,29 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
   const [darkMode, setDarkMode] = useState(dark);
   const [darkClass, setDarkClass] = useState<string>('header-stuff');
 
+  /* Keep Dark Mode up to date */
   useEffect(() => {
     setDarkMode(dark);
     dark ? setDarkClass('header-stuff-dark') : setDarkClass('header-stuff');
   }, [dark]);
 
+  /* Get the history from the main process */
   const getHistory = (): void => {
     window.electronAPI
       .getLinks()
       .then((response: string) => {
-        const linkData: LinkData[] = JSON.parse(response);
-        setLinkHistory(linkData);
-        return '';
+        if(response) {
+          const linkData: LinkData[] = JSON.parse(response);
+          setLinkHistory(linkData);
+          return '';
+        }
       })
       .catch((error: unknown) => {
         console.log(`Error: ${error}`);
       });
   };
 
+  /* Save link to the main process */
   const saveLink = (): void => {
     const ld: LinkData = {
       longLink: (longLink !== '' ? longLink : null),
@@ -163,20 +176,25 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
       });
   };
 
+  const getConfig = () => {
+  window.electronAPI
+    .getConfig()
+    .then((response: string) => {
+      const c: UtmParams = JSON.parse(response);
+      setMainConfig(c);
+      setRestrictBases(c.restrict_bases);
+      setShowCountry(c.show_country);
+      return '';
+    })
+    .catch((error: unknown) => {
+      console.log(`Error: ${error}`);
+    });
+  };
+
   useEffect(() => {
-    window.electronAPI
-      .getConfig()
-      .then((response: string) => {
-        const c: UtmParams = JSON.parse(response);
-        setMainConfig(c);
-        setRestrictBases(c.restrict_bases);
-        setShowCountry(c.show_country);
-        return '';
-      })
-      .catch((error: unknown) => {
-        console.log(`Error: ${error}`);
-      });
-  }, [restrictBases]);
+    getConfig();
+    getHistory();
+  }, []);
 
   useEffect(() => {
     if (qrOnly) {
@@ -232,9 +250,6 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
     qrOnly,
   ]);
 
-  useEffect(() => {
-    getHistory();
-  }, []);
 
   const fillHistory = (histID: string) => {
     if (histID === 'clear-history') {
@@ -264,17 +279,16 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
     });
   };
 
-  useEffect(() => {}, [restrictBases]);
 
   useEffect(() => {
     if (qrOnly) {
-      setShowCountry(false);
-      setRestrictBases(false);
+      setShowCountry(!qrOnly);
+      setRestrictBases(!qrOnly);
     }
   }, [qrOnly]);
 
   // If Bitly switch is turned on, get the Bitly configuration
-  useEffect(() => {
+  const setUpBitly = () => {
     if (mainConfig.bitly_config?.useValue && useBitly) {
       window.electronAPI
         .getParams('bitly_config')
@@ -290,7 +304,7 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
     } else {
       setShortLink('');
     }
-  }, [useBitly, setBitlyConfig]);
+  };
 
   const updateTeam = (value: string) => {
     setTeam(value);
@@ -409,104 +423,95 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
       </div>
       {/* bitly button */}
       <div style={{ width: '100%' }}>
+        {/* bitly enable */}
         <div style={{ width: '18%', display: 'inline-block' }}>
-        {/* <OverlayTrigger
-          placement="auto"
-          overlay={
-            <Tooltip id="bitly-tooltip">
-              {bitlyConfig.tooltip}
-            </Tooltip>
-          }
-        > */}
-          {/* bitly enable */}
-
           { mainConfig?.bitly_config.useValue ? (<BitlyCheck
             targetType="bitly_config"
             useMe={useBitly}
             bitlyEnabled={enableBitly}
-            valueChanged={setUseBitly}
+            valueChanged={setUpBitly}
           />) : null }
         {/* </OverlayTrigger> */}
         </div>
         {/* qr only button */}
         <div style={{ width: '22%', display: 'inline-block' }}>
-        <OverlayTrigger
-          placement="auto"
-          overlay={
-            <Tooltip id="qr-only-tooltip">
-              Just generate a QR Code with no UTM parameters.
-            </Tooltip>
-          }
-        >
-          <Form.Check
-            type="switch"
-            id="qr-only-show"
-            label="QR Code Only"
-            checked={qrOnly}
-            style={{ float: 'left' }}
-            onChange={(e) => {
-              setQrOnly(e.target.checked);
-            }}
-          />
-        </OverlayTrigger>
+          <OverlayTrigger
+            placement="auto"
+            overlay={
+              <Tooltip id="qr-only-tooltip">
+                Just generate a QR Code with no UTM parameters.
+              </Tooltip>
+            }
+          >
+            <Form.Check
+              type="switch"
+              id="qr-only-show"
+              label="QR Code Only"
+              checked={qrOnly}
+              style={{ float: 'left' }}
+              onChange={(e) => {
+                setQrOnly(e.target.checked);
+              }}
+            />
+          </OverlayTrigger>
         </div>
         {/* history, save & clear buttons */}
         <div style={{ width: '60%', display: 'inline-block', alignItems: 'center' }}>
           <div style={{ width: '50%', display: 'inline-block' }}></div>
-        {/* history button */}
-        <div style={{ width: '34%', display: 'inline-block', verticalAlign: 'top' }}>
-          <HistoryChooser
-            history={linkHistory}
-            dark={darkMode}
-            callback={fillHistory}
-          />
+            {/* history button */}
+            <div style={{ width: '34%', display: 'inline-block', verticalAlign: 'top' }}>
+              <HistoryChooser
+                history={linkHistory}
+                dark={darkMode}
+                callback={fillHistory}
+              />
+            </div>
+            {/* save button */}
+            <div style={{ width: '8%', display: 'inline-block' }}>
+              <OverlayTrigger
+                placement="auto"
+                overlay={
+                  <Tooltip id="save-btn-tooltip">
+                    Save the current link to your history.
+                  </Tooltip>
+                }
+              >
+                <Button
+                  size="sm"
+                  id="save-btn"
+                  variant={darkMode ? 'icon-only-dark' : 'icon-only'}
+                  onClick={saveLink}
+                  className={darkClass}
+                  style={{ float: 'right' }}
+                >
+                  {darkMode ? <Save /> : <SaveFill />}
+                </Button>
+              </OverlayTrigger>
+            </div>
+            {/* clear button */}
+            <div style={{ width: '1.5%', display: 'inline-block' }}>
+              <OverlayTrigger
+                placement="auto"
+                overlay={
+                  <Tooltip id="clear-btn-tooltip">
+                    Clear the form and start over.
+                  </Tooltip>
+                }
+              >
+                <Button
+                  size="sm"
+                  variant={darkMode ? 'icon-only-dark' : 'icon-only'}
+                  color={darkMode ? '#adb5bd' : '#0B3665'}
+                  className={darkClass}
+                  onClick={clearForm}
+                  style={{ float: 'right', marginRight: '-30px' }}
+                >
+                  {darkMode ? <XCircle /> : <XCircleFill />}
+                </Button>
+              </OverlayTrigger>
+            </div>
+          </div>
         </div>
-        {/* save button */}
-        <div style={{ width: '8%', display: 'inline-block' }}>
-        <OverlayTrigger
-          placement="auto"
-          overlay={
-            <Tooltip id="save-btn-tooltip">
-              Save the current link to your history.
-            </Tooltip>
-          }
-        >
-          <Button
-            size="sm"
-            id="save-btn"
-            variant={darkMode ? 'icon-only-dark' : 'icon-only'}
-            onClick={saveLink}
-            className={darkClass}
-            style={{ float: 'right' }}
-          >
-            {darkMode ? <Save /> : <SaveFill />}
-          </Button>
-        </OverlayTrigger>
-        </div>
-        {/* clear button */}
-        <div style={{ width: '1.5%', display: 'inline-block' }}>
-        <OverlayTrigger
-          placement="auto"
-          overlay={
-            <Tooltip id="clear-btn-tooltip">
-              Clear the form and start over.
-            </Tooltip>
-          }
-        >
-          <Button
-            size="sm"
-            variant={darkMode ? 'icon-only-dark' : 'icon-only'}
-            color={darkMode ? '#adb5bd' : '#0B3665'}
-            className={darkClass}
-            onClick={clearForm}
-            style={{ float: 'right', marginRight: '-30px' }}
-          >
-            {darkMode ? <XCircle /> : <XCircleFill />}
-          </Button>
-        </OverlayTrigger>
-        </div>
-        </div>
-      </div>
       {/* utm_target */}
       <Row style={{ marginBottom: '-.5rem' }}>
         <InputGroup className="mb-3" size="lg">
@@ -634,7 +639,6 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
           </Col>
         ) : ( <></> )}
       </Row>
-
       {/*  utm_content, utm_keyword */}
       <Row style={{ marginBottom: '.5rem' }}>
         {mainConfig?.utm_content?.useValue ? (
@@ -678,8 +682,6 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
           </Col>
         ) : ( <></> )}
       </Row>
-
-
       {/* team_name, region_name, utm_country */}
       <Row style={{ marginTop: '.5rem', marginBottom: '-.5rem' }}>
         {mainConfig?.team_name.useValue ? (
