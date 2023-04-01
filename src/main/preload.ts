@@ -36,7 +36,9 @@ export type Events =
   | 'check-passwd'
   | 'set-passwd'
   | 'get-main-config'
-  | 'save-main-config';
+  | 'save-main-config'
+  | 'load-file'
+  | 'save-file';
 
 export type electronAPI = {
   getQRConfig: () => Promise<string>;
@@ -55,7 +57,10 @@ export type electronAPI = {
   getDarkMode: () => Promise<boolean>;
   getMainConfig: () => Promise<string>;
   saveMainConfig: (config: string) => Promise<string>;
+  loadFile: (file: string) => Promise<string>;
+  saveFile: (file: string, data: string, fType: string) => Promise<string>;
 };
+
 
 contextBridge.exposeInMainWorld('electronAPI', {
   getQRConfig: () => {
@@ -106,6 +111,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveMainConfig: (config: string) => {
     return ipcRenderer.invoke('save-main-config', config);
   },
+  loadFile: (file: string) => {
+    return ipcRenderer.invoke('load-file', file);
+  },
+  saveFile: (file: string, data: string, fType: string) => {
+    return ipcRenderer.invoke('save-file', file, data, fType);
+  },
 });
 
 // Path: src/main/preload.ts
@@ -129,6 +140,8 @@ declare global {
       getDarkMode: () => Promise<string>;
       getMainConfig: () => Promise<string>;
       saveMainConfig: (config: string) => Promise<string>;
+      loadFile: (file: string) => Promise<string>
+      saveFile: (file: string, data: string, fType: string) => Promise<string>
     };
   }
 }

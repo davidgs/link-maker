@@ -35,6 +35,7 @@ import StarTree from '../../assets/images/NewLinkerLogo.png';
 import { Lightbulb, LightbulbFill } from 'react-bootstrap-icons';
 import { defaultMainSettings, MainSettings } from './types';
 import PropTypes from 'prop-types';
+import ImgElement from './components/ImgElement';
 
 export default function SideNav({
   callback,
@@ -48,6 +49,7 @@ export default function SideNav({
   const [showPasswd, setShowPasswd] = useState(false);
   const [darkMode, setDarkMode] = useState(dark);
   const [mainConfig, setMainConfig] = useState<MainSettings>(defaultMainSettings);
+  const [mainImage, setMainImage] = useState<string>('');
 
   const passwdVisible = (show: boolean) => {
     setShowPasswd(show);
@@ -57,9 +59,20 @@ export default function SideNav({
     window.electronAPI
       .getMainConfig()
       .then((response: string) => {
-        setMainConfig(JSON.parse(response))
-        return '';
-      })
+        const config = JSON.parse(response);
+        setMainConfig(config);
+        if(config.brandImageFile !== undefined && config.brandImageFile !== null && config.brandImageFile !== '') {
+          window.electronAPI
+            .loadFile(config.brandImageFile)
+            .then((response: string) => {
+              const fType = config.brandImageFile.split('.').pop();
+              const image = Buffer.from(response, 'base64').toString('base64');
+              setMainImage(`data:image/${fType};base64,${image}`);
+            })
+            .catch((error: unknown) => {
+              console.log(`Error: ${error}`);
+            });
+        }})
       .catch((error: unknown) => {
         console.log(`Error: ${error}`);
       });
@@ -85,20 +98,15 @@ export default function SideNav({
         <p />
         <div style={{ textAlign: 'center'}}>
         <a href="https://davidgs.com/" target="_blank" rel="noreferrer">
-          <img src={mainConfig.brandImage ? mainConfig.brandImage : StarTree } alt="UTM Linker Logo" width={mainConfig.brandWidth > 0 ? `${mainConfig.brandWidth}px` : "75%"} height={mainConfig.brandHeight > 0 ? `${mainConfig.brandHeight}px` : 'auto'} />
+          {mainImage ? (
+            <ImgElement byteString={mainImage} width={mainConfig.brandWidth as number} height={mainConfig.brandHeight as number} alt='UTM Linker Logo'/> ) : (
+            <img src={StarTree} alt="UTM Linker Logo" width={mainConfig.brandWidth > 0 ? `${mainConfig.brandWidth}px` : "75%"} height={mainConfig.brandHeight > 0 ? `${mainConfig.brandHeight}px` : 'auto'} />
+          )}
         </a>
         </div>
         <p />
-        {/* <div className="sidebar-about">
-          <p className="sidebar-lead">
-            Content Referral Link
-            <br />& QR Code Generator
-          </p>
-        </div> */}
         <div className="container sidebar-sticky">
           <div className="sidebar-about">
-            {/* <p className="sidebar-lead">A Content Referral Link
-            <br />& QR Code Generator</p> */}
             <div>
               <p className="lead">
                 Developed By:
@@ -110,16 +118,6 @@ export default function SideNav({
                 </span>
               </p>
             </div>
-            {/* <div>
-              <p className="sidebar-credit">Brought to you by:</p>
-              <p>
-                The{' '}
-                <a href="https://startree.ai/" target="_blank" rel="noreferrer">
-                  StarTree
-                </a>{' '}
-                <strong>Developer Relations Team</strong>
-              </p>
-            </div> */}
           </div>
           <nav>
             <ul className="sidebar-nav">
@@ -187,6 +185,7 @@ export default function SideNav({
       </aside>
       <PasswordForm
         show={showPasswd}
+        darkMode={darkMode}
         callback={(value: boolean) => {
           callback(value);
           setShowPasswd(false);

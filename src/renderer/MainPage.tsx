@@ -78,6 +78,7 @@ export default function MainPage() {
   const toggleConfig = (val: boolean) => {
     setEditConfig(val);
   };
+  
   return (
     <div className="content">
       <div className="aside-column">
@@ -91,7 +92,7 @@ export default function MainPage() {
         <MainHeader dark={darkMode} />
         <LinkForm dark={darkMode} />
       </div>
-      <ConfigEditor showMe={editConfig} callback={toggleConfig} />
+      <ConfigEditor showMe={editConfig} dark={darkMode} callback={toggleConfig} />
     </div>
   );
 }

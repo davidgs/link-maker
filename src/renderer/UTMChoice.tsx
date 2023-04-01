@@ -75,11 +75,7 @@ export default function UTMChoice({
   }
 
   const selectedValue = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    if (e.target?.value === 'Choose one ...') {
-      valueChanged('');
-      return;
-    }
-    if (e.target?.value === 'Choose a Term first') {
+    if (e.target?.value === 'Choose one ...' || e.target?.value === 'Choose a Term first') {
       valueChanged('');
       return;
     }
@@ -88,10 +84,7 @@ export default function UTMChoice({
 
   const setDisplayString = (value: string): string => {
     const disp = settings.value.find((val) => val.key === value);
-    if (disp) {
-      return disp.value;
-    }
-    return '';
+    return disp ? disp.value : '';
   };
 
   // get the configuration
@@ -130,7 +123,7 @@ export default function UTMChoice({
               return;
             }
             valueChanged(
-              eventKey.target[eventKey.target.selectedIndex].id // value.replace(/ /g, '-').toLowerCase()
+              eventKey.target[eventKey.target.selectedIndex].id
             );
             selectedValue(eventKey);
           }}

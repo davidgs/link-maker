@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { useState, useEffect, SyntheticEvent } from 'react';
+import React, { useState, useEffect, useRef, SyntheticEvent } from 'react';
 import {
   Form,
   Button,
@@ -39,9 +39,11 @@ import { Check } from 'react-bootstrap-icons';
 
 export default function PasswordForm({
   show,
+  darkMode,
   callback,
 }: {
   show: boolean;
+  darkMode: boolean;
   callback: (value: boolean) => void;
 }): JSX.Element {
   const [password, setPassword] = useState<string>('');
@@ -65,6 +67,9 @@ export default function PasswordForm({
   const [specialGood, setSpecialGood] = useState<boolean>(false);
   const [changePass, setChangePass] = useState<boolean>(false);
   const [passGood, setPassGood] = useState<boolean>(false);
+  const [dark, setDark] = useState<boolean>(darkMode);
+  const inputRef = useRef(null);
+
 
   const goodCheck = (
     <Check
@@ -81,6 +86,10 @@ export default function PasswordForm({
       style={{ alignItems: 'center', color: 'red' }}
     />
   );
+
+  useEffect(() => {
+    setDark(darkMode);
+  }, [darkMode]);
 
   useEffect(() => {
     setShowPassword(show);
@@ -280,6 +289,7 @@ export default function PasswordForm({
                     setPassword(event.target.value);
                     checkPassMatch(event.target.value);
                   }}
+                  ref={inputRef}
                 />
                 <Form.Control.Feedback type="invalid">
                   You must provide a valid password.
