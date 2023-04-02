@@ -413,9 +413,15 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
 
   return (
     <div className="link-form">
+      <style type="text/css">
+        {`
+    .form-floating-txt:not(.form-control:disabled)::before  {
+      background-color: var(--bs-secondary-bg);
+    }`}
+      </style>
       <div>
         <QCode
-          link={!useBitly ? longLink as string : shortLink as string}
+          link={!useBitly ? (longLink as string) : (shortLink as string)}
           ext="png"
           qrOnly={qrOnly}
           dark={darkMode}
@@ -425,13 +431,15 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
       <div style={{ width: '100%' }}>
         {/* bitly enable */}
         <div style={{ width: '18%', display: 'inline-block' }}>
-          { mainConfig?.bitly_config.useValue ? (<BitlyCheck
-            targetType="bitly_config"
-            useMe={useBitly}
-            bitlyEnabled={enableBitly}
-            valueChanged={setUpBitly}
-          />) : null }
-        {/* </OverlayTrigger> */}
+          {mainConfig?.bitly_config.useValue ? (
+            <BitlyCheck
+              targetType="bitly_config"
+              useMe={useBitly}
+              bitlyEnabled={enableBitly}
+              valueChanged={setUpBitly}
+            />
+          ) : null}
+          {/* </OverlayTrigger> */}
         </div>
         {/* qr only button */}
         <div style={{ width: '22%', display: 'inline-block' }}>
@@ -456,62 +464,74 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
           </OverlayTrigger>
         </div>
         {/* history, save & clear buttons */}
-        <div style={{ width: '60%', display: 'inline-block', alignItems: 'center' }}>
+        <div
+          style={{
+            width: '60%',
+            display: 'inline-block',
+            alignItems: 'center',
+          }}
+        >
           <div style={{ width: '50%', display: 'inline-block' }}></div>
-            {/* history button */}
-            <div style={{ width: '34%', display: 'inline-block', verticalAlign: 'top' }}>
-              <HistoryChooser
-                history={linkHistory}
-                dark={darkMode}
-                callback={fillHistory}
-              />
-            </div>
-            {/* save button */}
-            <div style={{ width: '8%', display: 'inline-block' }}>
-              <OverlayTrigger
-                placement="auto"
-                overlay={
-                  <Tooltip id="save-btn-tooltip">
-                    Save the current link to your history.
-                  </Tooltip>
-                }
+          {/* history button */}
+          <div
+            style={{
+              width: '34%',
+              display: 'inline-block',
+              verticalAlign: 'top',
+            }}
+          >
+            <HistoryChooser
+              history={linkHistory}
+              dark={darkMode}
+              callback={fillHistory}
+            />
+          </div>
+          {/* save button */}
+          <div style={{ width: '8%', display: 'inline-block' }}>
+            <OverlayTrigger
+              placement="auto"
+              overlay={
+                <Tooltip id="save-btn-tooltip">
+                  Save the current link to your history.
+                </Tooltip>
+              }
+            >
+              <Button
+                size="sm"
+                id="save-btn"
+                variant={darkMode ? 'icon-only-dark' : 'icon-only'}
+                onClick={saveLink}
+                className={darkClass}
+                style={{ float: 'right' }}
               >
-                <Button
-                  size="sm"
-                  id="save-btn"
-                  variant={darkMode ? 'icon-only-dark' : 'icon-only'}
-                  onClick={saveLink}
-                  className={darkClass}
-                  style={{ float: 'right' }}
-                >
-                  {darkMode ? <Save /> : <SaveFill />}
-                </Button>
-              </OverlayTrigger>
-            </div>
-            {/* clear button */}
-            <div style={{ width: '1.5%', display: 'inline-block' }}>
-              <OverlayTrigger
-                placement="auto"
-                overlay={
-                  <Tooltip id="clear-btn-tooltip">
-                    Clear the form and start over.
-                  </Tooltip>
-                }
+                {darkMode ? <Save /> : <SaveFill />}
+              </Button>
+            </OverlayTrigger>
+          </div>
+          {/* clear button */}
+          <div style={{ width: '1.5%', display: 'inline-block' }}>
+            <OverlayTrigger
+              placement="auto"
+              overlay={
+                <Tooltip id="clear-btn-tooltip">
+                  Clear the form and start over.
+                </Tooltip>
+              }
+            >
+              <Button
+                size="sm"
+                variant={darkMode ? 'icon-only-dark' : 'icon-only'}
+                color={darkMode ? '#adb5bd' : '#0B3665'}
+                className={darkClass}
+                onClick={clearForm}
+                style={{ float: 'right', marginRight: '-30px' }}
               >
-                <Button
-                  size="sm"
-                  variant={darkMode ? 'icon-only-dark' : 'icon-only'}
-                  color={darkMode ? '#adb5bd' : '#0B3665'}
-                  className={darkClass}
-                  onClick={clearForm}
-                  style={{ float: 'right', marginRight: '-30px' }}
-                >
-                  {darkMode ? <XCircle /> : <XCircleFill />}
-                </Button>
-              </OverlayTrigger>
-            </div>
+                {darkMode ? <XCircle /> : <XCircleFill />}
+              </Button>
+            </OverlayTrigger>
           </div>
         </div>
+      </div>
       {/* utm_target */}
       <Row style={{ marginBottom: '-.5rem' }}>
         <InputGroup className="mb-3" size="lg">
@@ -548,53 +568,58 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
         {mainConfig?.utm_source?.useValue ? (
           <Col>
             {mainConfig?.utm_source?.isChooser ? (
-            <InputGroup className="mb-3" size="lg">
-              <UTMChoice
-                valueChanged={setSource}
-                targetType="utm_source"
-                enabled={!qrOnly}
-                id="utm-source"
-                settings={mainConfig?.utm_source}
-                selected={source}
-              />
-            </InputGroup>
+              <InputGroup className="mb-3" size="lg">
+                <UTMChoice
+                  valueChanged={setSource}
+                  targetType="utm_source"
+                  enabled={!qrOnly}
+                  id="utm-source"
+                  settings={mainConfig?.utm_source}
+                  selected={source}
+                />
+              </InputGroup>
             ) : (
-            <InputGroup className="mb-3" size="lg">
-              <UTMTextField
-                valueChanged={setSource}
-                targetType="utm_source"
-                enableMe={!qrOnly}
-                qrOnly={qrOnly}
-                value={source}
-              />
-            </InputGroup>
+              <InputGroup className="mb-3" size="lg">
+                <UTMTextField
+                  valueChanged={setSource}
+                  targetType="utm_source"
+                  enableMe={!qrOnly}
+                  qrOnly={qrOnly}
+                  value={source}
+                />
+              </InputGroup>
             )}
           </Col>
-        ) : ( <></> )}
+        ) : (
+          <></>
+        )}
         {/* utm_medium */}
         {mainConfig?.utm_medium?.useValue ? (
           <Col>
             <InputGroup className="mb-3" size="lg">
               {mainConfig?.utm_medium?.isChooser ? (
-              <UTMChoice
-                valueChanged={setMedium}
-                targetType="utm_medium"
-                enabled={!qrOnly}
-                id="medium-choice"
-                settings={mainConfig?.utm_medium}
-                selected={medium}
-              /> ) : (
-              <UTMTextField
-                valueChanged={setMedium}
-                targetType="utm_medium"
-                enableMe={!qrOnly}
-                value={medium}
-                qrOnly={qrOnly}
-              />
+                <UTMChoice
+                  valueChanged={setMedium}
+                  targetType="utm_medium"
+                  enabled={!qrOnly}
+                  id="medium-choice"
+                  settings={mainConfig?.utm_medium}
+                  selected={medium}
+                />
+              ) : (
+                <UTMTextField
+                  valueChanged={setMedium}
+                  targetType="utm_medium"
+                  enableMe={!qrOnly}
+                  value={medium}
+                  qrOnly={qrOnly}
+                />
               )}
             </InputGroup>
           </Col>
-        ) : ( <></> )}
+        ) : (
+          <></>
+        )}
       </Row>
       {/*  utm_term, utm_campaign */}
       <Row style={{ marginBottom: '.5rem' }}>
@@ -608,16 +633,20 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
                 id="campaign-choice"
                 settings={mainConfig?.utm_campaign}
                 selected={campaign}
-              /> ) : (
-            <UTMTextField
-              valueChanged={setCampaign}
-              targetType="utm_campaign"
-              enableMe={!qrOnly}
-              qrOnly={qrOnly}
-              value={campaign}
-            /> )}
+              />
+            ) : (
+              <UTMTextField
+                valueChanged={setCampaign}
+                targetType="utm_campaign"
+                enableMe={!qrOnly}
+                qrOnly={qrOnly}
+                value={campaign}
+              />
+            )}
           </Col>
-        ) : ( <></> )}
+        ) : (
+          <></>
+        )}
         {mainConfig?.utm_term.useValue ? (
           <Col>
             {mainConfig?.utm_term.isChooser ? (
@@ -628,16 +657,20 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
                 id="term-choice"
                 settings={mainConfig?.utm_term}
                 selected={term}
-              /> ) : (
-            <UTMTextField
-              valueChanged={setTerm}
-              targetType="utm_term"
-              enableMe={!qrOnly}
-              qrOnly={qrOnly}
-              value={term}
-            /> )}
+              />
+            ) : (
+              <UTMTextField
+                valueChanged={setTerm}
+                targetType="utm_term"
+                enableMe={!qrOnly}
+                qrOnly={qrOnly}
+                value={term}
+              />
+            )}
           </Col>
-        ) : ( <></> )}
+        ) : (
+          <></>
+        )}
       </Row>
       {/*  utm_content, utm_keyword */}
       <Row style={{ marginBottom: '.5rem' }}>
@@ -651,16 +684,20 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
                 id="content-choice"
                 settings={mainConfig?.utm_content}
                 selected={content}
-              /> ) : (
-            <UTMTextField
-              valueChanged={setContent}
-              targetType="utm_content"
-              enableMe={!qrOnly}
-              qrOnly={qrOnly}
-              value={content}
-            /> )}
+              />
+            ) : (
+              <UTMTextField
+                valueChanged={setContent}
+                targetType="utm_content"
+                enableMe={!qrOnly}
+                qrOnly={qrOnly}
+                value={content}
+              />
+            )}
           </Col>
-        ) : ( <></> )}
+        ) : (
+          <></>
+        )}
         {mainConfig?.utm_keyword?.useValue ? (
           <Col>
             {mainConfig?.utm_keyword?.isChooser ? (
@@ -671,70 +708,79 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
                 id="keyword-choice"
                 settings={mainConfig?.utm_keyword}
                 selected={keyword}
-              /> ) : (
-            <UTMTextField
-              valueChanged={setKeyword}
-              targetType="utm_keyword"
-              enableMe={!qrOnly}
-              qrOnly={qrOnly}
-              value={keyword}
-            /> )}
+              />
+            ) : (
+              <UTMTextField
+                valueChanged={setKeyword}
+                targetType="utm_keyword"
+                enableMe={!qrOnly}
+                qrOnly={qrOnly}
+                value={keyword}
+              />
+            )}
           </Col>
-        ) : ( <></> )}
+        ) : (
+          <></>
+        )}
       </Row>
       {/* team_name, region_name, utm_country */}
       <Row style={{ marginTop: '.5rem', marginBottom: '-.5rem' }}>
         {mainConfig?.team_name.useValue ? (
-        <Col>
-          {mainConfig?.team_name.isChooser ? (
-          <InputGroup className="mb-3" size="lg">
-            <UTMChoice
-              valueChanged={updateTeam}
-              targetType="utm_campaign_team"
-              enabled={!qrOnly}
-              id="utm-team"
-              settings={mainConfig?.team_name}
-              selected={team}
-            />
-          </InputGroup>
+          <Col>
+            {mainConfig?.team_name.isChooser ? (
+              <InputGroup className="mb-3" size="lg">
+                <UTMChoice
+                  valueChanged={updateTeam}
+                  targetType="utm_campaign_team"
+                  enabled={!qrOnly}
+                  id="utm-team"
+                  settings={mainConfig?.team_name}
+                  selected={team}
+                />
+              </InputGroup>
             ) : (
-          <InputGroup className="mb-3" size="lg">
-          <UTMTextField
-            valueChanged={updateTeam}
-            targetType="utm_campaign_team"
-            enableMe={!qrOnly}
-            qrOnly={qrOnly}
-            value={team}
-          />
-          </InputGroup>
+              <InputGroup className="mb-3" size="lg">
+                <UTMTextField
+                  valueChanged={updateTeam}
+                  targetType="utm_campaign_team"
+                  enableMe={!qrOnly}
+                  qrOnly={qrOnly}
+                  value={team}
+                />
+              </InputGroup>
             )}
-        </Col>
-        ) : ( <></> )}
+          </Col>
+        ) : (
+          <></>
+        )}
         {mainConfig?.region_name.useValue ? (
-        <Col>
-          {mainConfig?.region_name.isChooser ? (
-          <InputGroup className="mb-3" size="lg">
-            <UTMChoice
-              valueChanged={updateRegion}
-              targetType="region_name"
-              enabled={!qrOnly}
-              id="region_name"
-              settings={mainConfig?.region_name}
-              selected={region}
-            />
-          </InputGroup>
-           ) : (
-          <InputGroup className="mb-3" size="lg">
-          <UTMTextField
-            valueChanged={updateRegion}
-            targetType="region_name"
-            enableMe={!qrOnly}
-            qrOnly={qrOnly}
-            value={region}
-          />
-          </InputGroup>
-           )}
-        </Col> ) : ( <></> )}
+          <Col>
+            {mainConfig?.region_name.isChooser ? (
+              <InputGroup className="mb-3" size="lg">
+                <UTMChoice
+                  valueChanged={updateRegion}
+                  targetType="region_name"
+                  enabled={!qrOnly}
+                  id="region_name"
+                  settings={mainConfig?.region_name}
+                  selected={region}
+                />
+              </InputGroup>
+            ) : (
+              <InputGroup className="mb-3" size="lg">
+                <UTMTextField
+                  valueChanged={updateRegion}
+                  targetType="region_name"
+                  enableMe={!qrOnly}
+                  qrOnly={qrOnly}
+                  value={region}
+                />
+              </InputGroup>
+            )}
+          </Col>
+        ) : (
+          <></>
+        )}
         {showCountry ? (
           <Col style={{ marginTop: '.3rem' }}>
             <CountrySelect
@@ -746,7 +792,9 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
               onTextChange={updateCountry}
             />
           </Col>
-        ) : ( <></> )}
+        ) : (
+          <></>
+        )}
       </Row>
       {/* utm_content */}
       <Row>
@@ -756,7 +804,10 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
               placement="top"
               overlay={<Tooltip>This value is auto-generated</Tooltip>}
             >
-              <FloatingLabel label="Final Campaign String">
+              <FloatingLabel
+                label="Final Campaign String"
+                className={'form-control-dgs form-floating-txt'}
+              >
                 <FormControl
                   required
                   disabled

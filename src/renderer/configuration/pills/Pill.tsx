@@ -25,7 +25,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import PropTypes from 'prop-types';
 import { SyntheticEvent, useState } from 'react';
-import icon from '../../../../assets/icons/stree.png';
+import icon from '../../../../assets/icons/link-logo.png';
 
 export default function Pill({
   id,

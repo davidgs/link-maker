@@ -23,7 +23,7 @@
  */
 
 import './hyde.css';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import MainHeader from './MainHeader';
 import SideNav from './SideNav';
@@ -71,14 +71,15 @@ export default function MainPage() {
     setDarkMode(dark);
   };
 
-  useEffect(() => {
-    getDarkMode();
-  }, []);
+  getDarkMode();
+  // useEffect(() => {
+  //   getDarkMode();
+  // }, []);
 
   const toggleConfig = (val: boolean) => {
     setEditConfig(val);
   };
-  
+
   return (
     <div className="content">
       <div className="aside-column">

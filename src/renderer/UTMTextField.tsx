@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Form from 'react-bootstrap/Form';
 import {
   FloatingLabel,
@@ -91,6 +91,11 @@ function UTMTextField({
 
   return (
     <>
+    <style type="text/css">
+        {`
+    .form-floating-txt:not(.form-control:disabled)::before  {
+      background-color: var(--bs-secondary-bg);
+    }`}</style>
       <OverlayTrigger placement="top" overlay={<Tooltip>{tooltip}</Tooltip>}>
         <FloatingLabel
           label={
@@ -101,9 +106,12 @@ function UTMTextField({
               ? `${label} (${tType})`
               : `${label}`
           }
+          className={!enableChoice ? 'form-control-dgs form-floating-txt' : ''}
+          style={{ backgroundColor: 'none' }}
         >
           <FormControl
             required
+            className={'form-control-dgs form-control'}
             type="text"
             disabled={!enableChoice}
             ref={ref}

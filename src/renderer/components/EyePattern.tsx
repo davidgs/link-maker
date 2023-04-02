@@ -108,6 +108,7 @@ function drawRoundedSquare(
   fill: boolean,
   ctx: CanvasRenderingContext2D
 ) {
+  if(!ctx) return;
   ctx.lineWidth = lineWidth;
   ctx.fillStyle = color;
   ctx.strokeStyle = color;
