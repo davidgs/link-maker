@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Form from 'react-bootstrap/Form';
 import { FloatingLabel, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import PropTypes from 'prop-types';
@@ -51,7 +51,6 @@ export default function UTMChoice({
   const [enableChoice, setEnableChoice] = useState<boolean>(true);
   const [choices, setChoices] = useState<JSX.Element[]>([]);
   const [displayValue, setDisplayValue] = useState<string>('');
-  const ref = useRef(null);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps, no-undef
   function getGroups(vals: UtmKeyValue[]): JSX.Element[] {
@@ -109,7 +108,6 @@ export default function UTMChoice({
       <FloatingLabel label={showName ? `${label} (${targetType})` : label}>
         <Form.Select
           required
-          ref={ref}
           aria-label={showName ? `${ariaLabel} (${targetType})` : ariaLabel}
           id={targetType}
           disabled={!enableChoice}

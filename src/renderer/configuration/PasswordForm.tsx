@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { useState, useEffect, useRef, SyntheticEvent } from 'react';
+import React, { useState, useEffect, SyntheticEvent } from 'react';
 import {
   Form,
   Button,
@@ -68,7 +68,6 @@ export default function PasswordForm({
   const [changePass, setChangePass] = useState<boolean>(false);
   const [passGood, setPassGood] = useState<boolean>(false);
   const [dark, setDark] = useState<boolean>(darkMode);
-  const inputRef = useRef(null);
 
 
   const goodCheck = (
@@ -289,7 +288,6 @@ export default function PasswordForm({
                     setPassword(event.target.value);
                     checkPassMatch(event.target.value);
                   }}
-                  ref={inputRef}
                 />
                 <Form.Control.Feedback type="invalid">
                   You must provide a valid password.
