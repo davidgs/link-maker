@@ -23,7 +23,7 @@
 import React, {
   useEffect,
   useState,
-  useRef,
+  // useRef,
   KeyboardEventHandler,
 } from 'react';
 import { QRCode } from 'react-qrcode-logo';
@@ -31,8 +31,7 @@ import { Button, OverlayTrigger, Tooltip, Row, Col } from 'react-bootstrap';
 import { ClipboardData, Clipboard2CheckFill } from 'react-bootstrap-icons';
 import uuid from 'react-uuid';
 import QRConfigForm from './configuration/QRConfigForm';
-// import logo from '../../assets/images/logo-mark_fill.png';
-import { defaultMainSettings, DefaultQRStyle, MainSettings, QRSettings, IProps } from './types';
+import { defaultMainSettings, MainSettings, QRSettings, IProps } from './types';
 import { Gear, GearFill, Download } from 'react-bootstrap-icons';
 import PropTypes from 'prop-types';
 import potrace from 'potrace';
@@ -64,7 +63,7 @@ export default function QCode({
     'button-icon header-stuff'
   );
   const [darkClass, setDarkClass] = useState<string>('header-stuff');
-  const ref = useRef(null);
+  // const ref = useRef(null);
 
   useEffect(() => {
     setDarkMode(dark);
@@ -116,8 +115,6 @@ export default function QCode({
       color: qrSettings.QRProps?.fgColor,
     };
     const dataURL = canvas?.toDataURL(`image/${fileExt}`);
-    // const a = document.createElement('a');
-    // a.href = dataURL;
     potrace.trace(dataURL, params, function (err: any, svg: any) {
       if (err) throw err;
       window.electronAPI
@@ -284,7 +281,7 @@ export default function QCode({
               }
             >
               <div
-                ref={ref}
+                // ref={ref}
                 onClick={onDownloadClick}
                 onKeyDown={null as unknown as KeyboardEventHandler}
                 role="button"

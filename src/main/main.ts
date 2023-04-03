@@ -48,8 +48,8 @@ const appStorePath = path.join(electronApp.getPath('appData'), 'Link Builder');
 const home = process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH || './';
 const store = new Store();
 const defaultConfig: UtmParams = defaultUTMParams;
-const currentVersion = 'v1.3.1'
-const currentBuild = 'b455'
+const currentVersion = 'v1.3.2'
+const currentBuild = 'b456'
 const server = 'https://link-maker.davidgs.com/';
 const url = `${server}/update/${process.platform}/${app.getVersion()}`;
 

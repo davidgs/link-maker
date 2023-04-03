@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Form from 'react-bootstrap/Form';
 import {
   FloatingLabel,
@@ -53,7 +53,6 @@ function UTMTextField({
   const [tType, setTType] = useState<string>(targetType);
   const [qrOnlyState, setQrOnlyState] = useState<boolean>(qrOnly);
   const [myValue, setMyValue] = useState<string>(value || '');
-  const ref = useRef(null);
 
   // get the configuration
   useEffect(() => {
@@ -114,7 +113,6 @@ function UTMTextField({
             className={'form-control-dgs form-control'}
             type="text"
             disabled={!enableChoice}
-            ref={ref}
             id={`${targetType}-target`}
             aria-label={ariaLabel}
             aria-describedby={tooltip}
