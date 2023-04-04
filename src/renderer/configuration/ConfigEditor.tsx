@@ -718,7 +718,7 @@ export default function ConfigEditor({
                               type="text"
                               id="bitly_config-label"
                               placeholder="Enter Bitly Switch label"
-                              value={`${config?.bitly_config?.label}`}
+                              value={config.bitly_config.label ? `${config?.bitly_config?.label}` : 'Use Bitly'}
                               onChange={(e) => {
                                 setConfig((prevConfig) => {
                                   const newConfig = { ...prevConfig };
@@ -736,7 +736,7 @@ export default function ConfigEditor({
                               type="text"
                               id="bitly_config-tooltip"
                               placeholder="Enter Bit.ly field tooltip"
-                              value={config?.bitly_config?.tooltip}
+                              value={config.bitly_config.tooltip ? config?.bitly_config?.tooltip : 'Bitly Tooltip'}
                               onChange={(e) => {
                                 setConfig((prevConfig) => {
                                   const newConfig = { ...prevConfig };
@@ -754,7 +754,7 @@ export default function ConfigEditor({
                               type="text"
                               id="bitly_config-aria"
                               placeholder="Enter bitly switch field ARIA (Accessibility) label"
-                              value={config?.bitly_config?.ariaLabel}
+                              value={config.bitly_config.ariaLabel ? config?.bitly_config?.ariaLabel :  'Bitly Aria Label'}
                               required
                               onChange={(e) => {
                                 setConfig((prevConfig) => {
@@ -774,7 +774,7 @@ export default function ConfigEditor({
                             <Form.Control
                               type="text"
                               placeholder="The Bit.ly API Token"
-                              value={config?.bitly_config?.bitlyToken}
+                              value={config.bitly_config.bitlyToken ? config?.bitly_config?.bitlyToken : ''}
                               required
                               id="bitly_token-value"
                               onChange={(eventKey) => {
@@ -796,7 +796,7 @@ export default function ConfigEditor({
                             <Form.Control
                               type="text"
                               placeholder="Your Custom Bit.ly Domain"
-                              value={config?.bitly_config?.bitlyDomain}
+                              value={config.bitly_config.bitlyDomain ? config?.bitly_config?.bitlyDomain : ''}
                               id="bitly_domain-value"
                               onChange={(eventKey) => {
                                 setConfig((prevConfig) => {
@@ -816,7 +816,7 @@ export default function ConfigEditor({
                           type="checkbox"
                           id="bitly_config-use"
                           label="Enable using Bit.ly?"
-                          checked={config?.bitly_config?.useValue}
+                          checked={config.bitly_config.useValue ? config?.bitly_config?.useValue : false}
                           onChange={(e) => {
                             setConfig((prevConfig) => {
                               const newConfig = { ...prevConfig };
@@ -879,8 +879,8 @@ export default function ConfigEditor({
                                     size={55}
                                     name="brandHeight"
                                     className="p-knob"
-                                    value={
-                                      mainConfig?.brandHeight as number | 5
+                                    value={ mainConfig.brandHeight ?
+                                      mainConfig?.brandHeight : 5
                                     }
                                     min={5}
                                     max={300}
@@ -934,7 +934,7 @@ export default function ConfigEditor({
                                     size={55}
                                     name="brandWidth"
                                     className="p-knob"
-                                    value={mainConfig.brandWidth as number | 5}
+                                    value={mainConfig.brandWidth ? mainConfig.brandWidth : 5}
                                     min={5}
                                     max={300}
                                     strokeWidth={11}
@@ -964,11 +964,12 @@ export default function ConfigEditor({
                                     size={55}
                                     name="brandOpacity"
                                     className="p-knob"
-                                    value={
-                                      mainConfig.brandOpacity as number | 5
+                                    value={ mainConfig.brandOpacity ?
+                                      mainConfig.brandOpacity  : 1
                                     }
-                                    min={5}
-                                    max={300}
+                                    min={0}
+                                    max={1}
+                                    step={0.1}
                                     strokeWidth={11}
                                     textColor={dark ? 'white' : 'black'}
                                     valueColor={'#0B3665'}
@@ -976,7 +977,9 @@ export default function ConfigEditor({
                                     onChange={(e) => {
                                       setMainConfig((prevConfig) => {
                                         const qp = { ...prevConfig };
-                                        qp.brandOpacity = e.value;
+                                        qp.brandOpacity = Number.parseFloat(
+                                          e.value.toFixed(2)
+                                        );
                                         return qp;
                                       });
                                     }}
@@ -1010,7 +1013,7 @@ export default function ConfigEditor({
                                   width: `${mainConfig?.brandWidth}px`,
                                   height: `${mainConfig?.brandHeight}px`,
                                   opacity: mainConfig?.brandOpacity
-                                    ? mainConfig?.brandOpacity / 10
+                                    ? mainConfig?.brandOpacity
                                     : 1,
                                 }}
                               />
@@ -1290,7 +1293,7 @@ export default function ConfigEditor({
                               logoOpacity={
                                 mainConfig?.QRSettings?.QRProps?.logoOpacity as
                                   | number
-                                  | 0.2
+                                  | 1
                               }
                               eyeColor={
                                 mainConfig?.QRSettings?.QRProps?.eyeColor as
@@ -1810,19 +1813,18 @@ export default function ConfigEditor({
                                 Logo Opacity
                               </Form.Label>
                             </Col>
-                            <Col lg="6">
+                            <Col lg="6" >
                               <Knob
                                 size={55}
                                 name="QrLogoOpacity"
                                 className="p-knob"
                                 value={
-                                  ((mainConfig?.QRSettings?.QRProps
-                                    ?.logoOpacity as number) *
-                                    10) |
-                                  10
+                                  mainConfig.QRSettings.QRProps.logoOpacity ? mainConfig.QRSettings.QRProps.logoOpacity :
+                                  1
                                 }
                                 min={0}
-                                max={50}
+                                max={1}
+                                step={0.1}
                                 strokeWidth={11}
                                 textColor={dark ? 'white' : 'black'}
                                 valueColor={'#0B3665'}
@@ -1831,7 +1833,8 @@ export default function ConfigEditor({
                                   setMainConfig((prevQrConfig) => {
                                     const Op = { ...prevQrConfig };
                                     Op.QRSettings.QRProps.logoOpacity =
-                                      e.value / 10;
+                                      Number.parseFloat(
+                                          e.value.toFixed(2));
                                     return Op;
                                   });
                                 }}
@@ -1938,7 +1941,7 @@ export default function ConfigEditor({
                                   opacity: mainConfig.QRSettings.QRProps
                                     .logoOpacity
                                     ? mainConfig.QRSettings.QRProps
-                                        .logoOpacity / 10
+                                        .logoOpacity
                                     : 1,
                                 }}
                               />

@@ -123,7 +123,7 @@ export default function UTMAccordianItem({
               type="checkbox"
               id={`${accType}-showName`}
               label={`Show '${accType}' in Field Label?`}
-              checked={accValue?.showName}
+              checked={accValue?.showName ? accValue.showName : false}
               onChange={(e) => {
                 setAccValue((prevConfig) => {
                   const newConfig = { ...(prevConfig as UtmObj) };
@@ -140,7 +140,7 @@ export default function UTMAccordianItem({
               type="text"
               id={`${accType}-tooltip`}
               placeholder={`Enter ${accType} field tooltip`}
-              value={accValue?.tooltip}
+              value={accValue?.tooltip ? accValue.tooltip : ''}
               onChange={(e) => {
                 setAccValue((prevConfig) => {
                   const newConfig = { ...(prevConfig as UtmObj) };
@@ -158,7 +158,7 @@ export default function UTMAccordianItem({
               id={`${accType}-aria`}
               placeholder={`Enter ${accType} field ARIA (Accessibility) label`}
               required
-              value={accValue?.ariaLabel}
+              value={accValue?.ariaLabel ? accValue.ariaLabel : ''}
               onChange={(e) => {
                 setAccValue((prevConfig) => {
                   const newConfig = { ...(prevConfig as UtmObj) };
@@ -175,7 +175,7 @@ export default function UTMAccordianItem({
               type="text"
               id={`${accType}-error`}
               placeholder={`Enter ${accType} field error text`}
-              value={accValue?.error}
+              value={accValue?.error ? accValue.error : ''}
               onChange={(e) => {
                 setAccValue((prevConfig) => {
                   const newConfig = { ...(prevConfig as UtmObj) };
@@ -191,7 +191,7 @@ export default function UTMAccordianItem({
                 id="utm_target-restrict_bases"
                 // key="restrict-bases"
                 label="Restrict base URLs for utm_targets?"
-                checked={utmObj?.restrict_bases}
+                checked={utmObj?.restrict_bases ? utmObj.restrict_bases : false}
                 onChange={(e) => {
                   setUtmObj((prevConfig) => {
                     const newConfig = { ...(prevConfig as UtmParams) };
@@ -211,7 +211,7 @@ export default function UTMAccordianItem({
                 <Form.Control
                   type="text"
                   placeholder="Enter comma-separated list of key=value pairs to use"
-                  value={kvValue}
+                  value={kvValue ? kvValue : ''}
                   required
                   id={`${accType}-values`}
                   isInvalid={!valValid}
@@ -223,7 +223,7 @@ export default function UTMAccordianItem({
                   You must provide a key=value pair.
                 </Form.Control.Feedback>
                 <PillArea
-                  pills={ accValue?.value as UtmKeyValue[]}
+                  pills={ accValue?.value ? accValue.value as UtmKeyValue[] : [] as UtmKeyValue[]}
                   type={accType}
                   callback={deletePillValue}
                 />
@@ -237,7 +237,7 @@ export default function UTMAccordianItem({
                   type="checkbox"
                   id={`${accType}-use`}
                   label={`Use '${accType}' value?`}
-                  checked={accValue?.useValue}
+                  checked={accValue?.useValue ? accValue.useValue : false}
                   onChange={(e) => {
                     setAccValue((prevConfig) => {
                       const newConfig = { ...(prevConfig as UtmObj) };
@@ -254,7 +254,7 @@ export default function UTMAccordianItem({
                       inline
                       id={`${accType}-chooser`}
                       label="Use Chooser"
-                      checked={accValue?.isChooser}
+                      checked={accValue?.isChooser ? accValue.isChooser : true}
                       onChange={(e) => {
                         setAccValue((prevConfig) => {
                           const newConfig = { ...(prevConfig as UtmObj) };
@@ -269,7 +269,7 @@ export default function UTMAccordianItem({
                       inline
                       id={`${accType}-text`}
                       label="Use Text Input"
-                      checked={!accValue?.isChooser}
+                      checked={!accValue?.isChooser ? !accValue.isChooser : false}
                       onChange={(e) => {
                         setAccValue((prevConfig) => {
                           const newConfig = { ...(prevConfig as UtmObj) };
