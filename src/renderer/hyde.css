@@ -541,6 +541,31 @@ a.sidebar-nav-item:focus {
   outline: solid;
   color: #adb5bd;
 }
+
+.config-btn-icon-only-dark {
+  border-radius: 10%;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+    border-top-color: initial;
+    border-top-style: solid;
+    border-top-width: 0.5px;
+    border-right-color: initial;
+    border-right-style: solid;
+    border-right-width: 0.5px;
+    border-bottom-color: initial;
+    border-bottom-style: solid;
+    border-bottom-width: 0.5px;
+    border-left-color: initial;
+    border-left-style: solid;
+    border-left-width: 0.5px;
+    border-image-source: initial;
+    border-image-slice: initial;
+    border-image-width: initial;
+    border-image-outset: initial;
+    border-image-repeat: initial;
+  outline: solid;
+  color: #adb5bd;
+}
 .button-icon {
   position: absolute;
   display: flex;
@@ -572,3 +597,7 @@ a.sidebar-nav-item:focus {
   color: #0B3665;
 }
 
+.my-modal {
+    width: 95vw;
+    max-width: 95vw;
+}

@@ -686,7 +686,7 @@ export default function ConfigEditor({
         show={show}
         onHide={handleCancel}
         size="xl"
-        dialogClassName="modal-90w"
+        dialogClassName="my-modal"
         backdrop="static"
       >
         <Modal.Header closeButton>
@@ -718,7 +718,11 @@ export default function ConfigEditor({
                               type="text"
                               id="bitly_config-label"
                               placeholder="Enter Bitly Switch label"
-                              value={config.bitly_config.label ? `${config?.bitly_config?.label}` : 'Use Bitly'}
+                              value={
+                                config.bitly_config.label
+                                  ? `${config?.bitly_config?.label}`
+                                  : 'Use Bitly'
+                              }
                               onChange={(e) => {
                                 setConfig((prevConfig) => {
                                   const newConfig = { ...prevConfig };
@@ -736,7 +740,11 @@ export default function ConfigEditor({
                               type="text"
                               id="bitly_config-tooltip"
                               placeholder="Enter Bit.ly field tooltip"
-                              value={config.bitly_config.tooltip ? config?.bitly_config?.tooltip : 'Bitly Tooltip'}
+                              value={
+                                config.bitly_config.tooltip
+                                  ? config?.bitly_config?.tooltip
+                                  : 'Bitly Tooltip'
+                              }
                               onChange={(e) => {
                                 setConfig((prevConfig) => {
                                   const newConfig = { ...prevConfig };
@@ -754,7 +762,11 @@ export default function ConfigEditor({
                               type="text"
                               id="bitly_config-aria"
                               placeholder="Enter bitly switch field ARIA (Accessibility) label"
-                              value={config.bitly_config.ariaLabel ? config?.bitly_config?.ariaLabel :  'Bitly Aria Label'}
+                              value={
+                                config.bitly_config.ariaLabel
+                                  ? config?.bitly_config?.ariaLabel
+                                  : 'Bitly Aria Label'
+                              }
                               required
                               onChange={(e) => {
                                 setConfig((prevConfig) => {
@@ -774,7 +786,11 @@ export default function ConfigEditor({
                             <Form.Control
                               type="text"
                               placeholder="The Bit.ly API Token"
-                              value={config.bitly_config.bitlyToken ? config?.bitly_config?.bitlyToken : ''}
+                              value={
+                                config.bitly_config.bitlyToken
+                                  ? config?.bitly_config?.bitlyToken
+                                  : ''
+                              }
                               required
                               id="bitly_token-value"
                               onChange={(eventKey) => {
@@ -796,7 +812,11 @@ export default function ConfigEditor({
                             <Form.Control
                               type="text"
                               placeholder="Your Custom Bit.ly Domain"
-                              value={config.bitly_config.bitlyDomain ? config?.bitly_config?.bitlyDomain : ''}
+                              value={
+                                config.bitly_config.bitlyDomain
+                                  ? config?.bitly_config?.bitlyDomain
+                                  : ''
+                              }
                               id="bitly_domain-value"
                               onChange={(eventKey) => {
                                 setConfig((prevConfig) => {
@@ -816,7 +836,11 @@ export default function ConfigEditor({
                           type="checkbox"
                           id="bitly_config-use"
                           label="Enable using Bit.ly?"
-                          checked={config.bitly_config.useValue ? config?.bitly_config?.useValue : false}
+                          checked={
+                            config.bitly_config.useValue
+                              ? config?.bitly_config?.useValue
+                              : false
+                          }
                           onChange={(e) => {
                             setConfig((prevConfig) => {
                               const newConfig = { ...prevConfig };
@@ -879,8 +903,10 @@ export default function ConfigEditor({
                                     size={55}
                                     name="brandHeight"
                                     className="p-knob"
-                                    value={ mainConfig.brandHeight ?
-                                      mainConfig?.brandHeight : 5
+                                    value={
+                                      mainConfig.brandHeight
+                                        ? mainConfig?.brandHeight
+                                        : 5
                                     }
                                     min={5}
                                     max={300}
@@ -934,7 +960,11 @@ export default function ConfigEditor({
                                     size={55}
                                     name="brandWidth"
                                     className="p-knob"
-                                    value={mainConfig.brandWidth ? mainConfig.brandWidth : 5}
+                                    value={
+                                      mainConfig.brandWidth
+                                        ? mainConfig.brandWidth
+                                        : 5
+                                    }
                                     min={5}
                                     max={300}
                                     strokeWidth={11}
@@ -964,8 +994,10 @@ export default function ConfigEditor({
                                     size={55}
                                     name="brandOpacity"
                                     className="p-knob"
-                                    value={ mainConfig.brandOpacity ?
-                                      mainConfig.brandOpacity  : 1
+                                    value={
+                                      mainConfig.brandOpacity
+                                        ? mainConfig.brandOpacity
+                                        : 1
                                     }
                                     min={0}
                                     max={1}
@@ -1244,11 +1276,13 @@ export default function ConfigEditor({
                           </Form.Label>
                         </Col>
                         {/* Live QR Code */}
-                        <Col
-                          lg="2">
+                        <Col lg="2">
                           <div
                             style={{
-                              marginTop: '2rem', alignItems: 'center', justifyContent: 'center', display: 'flex'
+                              marginTop: '2rem',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              display: 'flex',
                             }}
                           >
                             <QRCode
@@ -1712,7 +1746,7 @@ export default function ConfigEditor({
                             </Col>
                           </Row>
                           {/* QR Code Show */}
-                          <Form.Group as={Row}>
+                          <Form.Group as={Row} style={{ paddingTop: '7px' }}>
                             <Col lg="4">
                               <Form.Label>Show Logo</Form.Label>
                             </Col>
@@ -1730,7 +1764,7 @@ export default function ConfigEditor({
                             <Col lg="8" />
                           </Form.Group>
                           {/* QR Code Logo Size */}
-                          <Form.Group as={Row}>
+                          <Form.Group as={Row} style={{ paddingTop: '7px' }}>
                             <Col lg="4">
                               <Form.Label style={{ marginTop: '1rem' }}>
                                 Logo Height
@@ -1807,20 +1841,21 @@ export default function ConfigEditor({
                             </Col>
                           </Form.Group>
                           {/* Logo Opacity */}
-                          <Form.Group as={Row}>
+                          <Form.Group as={Row} style={{ paddingTop: '7px' }}>
                             <Col lg="4">
                               <Form.Label style={{ marginTop: '1rem' }}>
                                 Logo Opacity
                               </Form.Label>
                             </Col>
-                            <Col lg="6" >
+                            <Col lg="6">
                               <Knob
                                 size={55}
                                 name="QrLogoOpacity"
                                 className="p-knob"
                                 value={
-                                  mainConfig.QRSettings.QRProps.logoOpacity ? mainConfig.QRSettings.QRProps.logoOpacity :
-                                  1
+                                  mainConfig.QRSettings.QRProps.logoOpacity
+                                    ? mainConfig.QRSettings.QRProps.logoOpacity
+                                    : 1
                                 }
                                 min={0}
                                 max={1}
@@ -1833,8 +1868,7 @@ export default function ConfigEditor({
                                   setMainConfig((prevQrConfig) => {
                                     const Op = { ...prevQrConfig };
                                     Op.QRSettings.QRProps.logoOpacity =
-                                      Number.parseFloat(
-                                          e.value.toFixed(2));
+                                      Number.parseFloat(e.value.toFixed(2));
                                     return Op;
                                   });
                                 }}
@@ -1843,7 +1877,7 @@ export default function ConfigEditor({
                             </Col>
                           </Form.Group>
                           {/* Logo Padding */}
-                          <Form.Group as={Row}>
+                          <Form.Group as={Row} style={{ paddingTop: '7px' }}>
                             <Col lg="4">
                               <Form.Label style={{ marginTop: '1rem' }}>
                                 Logo Padding
@@ -1876,7 +1910,7 @@ export default function ConfigEditor({
                             </Col>
                           </Form.Group>
                           {/* Padding Style */}
-                          <Form.Group as={Row}>
+                          <Form.Group as={Row} style={{ paddingTop: '7px' }}>
                             <Col lg="4">
                               <Form.Label>Padding Style</Form.Label>
                             </Col>
@@ -1902,7 +1936,7 @@ export default function ConfigEditor({
                             </Col>
                           </Form.Group>
                           {/* Hide QR Behind Logo */}
-                          <Form.Group as={Row}>
+                          <Form.Group as={Row} style={{ paddingTop: '7px' }}>
                             <Col lg="4">
                               <Form.Label>Hide QR Behind Logo</Form.Label>
                             </Col>
@@ -1940,8 +1974,7 @@ export default function ConfigEditor({
                                   height: `${mainConfig.QRSettings.QRProps.logoHeight}px`,
                                   opacity: mainConfig.QRSettings.QRProps
                                     .logoOpacity
-                                    ? mainConfig.QRSettings.QRProps
-                                        .logoOpacity
+                                    ? mainConfig.QRSettings.QRProps.logoOpacity
                                     : 1,
                                 }}
                               />
