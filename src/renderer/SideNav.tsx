@@ -32,7 +32,7 @@ import {
 } from 'react-bootstrap';
 import PasswordForm from './configuration/PasswordForm';
 import StarTree from '../../assets/images/NewLinkerLogo.png';
-import { Lightbulb, LightbulbFill } from 'react-bootstrap-icons';
+import { Lightbulb, LightbulbFill, Gear, GearFill } from 'react-bootstrap-icons';
 import { defaultMainSettings, MainSettings } from './types';
 import PropTypes from 'prop-types';
 import ImgElement from './components/ImgElement';
@@ -96,13 +96,32 @@ export default function SideNav({
       <aside className="theme-base-09 sidebar">
         <p />
         <p />
-        <div style={{ textAlign: 'center'}}>
-        <a href="https://davidgs.com/" target="_blank" rel="noreferrer">
-          {mainImage ? (
-            <ImgElement byteString={mainImage} width={mainConfig.brandWidth as number} height={mainConfig.brandHeight as number} alt='UTM Linker Logo'/> ) : (
-            <img src={StarTree} alt="UTM Linker Logo" width={mainConfig.brandWidth > 0 ? `${mainConfig.brandWidth}px` : "75%"} height={mainConfig.brandHeight > 0 ? `${mainConfig.brandHeight}px` : 'auto'} />
-          )}
-        </a>
+        <div style={{ textAlign: 'center' }}>
+          <a href="https://davidgs.com/" target="_blank" rel="noreferrer">
+            {mainImage ? (
+              <ImgElement
+                byteString={mainImage}
+                width={mainConfig.brandWidth as number}
+                height={mainConfig.brandHeight as number}
+                alt="UTM Linker Logo"
+              />
+            ) : (
+              <img
+                src={StarTree}
+                alt="UTM Linker Logo"
+                width={
+                  mainConfig.brandWidth > 0
+                    ? `${mainConfig.brandWidth}px`
+                    : '75%'
+                }
+                height={
+                  mainConfig.brandHeight > 0
+                    ? `${mainConfig.brandHeight}px`
+                    : 'auto'
+                }
+              />
+            )}
+          </a>
         </div>
         <p />
         <div className="container sidebar-sticky">
@@ -137,6 +156,14 @@ export default function SideNav({
           <Form>
             <Row>
               <Col sm={2}>
+                <OverlayTrigger
+                  placement="top"
+                  overlay={
+                    <Tooltip id="config-tooltip">
+                      Turn {darkMode ? 'off' : 'on'} Dark Mode
+                    </Tooltip>
+                  }
+                >
                 <Button
                   type="button"
                   size={'sm'}
@@ -153,29 +180,34 @@ export default function SideNav({
                     <Lightbulb size={20} />
                   )}
                 </Button>
+                </OverlayTrigger>
               </Col>
-              <Col sm={2}></Col>
-              <Col sm={7}>
+              <Col sm={7}></Col>
+              <Col sm={2}>
                 <OverlayTrigger
-                  placement="right"
+                  placement="top"
                   overlay={
                     <Tooltip id="config-tooltip">
-                      Edit the Configuration
+                      Edit the Configuration of fields, images and the QR Code
                     </Tooltip>
                   }
                 >
-                  <Form.Check
-                    type="switch"
+                  <Button
+                    // type="switch"
+                    variant={'config-btn-icon-only-dark'}
                     className="configSwitch"
                     id="custom-switch"
                     key="config-switch"
-                    label="Edit Configuration"
+                    // label="Edit Configuration"
                     aria-label="Edit Configuration"
-                    checked={showPasswd}
-                    onChange={(e) => {
-                      passwdVisible(e.target.checked);
+                    // checked={showPasswd}
+                    onClick={(e) => {
+                      passwdVisible(!showPasswd);
                     }}
-                  />
+                    size={'sm'}
+                  >
+                    {dark ? <GearFill size={20} /> : <Gear size={20} />}
+                  </Button>
                 </OverlayTrigger>
               </Col>
               <Col sm={1}></Col>
