@@ -117,7 +117,7 @@ const configuration: webpack.Configuration = {
      */
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
-      DEBUG_PROD: false,
+      DEBUG_PROD: true,
     }),
 
     new MiniCssExtractPlugin({
