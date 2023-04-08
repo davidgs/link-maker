@@ -104,7 +104,10 @@ export default function UTMChoice({
   }, [enabled]);
 
   return (
-    <OverlayTrigger placement="top" overlay={<Tooltip>{tooltip}</Tooltip>}>
+    <OverlayTrigger
+    placement="top"
+    delay={{ show: 250, hide: 300 }}
+    overlay={<Tooltip id={`${targetType}-tooltip`}>{tooltip}</Tooltip>}>
       <FloatingLabel label={showName ? `${label} (${targetType})` : label}>
         <Form.Select
           required

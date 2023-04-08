@@ -39,6 +39,7 @@ import { UtmParams, defaultUTMParams, QRSettings, defaultQRSettings, defaultMain
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import uuid from 'react-uuid';
+import { useState } from 'react';
 
 
 
@@ -48,14 +49,37 @@ const appStorePath = path.join(electronApp.getPath('appData'), 'Link Builder');
 const home = process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH || './';
 const store = new Store();
 const defaultConfig: UtmParams = defaultUTMParams;
-const currentVersion = 'v1.3.3'
-const currentBuild = 'b456'
+const currentVersion = 'v1.3.4'
+const currentBuild = 'b458'
 const server = 'https://link-maker.davidgs.com/';
 const url = `${server}/update/${process.platform}/${app.getVersion()}`;
 
-
+let timeoutID: NodeJS.Timeout | null = null;
+let updateMessage: string[] = [];
 const up = autoUpdater;
 up.setFeedURL({ url });
+autoUpdater.on('checking-for-update', () => {
+  updateMessage.push('Checking for update ...');
+  if(timeoutID === null) sendMessage();
+});
+
+autoUpdater.on('update-available', (info) => {
+  updateMessage.push(`Update available to ${info.version}.`);
+  if(timeoutID === null) sendMessage();
+});
+
+autoUpdater.on('update-not-available', () => {
+  updateMessage.push(`Version ${currentVersion} is the most recent.`);
+  if(timeoutID === null) sendMessage();
+});
+
+up.on('error', (err) => {
+  log.error('There was a problem updating the application');
+  updateMessage.push('There was a problem updating the application.');
+  if(timeoutID === null) sendMessage();
+  log.error(err);
+});
+
 class AppUpdater {
   constructor() {
     log.verbose('AppUpdater::constructor');
@@ -63,12 +87,35 @@ class AppUpdater {
     up.checkForUpdates();
   }
 }
+let clearMessage = false;
+function sendMessage(){
+  if (updateMessage === undefined) return;
+  if(updateMessage.length === 0 && clearMessage){
+    mainWindow?.webContents.send('message', '');
+    clearMessage = false;
+    timeoutID = null;
+    return;
+  }
+
+  clearInterval(timeoutID as NodeJS.Timeout);
+  const m = updateMessage[0];
+  updateMessage = updateMessage.slice(1);
+  mainWindow?.webContents.send('message', m);
+  clearMessage = updateMessage.length === 0;
+  if( updateMessage !== undefined) {
+    timeoutID = setTimeout(() => {
+      sendMessage();
+    }, 15000);
+  }
+}
+
 
 setInterval(() => {
   up.checkForUpdates();
-}, 86400);
+}, 1.8e+6);
 
 up.on('update-downloaded', (event, releaseNotes, releaseName) => {
+  updateMessage.push('A new version has been downloaded.');
   const dialogOpts = {
     type: 'info',
     buttons: ['Restart', 'Later'],
@@ -84,6 +131,8 @@ up.on('update-downloaded', (event, releaseNotes, releaseName) => {
 })
 
 let mainWindow: BrowserWindow | null = null;
+
+//   mainWindow?.webContents.send('message', reader.reader.name);
 
 /*
  * get the params from the store

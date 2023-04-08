@@ -91,10 +91,12 @@ export default function ConfigEditor({
   const darkColor = '#adb5bd';
   const lightColor = '#000000';
   const [color, setColor] = useState(darkMode ? darkColor : lightColor);
+  const [borderColor, setBorderColor] = useState(darkMode ? 'rgba(255,255,255,.5)' : '#0B3665');
 
   useEffect(() => {
     setDarkMode(dark);
     setColor(dark ? darkColor : lightColor);
+    setBorderColor(dark ? 'rgba(255,255,255,.5)' : '#0B3665');
   }, [dark]);
 
   /* Update properties when eye-radius values change */
@@ -581,7 +583,7 @@ export default function ConfigEditor({
   };
 
   /* Handle the Background Color Change
-      @param: color: the color that was selected
+    @param: color: the color that was selected
   */
   const handleBackColorChange = (color: any) => {
     setBackColor(color.rgb);
@@ -595,7 +597,7 @@ export default function ConfigEditor({
   };
 
   /* Handle the Eye Color Change
-      @param: color: the color that was selected
+    @param: color: the color that was selected
   */
   const handleEyeColorChange = (color: any) => {
     setEyeColor(color.rgb);
@@ -927,9 +929,10 @@ export default function ConfigEditor({
                                 <Col lg="2" />
                                 <Col lg="2">
                                   <OverlayTrigger
-                                    placement="top"
+                                    placement="auto"
+                                    delay={{ show: 250, hide: 300 }}
                                     overlay={
-                                      <Tooltip>
+                                      <Tooltip id='aspect-tooltip'>
                                         {isMainAspectLocked ? 'Unlock' : 'Lock'}{' '}
                                         Aspect Ratio
                                       </Tooltip>
@@ -1203,7 +1206,7 @@ export default function ConfigEditor({
                             <strong>Error Correction: </strong>
                           </Form.Label>
                         </Col>
-                        <Col lg="1">
+                        <Col lg="2">
                           <Form.Select
                             aria-label="Default select example"
                             onChange={(e) => {
@@ -1228,56 +1231,85 @@ export default function ConfigEditor({
                           </Form.Select>
                         </Col>
                         {/* QR Code Quiet Zone */}
+                        </Form.Group>
+                      <Form.Group as={Row} style={{marginTop: '0.5rem'}}>
                         <Col lg="2">
-                          <Form.Label style={{ marginTop: '0.5rem' }}>
+                          <Form.Label style={{ marginTop: '1rem' }}>
+                            <strong>QR Code Size:</strong>
+                          </Form.Label>
+                        </Col>
+                        <Col lg="1">
+                          <Knob
+                            size={55}
+                            name="qrSize"
+                            className="p-knob"
+                            value={
+                              mainConfig?.QRSettings?.QRProps?.size as number
+                            }
+                            min={100}
+                            max={500}
+                            strokeWidth={11}
+                            textColor={dark ? 'white' : 'black'}
+                            onChange={(e) => {
+                              setMainConfig((prevConfig) => {
+                                const qp = { ...prevConfig };
+                                const qps = { ...qp.QRSettings };
+                                qps.QRProps.size = e.value;
+                                qp.QRSettings = qps;
+                                return qp;
+                              });
+                            }}
+                            valueColor={'#0B3665'}
+                            rangeColor={'#21C6DC'}
+                          />
+                        </Col>
+                        <Col lg="1" />
+                        <Col lg="2">
+                          <Form.Label style={{ marginTop: '1rem' }}>
                             <strong>Quiet Zone:</strong>
                           </Form.Label>
                         </Col>
                         <Col lg="1">
-                          <Row>
-                            <Col lg="8">
-                              <Knob
-                                size={55}
-                                name="quietZone"
-                                className="p-knob"
-                                value={
-                                  mainConfig?.QRSettings?.QRProps?.quietZone as
-                                    | number
-                                    | 0
-                                }
-                                min={0}
-                                max={50}
-                                strokeWidth={11}
-                                textColor={dark ? 'white' : 'black'}
-                                onChange={(e) => {
-                                  setMainConfig((prevConfig) => {
-                                    const qp = { ...prevConfig };
-                                    const qps = { ...qp.QRSettings };
-                                    qps.QRProps.quietZone = e.value;
-                                    qp.QRSettings = qps;
-                                    return qp;
-                                  });
-                                }}
-                                valueColor={'#0B3665'}
-                                rangeColor={'#21C6DC'}
-                              />
-                            </Col>
-                          </Row>
+                          <Knob
+                            size={55}
+                            name="quietZone"
+                            className="p-knob"
+                            value={
+                              mainConfig?.QRSettings?.QRProps?.quietZone as
+                                | number
+                                | 0
+                            }
+                            min={0}
+                            max={50}
+                            strokeWidth={11}
+                            textColor={dark ? 'white' : 'black'}
+                            onChange={(e) => {
+                              setMainConfig((prevConfig) => {
+                                const qp = { ...prevConfig };
+                                const qps = { ...qp.QRSettings };
+                                qps.QRProps.quietZone = e.value;
+                                qp.QRSettings = qps;
+                                return qp;
+                              });
+                            }}
+                            valueColor={'#0B3665'}
+                            rangeColor={'#21C6DC'}
+                          />
                         </Col>
                         <Col lg="3" />
                       </Form.Group>
                       <hr />
                       {/* QR Code eye styles */}
                       {/* Tops left and right */}
-                      <Form.Group as={Row}>
-                        <Col lg="2">
+                      <div style={{ display: 'flex', flexDirection: 'row', width: '100%'}}>
                           <Form.Label>
                             <strong>QR Eye Styles:</strong>
                           </Form.Label>
-                        </Col>
-                        {/* Live QR Code */}
-                        <Col lg="2">
-                          <div
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'row', width: '100%'}}>
+                          {/* Dynamic QR Code preview */}
+                          <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '59%'}}>
+                            <div
                             style={{
                               marginTop: '2rem',
                               alignItems: 'center',
@@ -1369,196 +1401,156 @@ export default function ConfigEditor({
                               }
                             />
                           </div>
-                        </Col>
-                        <Col lg="1" />
-                        {/* eye adjusters */}
-                        <Col lg="7">
-                          <Row>
-                            <Col lg="5">
-                              <Form.Label>Top Left: </Form.Label>
-                            </Col>
-                            <Col lg="3">
-                              <Form.Label>Top Right: </Form.Label>
-                            </Col>
-                          </Row>
-                          {/* Top Left top */}
-                          <Row>
-                            {/* top left, top-left */}
-                            <Col
-                              lg="2"
-                              style={{
-                                borderTop: `1px solid ${color}`,
-                                borderLeft: `1px solid ${color}`,
-                              }}
-                            >
-                              <Knob
-                                size={55}
-                                name="eyeRadius-0-0"
-                                className="p-knob"
-                                value={
-                                  mainConfig?.QRSettings.QRProps
-                                    .eyeRadius[0][0] | 0
-                                }
-                                min={0}
-                                max={25}
-                                strokeWidth={11}
-                                textColor={dark ? 'white' : 'black'}
-                                onChange={(e) => {
-                                  handleEyeRadiusChange(e.value, 0, 0);
-                                }}
-                                valueColor={'#0B3665'}
-                                rangeColor={'#21C6DC'}
-                              />
-                            </Col>
-                            {/* top left, top-right */}
-                            <Col
-                              lg="2"
-                              style={{
-                                borderTop: `1px solid ${color}`,
-                                borderRight: `1px solid ${color}`,
-                              }}
-                            >
-                              <Knob
-                                size={55}
-                                name="eyeRadius-0-1"
-                                className="p-knob"
-                                value={
-                                  mainConfig?.QRSettings?.QRProps
-                                    ?.eyeRadius[0][1] | 0
-                                }
-                                min={0}
-                                max={25}
-                                strokeWidth={11}
-                                textColor={dark ? 'white' : 'black'}
-                                onChange={(e) => {
-                                  handleEyeRadiusChange(e.value, 0, 1);
-                                }}
-                                valueColor={'#0B3665'}
-                                rangeColor={'#21C6DC'}
-                              />
-                            </Col>
-                            <Col lg="1" />
-                            {/* Top Right top */}
-                            {/* top right, top-left */}
-                            <Col
-                              lg="2"
-                              style={{
-                                borderTop: `1px solid ${color}`,
-                                borderLeft: `1px solid ${color}`,
-                              }}
-                            >
-                              <Knob
-                                size={55}
-                                name="eyeRadius-1-0"
-                                className="p-knob"
-                                value={
-                                  mainConfig?.QRSettings?.QRProps
-                                    ?.eyeRadius[1][0] | 0
-                                }
-                                min={0}
-                                max={25}
-                                strokeWidth={11}
-                                textColor={dark ? 'white' : 'black'}
-                                onChange={(e) => {
-                                  handleEyeRadiusChange(e.value, 1, 0);
-                                }}
-                                valueColor={'#0B3665'}
-                                rangeColor={'#21C6DC'}
-                              />
-                            </Col>
-                            {/* top right, top-right */}
-                            <Col
-                              lg="2"
-                              style={{
-                                borderTop: `1px solid ${color}`,
-                                borderRight: `1px solid ${color}`,
-                              }}
-                            >
-                              <Knob
-                                size={55}
-                                name="eyeRadius-1-1"
-                                className="p-knob"
-                                value={
-                                  mainConfig?.QRSettings?.QRProps
-                                    ?.eyeRadius[1][1] | 0
-                                }
-                                min={0}
-                                max={25}
-                                strokeWidth={11}
-                                textColor={dark ? 'white' : 'black'}
-                                onChange={(e) => {
-                                  handleEyeRadiusChange(e.value, 1, 1);
-                                }}
-                                valueColor={'#0B3665'}
-                                rangeColor={'#21C6DC'}
-                              />
-                            </Col>
-                          </Row>
-                          <Row>
-                            {/* top left, bottom-left */}
-                            <Col
-                              lg="2"
-                              style={{
-                                borderBottom: `1px solid ${color}`,
-                                borderLeft: `1px solid ${color}`,
-                              }}
-                            >
-                              <Knob
-                                size={55}
-                                name="eyeRadius-0-3"
-                                className="p-knob"
-                                value={
-                                  mainConfig?.QRSettings?.QRProps
-                                    ?.eyeRadius[0][3] | 0
-                                }
-                                min={0}
-                                max={25}
-                                strokeWidth={11}
-                                textColor={dark ? 'white' : 'black'}
-                                onChange={(e) => {
-                                  handleEyeRadiusChange(e.value, 0, 3);
-                                }}
-                                valueColor={'#0B3665'}
-                                rangeColor={'#21C6DC'}
-                              />
-                            </Col>
-                            {/* top left, bottom-right */}
-                            <Col
-                              lg="2"
-                              style={{
-                                borderBottom: `1px solid ${color}`,
-                                borderRight: `1px solid ${color}`,
-                              }}
-                            >
-                              <Knob
-                                size={55}
-                                name="eyeRadius-0-2"
-                                className="p-knob"
-                                value={
-                                  mainConfig?.QRSettings?.QRProps
-                                    ?.eyeRadius[0][2] | 0
-                                }
-                                min={0}
-                                max={25}
-                                strokeWidth={11}
-                                textColor={dark ? 'white' : 'black'}
-                                onChange={(e) => {
-                                  handleEyeRadiusChange(e.value, 0, 2);
-                                }}
-                                valueColor={'#0B3665'}
-                                rangeColor={'#21C6DC'}
-                              />
-                            </Col>
-                            <Col lg="1" />
-                            {/* top right */}
-                            <Col
-                              lg="2"
-                              style={{
-                                borderLeft: `1px solid ${color}`,
-                                borderBottom: `1px solid ${color}`,
-                              }}
-                            >
-                              <Knob
+                          </div>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', marginRight: '1rem', width: '1%'}}></div>
+                          {/* Eye Stylers */}
+                          <div style={{ display: 'flex', flexDirection: 'column',marginLeft: 'auto', marginRight: '1rem', width: '39%'}}>
+                            {/* Top Left & right labels */}
+                            <div style={{ display: 'flex', flexDirection: 'row', width: '100%'}}>
+                              <div style={{ display: 'flex', flexDirection: 'column', marginRight: '1rem', width: '45%'}}>
+                                <Form.Label>Top Left: </Form.Label>
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', marginRight: '1rem', width: '10%'}}></div>
+                              <div style={{ display: 'flex', flexDirection: 'column', marginRight: '1rem', width: '45%'}}>
+                                <Form.Label>Top Right: </Form.Label>
+                              </div>
+                            </div>
+                            {/* Top Left & right knobs */}
+                            <div style={{ display: 'flex', flexDirection: 'row', width: '100%'}}>
+                              <div style={{ display: 'flex', flexDirection: 'column', width: '45%', border: `1px solid ${borderColor}`}}>
+                                <div style={{ display: 'flex', flexDirection: 'row', width: '100%', marginTop: '5px'}}>
+                                  <div style={{ display: 'flex', flexDirection: 'column', width: '50%', paddingLeft: '.75rem',   marginRight: '-2rem'}}>
+                                    <Knob
+                                    size={55}
+                                    name="eyeRadius-0-0"
+                                    className="p-knob"
+                                    value={
+                                      mainConfig?.QRSettings.QRProps
+                                        .eyeRadius[0][0] | 0
+                                    }
+                                    min={0}
+                                    max={25}
+                                    strokeWidth={11}
+                                    textColor={dark ? 'white' : 'black'}
+                                    onChange={(e) => {
+                                      handleEyeRadiusChange(e.value, 0, 0);
+                                    }}
+                                    valueColor={'#0B3665'}
+                                    rangeColor={'#21C6DC'}
+                                    />
+                                  </div>
+                                  <div style={{ display: 'flex', flexDirection: 'column', width: '50%', paddingLeft: '3rem'}}>
+                                    <Knob
+                                      size={55}
+                                      name="eyeRadius-0-1"
+                                      className="p-knob"
+                                      value={
+                                        mainConfig?.QRSettings?.QRProps
+                                          ?.eyeRadius[0][1] | 0
+                                      }
+                                      min={0}
+                                      max={25}
+                                      strokeWidth={11}
+                                      textColor={dark ? 'white' : 'black'}
+                                      onChange={(e) => {
+                                        handleEyeRadiusChange(e.value, 0, 1);
+                                      }}
+                                      valueColor={'#0B3665'}
+                                      rangeColor={'#21C6DC'}
+                                    />
+                                  </div>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'row', width: '100%', marginTop: '0.5rem'}}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', width: '50%', paddingLeft: '.75rem',   marginRight: '-2rem'}}>
+                                      <Knob
+                                        size={55}
+                                        name="eyeRadius-0-3"
+                                        className="p-knob"
+                                        value={
+                                          mainConfig?.QRSettings?.QRProps
+                                            ?.eyeRadius[0][3] | 0
+                                        }
+                                        min={0}
+                                        max={25}
+                                        strokeWidth={11}
+                                        textColor={dark ? 'white' : 'black'}
+                                        onChange={(e) => {
+                                          handleEyeRadiusChange(e.value, 0, 3);
+                                        }}
+                                        valueColor={'#0B3665'}
+                                        rangeColor={'#21C6DC'}
+                                      />
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', width: '50%', paddingLeft: '3rem'}}>
+                                      <Knob
+                                  size={55}
+                                  name="eyeRadius-0-2"
+                                  className="p-knob"
+                                  value={
+                                    mainConfig?.QRSettings?.QRProps
+                                      ?.eyeRadius[0][2] | 0
+                                  }
+                                  min={0}
+                                  max={25}
+                                  strokeWidth={11}
+                                  textColor={dark ? 'white' : 'black'}
+                                  onChange={(e) => {
+                                    handleEyeRadiusChange(e.value, 0, 2);
+                                  }}
+                                  valueColor={'#0B3665'}
+                                  rangeColor={'#21C6DC'}
+                                />
+                                    </div>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', width: '10%'}}></div>
+                            <div style={{ display: 'flex', flexDirection: 'column', width: '45%', border: `1px solid ${borderColor}`}}>
+                              <div style={{ display: 'flex', flexDirection: 'row', width: '100%', marginTop: '5px'}}>
+                                <div style={{ display: 'flex', flexDirection: 'column', width: '50%', paddingLeft: '.75rem',   marginRight: '-2rem'}}>
+                                  <Knob
+                                    size={55}
+                                    name="eyeRadius-1-0"
+                                    className="p-knob"
+                                    value={
+                                      mainConfig?.QRSettings?.QRProps
+                                        ?.eyeRadius[1][0] | 0
+                                    }
+                                    min={0}
+                                    max={25}
+                                    strokeWidth={11}
+                                    textColor={dark ? 'white' : 'black'}
+                                    onChange={(e) => {
+                                      handleEyeRadiusChange(e.value, 1, 0);
+                                    }}
+                                    valueColor={'#0B3665'}
+                                    rangeColor={'#21C6DC'}
+                                  />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', width: '50%', paddingLeft: '3rem'}}>
+                                  <Knob
+                                    size={55}
+                                    name="eyeRadius-1-1"
+                                    className="p-knob"
+                                    value={
+                                      mainConfig?.QRSettings?.QRProps
+                                        ?.eyeRadius[1][1] | 0
+                                    }
+                                    min={0}
+                                    max={25}
+                                    strokeWidth={11}
+                                    textColor={dark ? 'white' : 'black'}
+                                    onChange={(e) => {
+                                      handleEyeRadiusChange(e.value, 1, 1);
+                                    }}
+                                    valueColor={'#0B3665'}
+                                    rangeColor={'#21C6DC'}
+                                  />
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'row', width: '100%', marginTop: '0.5rem', marginBottom: '0.5rem'}}>
+                                <div style={{ display: 'flex', flexDirection: 'column', width: '50%', paddingLeft: '.75rem',   marginRight: '-2rem'}}>
+                                    <Knob
                                 size={55}
                                 name="eyeRadius-1-3"
                                 className="p-knob"
@@ -1576,16 +1568,9 @@ export default function ConfigEditor({
                                 valueColor={'#0B3665'}
                                 rangeColor={'#21C6DC'}
                               />
-                            </Col>
-                            {/* top right, bottom right */}
-                            <Col
-                              lg="2"
-                              style={{
-                                borderBottom: `1px solid ${color}`,
-                                borderRight: `1px solid ${color}`,
-                              }}
-                            >
-                              <Knob
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', width: '50%', paddingLeft: '3rem'}}>
+                                  <Knob
                                 size={55}
                                 name="eyeRadius-1-2"
                                 className="p-knob"
@@ -1603,23 +1588,19 @@ export default function ConfigEditor({
                                 valueColor={'#0B3665'}
                                 rangeColor={'#21C6DC'}
                               />
-                            </Col>
-                          </Row>
-                          <Row>
-                            <Col lg="12">
-                              <Form.Label>Bottom Left Eye:</Form.Label>
-                            </Col>
-                          </Row>
-                          {/* Bottom Left top */}
-                          <Row>
-                            <Col
-                              lg="2"
-                              style={{
-                                borderTop: `1px solid ${color}`,
-                                borderLeft: `1px solid ${color}`,
-                              }}
-                            >
-                              <Knob
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'row', width: '100%', marginTop: '0.5rem'}}>
+                            <Form.Label>Bottom Left Eye:</Form.Label>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'row', width: '100%'}}>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', width: '45%', border: `1px solid ${borderColor}`}}>
+                              <div style={{ display: 'flex', flexDirection: 'row', width: '100%', paddingTop: '5px', marginTop: '5px'}}>
+                                <div style={{ display: 'flex', flexDirection: 'column', width: '50%', paddingLeft: '.75rem',   marginRight: '-2rem'}}>
+                                  <Knob
                                 size={55}
                                 name="eyeRadius-2-0"
                                 className="p-knob"
@@ -1637,15 +1618,9 @@ export default function ConfigEditor({
                                 valueColor={'#0B3665'}
                                 rangeColor={'#21C6DC'}
                               />
-                            </Col>
-                            <Col
-                              lg="2"
-                              style={{
-                                borderTop: `1px solid ${color}`,
-                                borderRight: `1px solid ${color}`,
-                              }}
-                            >
-                              <Knob
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', width: '50%', paddingLeft: '3rem'}}>
+                                  <Knob
                                 size={55}
                                 name="eyeRadius-2-1"
                                 className="p-knob"
@@ -1663,19 +1638,12 @@ export default function ConfigEditor({
                                 valueColor={'#0B3665'}
                                 rangeColor={'#21C6DC'}
                               />
-                            </Col>
-                            <Col lg="6" />
-                          </Row>
-                          {/* Bottom Left bottom */}
-                          <Row>
-                            <Col
-                              lg="2"
-                              style={{
-                                borderBottom: `1px solid ${color}`,
-                                borderLeft: `1px solid ${color}`,
-                              }}
-                            >
-                              <Knob
+                                </div>
+
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'row', width: '100%', marginTop: '0.5rem', marginBottom: '0.5rem'}}>
+                                <div style={{ display: 'flex', flexDirection: 'column', width: '50%', paddingLeft: '.75rem',   marginRight: '-2rem'}}>
+                                  <Knob
                                 size={55}
                                 name="eyeRadius-2-3"
                                 className="p-knob"
@@ -1693,15 +1661,9 @@ export default function ConfigEditor({
                                 valueColor={'#0B3665'}
                                 rangeColor={'#21C6DC'}
                               />
-                            </Col>
-                            <Col
-                              lg="2"
-                              style={{
-                                borderBottom: `1px solid ${color}`,
-                                borderRight: `1px solid ${color}`,
-                              }}
-                            >
-                              <Knob
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', width: '50%', paddingLeft: '3rem'}}>
+                                  <Knob
                                 size={55}
                                 name="eyeRadius-2-2"
                                 className="p-knob"
@@ -1719,10 +1681,12 @@ export default function ConfigEditor({
                                 valueColor={'#0B3665'}
                                 rangeColor={'#21C6DC'}
                               />
-                            </Col>
-                          </Row>
-                        </Col>
-                      </Form.Group>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          </div>
+                      </div>
                       <hr />
                       {/* QR Code Logo */}
                       <Row>
@@ -1750,7 +1714,7 @@ export default function ConfigEditor({
                             <Col lg="4">
                               <Form.Label>Show Logo</Form.Label>
                             </Col>
-                            <Col lg="4">
+                            <Col lg="2">
                               <Form.Check
                                 type="switch"
                                 id="custom-switch"
@@ -1758,6 +1722,30 @@ export default function ConfigEditor({
                                 checked={showQRLogo}
                                 onChange={(e) => {
                                   setShowQRLogo(e.target.checked);
+                                }}
+                              />
+                            </Col>
+                            {/* Hide QR Behind Logo */}
+                            <Col lg="5">
+                              <Form.Label>Hide QR Behind Logo</Form.Label>
+                            </Col>
+                            <Col lg="1">
+                              <Form.Check
+                                type="switch"
+                                id="custom-switch"
+                                label=""
+                                checked={
+                                  mainConfig.QRSettings.QRProps
+                                    .removeQrCodeBehindLogo
+                                }
+                                disabled={!showQRLogo}
+                                onChange={(e) => {
+                                  setMainConfig((prevQrConfig) => {
+                                    const rc = { ...prevQrConfig };
+                                    rc.QRSettings.QRProps.removeQrCodeBehindLogo =
+                                      e.target.checked;
+                                    return rc;
+                                  });
                                 }}
                               />
                             </Col>
@@ -1794,8 +1782,9 @@ export default function ConfigEditor({
                             <Col lg="2">
                               <OverlayTrigger
                                 placement="top"
+                                delay={{ show: 250, hide: 300 }}
                                 overlay={
-                                  <Tooltip>
+                                  <Tooltip id='qr-aspect-tooltip'>
                                     {isQrAspectLocked ? 'Unlock' : 'Lock'}{' '}
                                     Aspect Ratio
                                   </Tooltip>
@@ -1847,7 +1836,7 @@ export default function ConfigEditor({
                                 Logo Opacity
                               </Form.Label>
                             </Col>
-                            <Col lg="6">
+                            <Col lg="1">
                               <Knob
                                 size={55}
                                 name="QrLogoOpacity"
@@ -1875,15 +1864,14 @@ export default function ConfigEditor({
                                 disabled={!showQRLogo}
                               />
                             </Col>
-                          </Form.Group>
-                          {/* Logo Padding */}
-                          <Form.Group as={Row} style={{ paddingTop: '7px' }}>
-                            <Col lg="4">
+                            <Col lg="3" />
+                            {/* Logo Padding */}
+                            <Col lg="3">
                               <Form.Label style={{ marginTop: '1rem' }}>
                                 Logo Padding
                               </Form.Label>
                             </Col>
-                            <Col lg="6">
+                            <Col lg="1">
                               <Knob
                                 size={55}
                                 name="QrLogoPadding"
@@ -1933,32 +1921,6 @@ export default function ConfigEditor({
                                 <option value="circle">Circle</option>
                                 <option value="square">Square</option>
                               </Form.Select>
-                            </Col>
-                          </Form.Group>
-                          {/* Hide QR Behind Logo */}
-                          <Form.Group as={Row} style={{ paddingTop: '7px' }}>
-                            <Col lg="4">
-                              <Form.Label>Hide QR Behind Logo</Form.Label>
-                            </Col>
-                            <Col lg="6">
-                              <Form.Check
-                                type="switch"
-                                id="custom-switch"
-                                label=""
-                                checked={
-                                  mainConfig.QRSettings.QRProps
-                                    .removeQrCodeBehindLogo
-                                }
-                                disabled={!showQRLogo}
-                                onChange={(e) => {
-                                  setMainConfig((prevQrConfig) => {
-                                    const rc = { ...prevQrConfig };
-                                    rc.QRSettings.QRProps.removeQrCodeBehindLogo =
-                                      e.target.checked;
-                                    return rc;
-                                  });
-                                }}
-                              />
                             </Col>
                           </Form.Group>
                         </Col>

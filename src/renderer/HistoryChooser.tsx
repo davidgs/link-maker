@@ -73,8 +73,9 @@ export default function HistoryChooser({
     <>
       <OverlayTrigger
         placement="auto"
+        delay={{ show: 250, hide: 300 }}
         overlay={
-          (historyList.length > 0) ? (<Tooltip>All of your saved links</Tooltip>) : (<Tooltip>No saved links</Tooltip>)
+          (historyList.length > 0) ? (<Tooltip id='history-tooltip'>All of your saved links</Tooltip>) : (<Tooltip id='history-empty-tooltip'>No saved links</Tooltip>)
         }
       >
         <DropdownButton
