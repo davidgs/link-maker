@@ -95,7 +95,10 @@ function UTMTextField({
     .form-floating-txt:not(.form-control:disabled)::before  {
       background-color: var(--bs-secondary-bg);
     }`}</style>
-      <OverlayTrigger placement="top" overlay={<Tooltip>{tooltip}</Tooltip>}>
+      <OverlayTrigger
+      placement="top"
+      delay={{ show: 250, hide: 300 }}
+      overlay={<Tooltip id={`${targetType}-tooltip`}>{tooltip}</Tooltip>}>
         <FloatingLabel
           label={
             // eslint-disable-next-line no-nested-ternary

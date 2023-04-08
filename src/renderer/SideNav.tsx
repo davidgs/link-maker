@@ -36,6 +36,7 @@ import { Lightbulb, LightbulbFill, Gear, GearFill } from 'react-bootstrap-icons'
 import { defaultMainSettings, MainSettings } from './types';
 import PropTypes from 'prop-types';
 import ImgElement from './components/ImgElement';
+import spinner from '../../assets/images/loading.png';
 
 export default function SideNav({
   callback,
@@ -50,10 +51,19 @@ export default function SideNav({
   const [darkMode, setDarkMode] = useState(dark);
   const [mainConfig, setMainConfig] = useState<MainSettings>(defaultMainSettings);
   const [mainImage, setMainImage] = useState<string>('');
+  const [updateText, setUpdateText] = useState<string>('');
 
   const passwdVisible = (show: boolean) => {
     setShowPasswd(show);
   };
+
+  window?.electron?.ipcRenderer?.on('message', (event) => {
+    console.log(`Raw Message: ${event}`);
+
+    // const m: CardData = JSON.parse(message.toString());
+    setUpdateText(event as string);
+    console.log(`Formatted Message: ${event}`);
+  });
 
   useEffect(() => {
     window.electronAPI
@@ -155,9 +165,10 @@ export default function SideNav({
           </p>
           <Form>
             <Row>
-              <Col sm={2}>
+              <Col sm={1}>
                 <OverlayTrigger
                   placement="top"
+                  delay={{ show: 250, hide: 300 }}
                   overlay={
                     <Tooltip id="config-tooltip">
                       Turn {darkMode ? 'off' : 'on'} Dark Mode
@@ -182,10 +193,16 @@ export default function SideNav({
                 </Button>
                 </OverlayTrigger>
               </Col>
-              <Col sm={7}></Col>
-              <Col sm={2}>
+              <Col sm={8}>
+                <div className="update-container" style={{marginTop: '10px', marginLeft: '0.55rem'}}>
+              {updateText !== '' && updateText.startsWith('Checking') ? (<div ><img src={spinner} alt="StarTree Logo" width="10px" className='glyphicon-refresh-animate'/> {updateText}</div>) : <div>{updateText}</div>}
+              {/* <div id="update-text">{updateText}</div> */}
+            </div>
+              </Col>
+              <Col sm={1}>
                 <OverlayTrigger
                   placement="top"
+                  delay={{ show: 250, hide: 300 }}
                   overlay={
                     <Tooltip id="config-tooltip">
                       Edit the Configuration of fields, images and the QR Code
@@ -210,7 +227,7 @@ export default function SideNav({
                   </Button>
                 </OverlayTrigger>
               </Col>
-              <Col sm={1}></Col>
+              <Col sm={1} />
             </Row>
           </Form>
         </div>

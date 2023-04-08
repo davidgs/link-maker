@@ -60,6 +60,7 @@ export default function BitlyCheck({
   return (
     <OverlayTrigger
       placement="right"
+      delay={{ show: 250, hide: 300 }}
       overlay={<Tooltip id="bitly-tooltip">{tooltip}</Tooltip>}
     >
       <Form.Check

@@ -196,7 +196,7 @@ export default function QCode({
         <div className="alert-column1">
           {copied && (
             <OverlayTrigger
-              delay={{ show: 250, hide: 400 }}
+              delay={{ show: 250, hide: 300 }}
               rootClose
               overlay={
                 <Tooltip id="alert-tooltip">
@@ -216,10 +216,10 @@ export default function QCode({
           {!copied && (
             <OverlayTrigger
               placement="auto"
-              delay={{ show: 250, hide: 400 }}
+              delay={{ show: 250, hide: 300 }}
               rootClose
               overlay={
-                <Tooltip id="alert-tooltip">
+                <Tooltip id="alert-copied-tooltip">
                   Click here to copy your link!
                 </Tooltip>
               }
@@ -245,10 +245,10 @@ export default function QCode({
         <div className="alert-column2">
           <OverlayTrigger
             placement="auto"
-            delay={{ show: 250, hide: 400 }}
+            delay={{ show: 250, hide: 300 }}
             rootClose
             overlay={
-              <Tooltip id="alert-tooltip">
+              <Tooltip id="alert-copy-link-tooltip">
                 {qrState
                   ? 'This data is encoded in the QR Code'
                   : 'Click here to copy your link!'}
@@ -271,7 +271,7 @@ export default function QCode({
           <Row style={{ margin: 'auto' }}>
             <OverlayTrigger
               placement="auto"
-              delay={{ show: 250, hide: 400 }}
+              delay={{ show: 250, hide: 300 }}
               rootClose
               overlay={
                 <Tooltip id="qrcode-tooltip">

@@ -72,9 +72,6 @@ export default function MainPage() {
   };
 
   getDarkMode();
-  // useEffect(() => {
-  //   getDarkMode();
-  // }, []);
 
   const toggleConfig = (val: boolean) => {
     setEditConfig(val);

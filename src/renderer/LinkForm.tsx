@@ -428,7 +428,7 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
         />
       </div>
       {/* bitly button */}
-      <div style={{ width: '100%' }}>
+      <div style={{ width: '100%', marginBottom: '0.25rem' }}>
         {/* bitly enable */}
         <div style={{ width: '18%', display: 'inline-block' }}>
           {mainConfig?.bitly_config.useValue ? (
@@ -442,15 +442,17 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
           {/* </OverlayTrigger> */}
         </div>
         {/* qr only button */}
-        <div style={{ width: '22%', display: 'inline-block' }}>
-          <OverlayTrigger
+        <OverlayTrigger
             placement="auto"
+            delay={{ show: 250, hide: 300 }}
             overlay={
               <Tooltip id="qr-only-tooltip">
                 Just generate a QR Code with no UTM parameters.
               </Tooltip>
             }
           >
+            <div style={{ width: '22%', display: 'inline-block' }}>
+
             <Form.Check
               type="switch"
               id="qr-only-show"
@@ -461,8 +463,9 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
                 setQrOnly(e.target.checked);
               }}
             />
-          </OverlayTrigger>
+
         </div>
+        </OverlayTrigger>
         {/* history, save & clear buttons */}
         <div
           style={{
@@ -490,6 +493,7 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
           <div style={{ width: '8%', display: 'inline-block' }}>
             <OverlayTrigger
               placement="auto"
+              delay={{ show: 250, hide: 300 }}
               overlay={
                 <Tooltip id="save-btn-tooltip">
                   Save the current link to your history.
@@ -512,6 +516,7 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
           <div style={{ width: '1.5%', display: 'inline-block' }}>
             <OverlayTrigger
               placement="auto"
+              delay={{ show: 250, hide: 300 }}
               overlay={
                 <Tooltip id="clear-btn-tooltip">
                   Clear the form and start over.
@@ -782,7 +787,13 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
           <></>
         )}
         {showCountry ? (
-          <Col style={{ marginTop: '.3rem' }}>
+          <OverlayTrigger
+              placement="auto"
+              delay={{ show: 250, hide: 300 }}
+              overlay={<Tooltip id='Country-Select-tooltip'>Begin typing or select from list</Tooltip>}
+            >
+              <Col style={{ marginTop: '.3rem' }}>
+
             <CountrySelect
               value={country as ICountry}
               valueAs="object"
@@ -791,7 +802,9 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
               onChange={updateCountry}
               onTextChange={updateCountry}
             />
+
           </Col>
+          </OverlayTrigger>
         ) : (
           <></>
         )}
@@ -802,7 +815,8 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
           <InputGroup className="mb-3" size="lg">
             <OverlayTrigger
               placement="top"
-              overlay={<Tooltip>This value is auto-generated</Tooltip>}
+              delay={{ show: 250, hide: 300 }}
+              overlay={<Tooltip id='utm-string-tooltip'>This value is auto-generated</Tooltip>}
             >
               <FloatingLabel
                 label="Final Campaign String"
