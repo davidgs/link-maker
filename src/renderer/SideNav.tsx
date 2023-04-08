@@ -165,7 +165,7 @@ export default function SideNav({
           </p>
           <Form>
             <Row>
-              <Col sm={1}>
+              <Col sm={2}>
                 <OverlayTrigger
                   placement="top"
                   delay={{ show: 250, hide: 300 }}
@@ -193,13 +193,13 @@ export default function SideNav({
                 </Button>
                 </OverlayTrigger>
               </Col>
-              <Col sm={8}>
+              <Col sm={7}>
                 <div className="update-container" style={{marginTop: '10px', marginLeft: '0.55rem'}}>
               {updateText !== '' && updateText.startsWith('Checking') ? (<div ><img src={spinner} alt="StarTree Logo" width="10px" className='glyphicon-refresh-animate'/> {updateText}</div>) : <div>{updateText}</div>}
               {/* <div id="update-text">{updateText}</div> */}
             </div>
               </Col>
-              <Col sm={1}>
+              <Col sm={2}>
                 <OverlayTrigger
                   placement="top"
                   delay={{ show: 250, hide: 300 }}
