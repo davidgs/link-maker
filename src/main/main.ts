@@ -49,8 +49,8 @@ const appStorePath = path.join(electronApp.getPath('appData'), 'Link Builder');
 const home = process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH || './';
 const store = new Store();
 const defaultConfig: UtmParams = defaultUTMParams;
-const currentVersion = 'v1.3.4'
-const currentBuild = 'b458'
+const currentVersion = 'v1.3.5'
+const currentBuild = 'b460'
 const server = 'https://link-maker.davidgs.com/';
 const url = `${server}/update/${process.platform}/${app.getVersion()}`;
 
@@ -63,8 +63,8 @@ autoUpdater.on('checking-for-update', () => {
   if(timeoutID === null) sendMessage();
 });
 
-autoUpdater.on('update-available', (info) => {
-  updateMessage.push(`Update available to ${info.version}.`);
+autoUpdater.on('update-available', () => {
+  updateMessage.push(`Update available ... awaiting download.`);
   if(timeoutID === null) sendMessage();
 });
 
@@ -87,6 +87,40 @@ class AppUpdater {
     up.checkForUpdates();
   }
 }
+
+
+  function sendJsonMessage(type: string){
+    console.log(`Sending Edit ${type} Json`)
+    switch (type) {
+      case 'main':
+        const js = JSON.stringify(store.get('main-config', defaultMainSettings));
+        console.log(js);
+        mainWindow?.webContents.send('editMainJSON', js);
+        break;
+      case 'qr':
+        mainWindow?.webContents.send('editQRJson', JSON.stringify(store.get('qr-settings', defaultQRSettings)));
+        break;
+      case 'utm':
+        mainWindow?.webContents.send('editUTMJSON', JSON.stringify(store.get('utm-config', defaultUTMParams)));
+        break;
+      default:
+        break;
+    }
+    // mainWindow?.webContents.send('editJSON', 'JSON Editor');
+    return;
+  }
+
+app.on('editMainJSON', () => {
+  console.log('Emitted editMainJSON')
+  sendJsonMessage('main');
+});
+
+app.on('editUTMJSON', () => {
+  console.log('Emitted editUTMJSON')
+  sendJsonMessage('utm');
+});
+
+
 let clearMessage = false;
 function sendMessage(){
   if (updateMessage === undefined) return;
@@ -112,7 +146,7 @@ function sendMessage(){
 
 setInterval(() => {
   up.checkForUpdates();
-}, 1.8e+6);
+}, 50000); //1.8e+6);
 
 up.on('update-downloaded', (event, releaseNotes, releaseName) => {
   updateMessage.push('A new version has been downloaded.');

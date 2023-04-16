@@ -164,8 +164,8 @@ export default function SideNav({
             All rights reserved
           </p>
           <Form>
-            <Row>
-              <Col sm={2}>
+            <div style={{ textAlign: 'center', display: 'flex', flexDirection: "row" }}>
+              <div style={{ width: '10%', textAlign: 'center', display: 'flex', flexDirection: 'column' }}>
                 <OverlayTrigger
                   placement="top"
                   delay={{ show: 250, hide: 300 }}
@@ -192,14 +192,19 @@ export default function SideNav({
                   )}
                 </Button>
                 </OverlayTrigger>
-              </Col>
-              <Col sm={7}>
-                <div className="update-container" style={{marginTop: '10px', marginLeft: '0.55rem'}}>
-              {updateText !== '' && updateText.startsWith('Checking') ? (<div ><img src={spinner} alt="StarTree Logo" width="10px" className='glyphicon-refresh-animate'/> {updateText}</div>) : <div>{updateText}</div>}
-              {/* <div id="update-text">{updateText}</div> */}
+              </div>
+              <div style={{ width: '80%', textAlign: 'left', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div className="update-container" style={{marginTop: '10px'}}>
+                  {
+                    updateText !== '' && updateText.startsWith('Checking') ? (
+                      <div style={{textAlign: 'left'}}>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <img src={spinner} alt="spinner" width="10px" className='glyphicon-refresh-animate' style={{paddingTop: '-.25rem'}}/> {updateText}
+                      </div>
+                    ) : <div id={updateText.length > 25 ? "update-text" : "udt"}>{updateText}</div>}
+                </div>
             </div>
-              </Col>
-              <Col sm={2}>
+              <div style={{ width: '10%', textAlign: 'center', display: 'flex', flexDirection: 'column' }}>
                 <OverlayTrigger
                   placement="top"
                   delay={{ show: 250, hide: 300 }}
@@ -210,14 +215,12 @@ export default function SideNav({
                   }
                 >
                   <Button
-                    // type="switch"
                     variant={'config-btn-icon-only-dark'}
                     className="configSwitch"
                     id="custom-switch"
+                    style={{ opacity: 1.0, zIndex: 1000}}
                     key="config-switch"
-                    // label="Edit Configuration"
                     aria-label="Edit Configuration"
-                    // checked={showPasswd}
                     onClick={(e) => {
                       passwdVisible(!showPasswd);
                     }}
@@ -226,9 +229,9 @@ export default function SideNav({
                     {dark ? <GearFill size={20} /> : <Gear size={20} />}
                   </Button>
                 </OverlayTrigger>
-              </Col>
+              </div>
               <Col sm={1} />
-            </Row>
+            </div>
           </Form>
         </div>
       </aside>
