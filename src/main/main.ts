@@ -88,6 +88,12 @@ class AppUpdater {
   }
 }
 
+app.on('checkForUpdates', () => {
+  console.log('Checking for updates ...')
+  updateMessage.push('Checking for updates ...');
+  if (timeoutID === null) sendMessage();
+  up.checkForUpdates();
+});
 
   function sendJsonMessage(type: string){
     console.log(`Sending Edit ${type} Json`)
