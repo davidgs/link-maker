@@ -120,6 +120,15 @@ export default class MenuBuilder {
           accelerator: 'Command+A',
           selector: 'selectAll:',
         },
+        { type: 'separator' },
+        { label: 'Edit Main JSON', accelerator: 'Command+J', click: () =>
+        {
+          console.log('editMainJSON')
+          app.emit('editMainJSON')}},
+          { label: 'Edit UTM-Code JSON', accelerator: 'Command+T', click: () =>
+        {
+          console.log('editUTMJSON')
+          app.emit('editUTMJSON')}},
       ],
     };
     const subMenuViewDev: MenuItemConstructorOptions = {
@@ -158,6 +167,13 @@ export default class MenuBuilder {
             this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
           },
         },
+        {
+          label: 'Reload',
+          accelerator: 'Command+R',
+          click: () => {
+            this.mainWindow.webContents.reload();
+          },
+        },
       ],
     };
     const subMenuWindow: DarwinMenuItemConstructorOptions = {
@@ -193,13 +209,13 @@ export default class MenuBuilder {
         {
           label: 'Community Discussions',
           click() {
-            shell.openExternal('https://www.electronjs.org/community');
+            shell.openExternal('https://github.com/davidgs/link-maker/discussions');
           },
         },
         {
           label: 'Search Issues',
           click() {
-            shell.openExternal('https://github.com/electron/electron/issues');
+            shell.openExternal('https://github.com/davidgs/link-maker/issues');
           },
         },
       ],

@@ -605,14 +605,17 @@ a.sidebar-nav-item:focus {
   border-radius: 5px;
   overflow: hidden;
   width: 250px;
+  /* padding-right: 10px; */
+  text-align: center;
 }
 
 #update-text {
   /* animation properties */
+  /* padding-right: 10px; */
   -moz-transform: translateX(100%);
   -webkit-transform: translateX(100%);
   transform: translateX(100%);
-
+  white-space: nowrap;
   -moz-animation: my-animation 10s linear infinite;
   -webkit-animation: my-animation 10s linear infinite;
   animation: my-animation 10s linear infinite;
@@ -632,11 +635,11 @@ a.sidebar-nav-item:focus {
 /* for Chrome */
 @-webkit-keyframes my-animation {
   from {
-    -webkit-transform: translateX(100%);
+    -webkit-transform: translateX(80%);
   }
 
   to {
-    -webkit-transform: translateX(-100%);
+    -webkit-transform: translateX(-80%);
   }
 }
 

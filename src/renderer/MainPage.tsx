@@ -29,10 +29,20 @@ import MainHeader from './MainHeader';
 import SideNav from './SideNav';
 import LinkForm from './LinkForm';
 import ConfigEditor from './configuration/ConfigEditor';
+import { MainSettings, UtmParams } from './types';
+import JsonEditor from './configuration/JsonEditor';
 
 export default function MainPage() {
   const [editConfig, setEditConfig] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [editJson, setEditJson] = useState(false);
+  const [jsonProp, setJsonProp] = useState<MainSettings | UtmParams | null>(null);
+  const [configType, setConfigType] = useState<string>('');
+
+  const toggleJson = (val: boolean) => {
+    console.log(`Toggle JSON: ${val}`);
+    setEditJson(val);
+  };
 
   const getDarkMode = () => {
     window.electronAPI
@@ -77,6 +87,25 @@ export default function MainPage() {
     setEditConfig(val);
   };
 
+  window?.electron?.ipcRenderer?.on('editMainJSON', (event: string) => {
+    console.log(`Raw JSON Message: ${event}`);
+    setConfigType('Main');
+    const js: MainSettings = JSON.parse(event);
+    setJsonProp(js);
+    setEditJson(true);
+    // const m: CardData = JSON.parse(message.toString());
+    // setUpdateText(event as string);
+    console.log(`Formatted JSON Message: ${js}`);
+  });
+
+  window?.electron?.ipcRenderer?.on('editUTMJSON', (event: string) => {
+    console.log(`Raw JSON Message: ${event}`);
+    setConfigType('UTM');
+    const js: MainSettings = JSON.parse(event);
+    setJsonProp(js);
+    setEditJson(true);
+  });
+
   return (
     <div className="content">
       <div className="aside-column">
@@ -91,6 +120,7 @@ export default function MainPage() {
         <LinkForm dark={darkMode} />
       </div>
       <ConfigEditor showMe={editConfig} dark={darkMode} callback={toggleConfig} />
+      <JsonEditor type={configType} json={jsonProp} show={editJson} callback={toggleJson} />
     </div>
   );
 }

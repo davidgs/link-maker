@@ -23,7 +23,7 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import { QRSettings, UtmParams } from '../renderer/types';
 
-export type Channels = 'message';
+export type Channels = ['message', 'editMainJSON', 'editUTMJSON'];
 export type Events =
   | 'get-qr-settings'
   | 'save-qr-settings'
