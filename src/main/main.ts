@@ -146,7 +146,7 @@ function sendMessage(){
 
 setInterval(() => {
   up.checkForUpdates();
-}, 50000); //1.8e+6);
+}, 1.8e+6);
 
 up.on('update-downloaded', (event, releaseNotes, releaseName) => {
   updateMessage.push('A new version has been downloaded.');
