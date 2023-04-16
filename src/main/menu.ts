@@ -96,6 +96,9 @@ export default class MenuBuilder {
           selector: 'hideOtherApplications:',
         },
         { label: 'Show All', selector: 'unhideAllApplications:' },
+        { label: 'Check for Updates', click: () => {
+          app.emit('checkForUpdates')}
+         },
         { type: 'separator' },
         {
           label: 'Quit',
