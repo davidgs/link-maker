@@ -27,34 +27,27 @@ import React, {
   KeyboardEventHandler,
 } from 'react';
 import { QRCode } from 'react-qrcode-logo';
-import { Button, OverlayTrigger, Tooltip, Row, Col } from 'react-bootstrap';
+import { OverlayTrigger, Tooltip, Row, Col } from 'react-bootstrap';
 import { ClipboardData, Clipboard2CheckFill } from 'react-bootstrap-icons';
 import uuid from 'react-uuid';
-import QRConfigForm from './configuration/QRConfigForm';
-import { defaultMainSettings, MainSettings, QRSettings, IProps } from './types';
-import { Gear, GearFill, Download } from 'react-bootstrap-icons';
+import { MainSettings, QRSettings } from './types';
 import PropTypes from 'prop-types';
 import potrace from 'potrace';
 
 export default function QCode({
   link,
-  ext,
-  qrOnly,
   dark,
+  settings
 }: {
   link: string;
-  ext: string;
-  qrOnly: boolean;
   dark: boolean;
+  settings: MainSettings;
 }) {
-  const [fileExt, setFileExt] = useState<string>('png');
   const [dataLink, setDataLink] = useState<string>('https://example.com/');
   const [copied, setCopied] = useState<boolean>(false);
-  const [qrSettings, setQRSettings] = useState<QRSettings>(defaultMainSettings.QRSettings);
-  const [qrSize, setQRSize] = useState<number>(220);
+  const [mySettings, setMySettings] = useState<MainSettings>(settings);
   const [qrState, setQrState] = useState<boolean>(false);
   const [qrImage, setQrImage] = useState<string>('');
-  const [showConfig, setShowConfig] = useState<boolean>(false);
   const [darkMode, setDarkMode] = useState<boolean>(dark);
   const [darkIconClass, setDarkIconClass] = useState<string>(
     'copy-icon header-stuff'
@@ -67,54 +60,30 @@ export default function QCode({
 
   useEffect(() => {
     setDarkMode(dark);
-    dark
-      ? setDarkIconClass('copy-icon header-stuff-dark')
-      : setDarkClass('copy-icon header-stuff');
-    dark
-      ? setIconButtonClass('button-icon header-stuff-dark')
-      : setIconButtonClass('button-icon header-stuff');
-    dark ? setDarkClass('header-stuff-dark') : setDarkClass('header-stuff');
+    if (dark) {
+      setDarkIconClass('copy-icon header-stuff-dark');
+      setIconButtonClass('button-icon header-stuff-dark');
+      setDarkClass('header-stuff-dark');
+    } else {
+      setDarkClass('copy-icon header-stuff');
+      setIconButtonClass('button-icon header-stuff');
+      setDarkClass('header-stuff');
+    }
   }, [dark]);
 
   useEffect(() => {
-    window.electronAPI
-      .getMainConfig()
-      .then((result) => {
-        const mainS: MainSettings = JSON.parse(result) as MainSettings;
-        const qrS: QRSettings = { ...mainS.QRSettings } as QRSettings;
-        const qr = { ...qrS.QRProps } as IProps;
-        setQRSettings(qrS);
-        setFileExt(qrS.QRType);
-        setQRSize(qrS.QRProps?.size ? qrS.QRProps.size : 220);
-        if(qrS.QRImageFile){
-          window.electronAPI
-          .loadFile(qrS.QRImageFile)
-          .then((response) => {
-            const fType = qrS.QRImageFile.split('.').pop();
-            const image = Buffer.from(response, 'base64').toString('base64');
-            setQrImage(`data:image/${fType};base64,${image}`);
-            return '';
-          })
-          .catch((error: unknown) => {
-            console.log(`Error: ${error}`);
-          });
-        }
-        return '';
-      })
-      .catch((error: unknown) => {
-        console.log(`Error: ${error}`);
-      });
-  }, []);
+    setMySettings(settings);
+  }, [settings]);
 
   const saveSVG = () => {
     const canvas = document.getElementById(
       'react-qrcode-logo'
     ) as HTMLCanvasElement;
     const params = {
-      background: qrSettings.QRProps?.bgColor,
-      color: qrSettings.QRProps?.fgColor,
+      background: mySettings.QRSettings.QRProps?.bgColor,
+      color: mySettings.QRSettings.QRProps?.fgColor,
     };
-    const dataURL = canvas?.toDataURL(`image/${fileExt}`);
+    const dataURL = canvas?.toDataURL(`image/${mySettings.QRSettings.QRType}`);
     potrace.trace(dataURL, params, function (err: any, svg: any) {
       if (err) throw err;
       window.electronAPI
@@ -129,22 +98,18 @@ export default function QCode({
   };
 
   const onDownloadClick = () => {
-    if (qrSettings.QRType === 'svg') {
+    if (mySettings.QRSettings.QRType === 'svg') {
       saveSVG();
       return;
     }
     const canvas = document.getElementById(
       'react-qrcode-logo'
     ) as HTMLCanvasElement;
-    const dataURL = canvas?.toDataURL(`image/${fileExt}`);
+    const dataURL = canvas?.toDataURL(`image/${mySettings.QRSettings.QRType}`);
     const a = document.createElement('a');
     a.href = dataURL;
-    a.download = `qrcode-${uuid()}.${fileExt}`;
+    a.download = `qrcode-${uuid()}.${mySettings.QRSettings.QRType}`;
     a.click();
-  };
-
-  const showConfigWindow = () => {
-    setShowConfig(!showConfig);
   };
 
   // Copy link to the clipboard and change the icon to a checkmark
@@ -157,38 +122,11 @@ export default function QCode({
       .catch((err) => console.error('Error: ', err));
   }
 
-  const updateQRProps = (link: string) => {
-    const qSet: QRSettings = { ...qrSettings };
-    const qrProps: IProps = { ...qSet.QRProps };
-    qrProps.value = link;
-    qSet.QRProps = qrProps;
-    if(qSet.QRImageFile !== undefined && qSet.QRImageFile !== null && qSet.QRImageFile !== '') {
-      const fType = qSet.QRImageFile.split('.').pop() as string;
-      window.electronAPI
-
-        .saveFile(qSet.QRImageFile, 'qr-logo', fType)
-        .then((result) => {
-          qSet.QRImageFile = result;
-          setQRSettings(qSet);
-          return '';
-        })
-        .catch((error: unknown) => {
-          console.log(`Error: ${error}`);
-        });
-    }
-    qSet.QRProps = qrProps;
-    setQRSettings(qSet);
-  };
-
   useEffect(() => {
     setDataLink(link);
-    updateQRProps(link);
     setCopied(false);
   }, [link]);
 
-  useEffect(() => {
-    setQrState(qrOnly);
-  }, [qrOnly]);
 
   return (
     <div>
@@ -289,81 +227,29 @@ export default function QCode({
               >
                 <QRCode
                   id="react-qrcode-logo"
-                  value={qrSettings.QRProps.value}
-                  size={qrSize}
-                  bgColor={qrSettings.QRProps.bgColor}
-                  fgColor={qrSettings.QRProps.fgColor}
+                  value={mySettings.QRSettings.QRProps.value}
+                  size={mySettings.QRSettings.QRProps.size}
+                  bgColor={mySettings.QRSettings.QRProps.bgColor}
+                  fgColor={mySettings.QRSettings.QRProps.fgColor}
                   logoImage={qrImage}
-                  qrStyle={qrSettings.QRProps.qrStyle}
-                  logoWidth={qrSettings.QRProps.logoWidth}
-                  logoHeight={qrSettings.QRProps.logoHeight}
-                  logoOpacity={qrSettings.QRProps.logoOpacity}
-                  eyeColor={qrSettings.QRProps.eyeColor}
-                  eyeRadius={qrSettings.QRProps.eyeRadius}
-                  quietZone={qrSettings.QRProps.quietZone}
-                  enableCORS={qrSettings.QRProps.enableCORS}
-                  ecLevel={qrSettings.QRProps.ecLevel}
-                  logoPadding={qrSettings.QRProps.logoPadding}
-                  logoPaddingStyle={qrSettings.QRProps.logoPaddingStyle}
-
+                  qrStyle={mySettings.QRSettings.QRProps.qrStyle}
+                  logoWidth={mySettings.QRSettings.QRProps.logoWidth}
+                  logoHeight={mySettings.QRSettings.QRProps.logoHeight}
+                  logoOpacity={mySettings.QRSettings.QRProps.logoOpacity}
+                  eyeColor={mySettings.QRSettings.QRProps.eyeColor}
+                  eyeRadius={mySettings.QRSettings.QRProps.eyeRadius}
+                  quietZone={mySettings.QRSettings.QRProps.quietZone}
+                  enableCORS={mySettings.QRSettings.QRProps.enableCORS}
+                  ecLevel={mySettings.QRSettings.QRProps.ecLevel}
+                  logoPadding={mySettings.QRSettings.QRProps.logoPadding}
+                  logoPaddingStyle={
+                    mySettings.QRSettings.QRProps.logoPaddingStyle
+                  }
                 />
               </div>
             </OverlayTrigger>
           </Row>
-          <Row style={{ textAlign: 'center', margin: 'auto' }}>
-            <Col sm="8" />
-            <Col sm="2">
-              <OverlayTrigger
-                placement="auto"
-                overlay={
-                  <Tooltip id="download-qr-tooltip">
-                    Download your QR Code
-                  </Tooltip>
-                }
-              >
-                <Button
-                  variant={darkMode ? 'icon-only-dark' : 'icon-only'}
-                  size="sm"
-                  onClick={onDownloadClick}
-                  className={darkClass}
-                >
-                  <Download
-                    className={darkClass}
-                    color={darkMode ? '#adb5bd' : '#0B263E'}
-                  />
-                </Button>
-              </OverlayTrigger>
-            </Col>
-            <Col sm="2">
-              <OverlayTrigger
-                placement="auto"
-                overlay={
-                  <Tooltip id="adjust-qr-tooltip">Adjust your QR Code</Tooltip>
-                }
-              >
-                <Button
-                  variant={darkMode ? 'icon-only-dark' : 'icon-only'}
-                  size="sm"
-                  onClick={showConfigWindow}
-                  className={darkClass}
-                >
-                  {darkMode ? (
-                    <Gear className={darkClass} />
-                  ) : (
-                    <GearFill className={darkClass} />
-                  )}
-                </Button>
-              </OverlayTrigger>
-            </Col>
-          </Row>
         </div>
-        <QRConfigForm
-          show={showConfig}
-          qrSettings={qrSettings}
-          sizeCallback={setQRSize}
-          extensionCallback={setFileExt}
-          onHide={showConfigWindow}
-        />
       </div>
     </div>
   );
@@ -371,7 +257,6 @@ export default function QCode({
 
 QCode.propTypes = {
   link: PropTypes.string.isRequired,
-  ext: PropTypes.string.isRequired,
-  qrOnly: PropTypes.bool.isRequired,
   dark: PropTypes.bool.isRequired,
+  settings: PropTypes.object.isRequired,
 };

@@ -1,7 +1,7 @@
 {
   "description": "A UTM Link Builder App",
   "name": "link-builder",
-  "productName": "Link Builder",
+  "productName": "UTM QR Code Builder",
   "keywords": [
     "electron",
     "react",
@@ -132,6 +132,7 @@
     "xtypejs": "^0.7.1"
   },
   "devDependencies": {
+    "@electron/osx-sign": "^1.0.4",
     "@electron/rebuild": "^3.2.10",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
     "@svgr/webpack": "^6.3.1",
@@ -207,8 +208,8 @@
     "webpack-merge": "^5.8.0"
   },
   "build": {
-    "productName": "UTMBuilder",
-    "appId": "com.davidgs.link-builder",
+    "productName": "Link Builder",
+    "appId": "com.davidgs.utm-linker",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
@@ -219,7 +220,7 @@
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {
       "target": {
-        "target": "default",
+        "target": "mac",
         "arch": [
           "arm64",
           "x64"
@@ -229,6 +230,7 @@
       "hardenedRuntime": true,
       "entitlements": "assets/entitlements.mac.plist",
       "entitlementsInherit": "assets/entitlements.mac.plist",
+      "provisioningProfile": "assets/macqrapp.provisionprofile",
       "gatekeeperAssess": false,
       "extendInfo": {
         "NSAppTransportSecurity": {
@@ -249,6 +251,25 @@
           "path": "/Applications"
         }
       ]
+    },
+    "mas": {
+      "target": {
+        "target": "mas",
+        "arch": [
+          "arm64",
+          "x64"
+        ]
+      },
+      "hardenedRuntime": true,
+      "entitlements": "assets/entitlements.mas.plist",
+      "entitlementsInherit": "assets/entitlements.mas.plist",
+      "provisioningProfile": "assets/macqrapp.provisionprofile",
+      "gatekeeperAssess": false,
+      "extendInfo": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
     },
     "win": {
       "target": [

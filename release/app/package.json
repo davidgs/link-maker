@@ -1,8 +1,10 @@
 {
   "name": "link-builder",
-  "productName": "Link Builder",
+  "productName": "UTM QR Code Builder",
   "version": "1.3.5",
-  "description": "A UTM Link Builder App",
+  "description": "A UTM QR Code Builder App",
+  "copyright": "Copyright © 2023 David G. Simmons",
+  "icon": "../../assets/icon.svg",
   "license": "MIT",
   "author": {
     "name": "David G. Simmons",
@@ -15,8 +17,7 @@
     "postinstall": "yarn run rebuild && yarn run link-modules",
     "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "dependencies": {
     "primeflex": "^3.3.0",
     "primeicons": "^6.0.1",

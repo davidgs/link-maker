@@ -25,6 +25,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { BitlyConfig } from './types';
+import Checker from './components/Checker';
 
 export default function BitlyCheck({
   useMe,
@@ -58,25 +59,28 @@ export default function BitlyCheck({
   }, [targetType]);
 
   return (
-    <OverlayTrigger
-      placement="right"
-      delay={{ show: 250, hide: 300 }}
-      overlay={<Tooltip id="bitly-tooltip">{tooltip}</Tooltip>}
-    >
-      <Form.Check
-        type="switch"
-        id="bitly-switch"
-        key={`${targetType}-switch`}
-        label={label}
-        aria-label={ariaLabel}
-        checked={useMe}
-        disabled={!bitlyEnabled}
-        style={{ float: 'left' }}
-        onChange={(e) => {
-          valueChanged(e.target.checked);
-        }}
-      />
-    </OverlayTrigger>
+    <div>
+    <Checker state={useMe} label={label} tooltip={tooltip} disabled={!bitlyEnabled} callback={(value) => { valueChanged(value)}} />
+    </div>
+    // <OverlayTrigger
+    //   placement="right"
+    //   delay={{ show: 250, hide: 300 }}
+    //   overlay={<Tooltip id="bitly-tooltip">{tooltip}</Tooltip>}
+    // >
+    //   <Form.Check
+    //     type="switch"
+    //     id="bitly-switch"
+    //     key={`${targetType}-switch`}
+    //     label={label}
+    //     aria-label={ariaLabel}
+    //     checked={useMe}
+    //     disabled={!bitlyEnabled}
+    //     style={{ float: 'left' }}
+    //     onChange={(e) => {
+    //       valueChanged(e.target.checked);
+    //     }}
+    //   />
+    // </OverlayTrigger>
   );
 }
 

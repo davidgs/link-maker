@@ -254,7 +254,7 @@ export default function UTMAccordianItem({
                       inline
                       id={`${accType}-chooser`}
                       label="Use Chooser"
-                      checked={accValue?.isChooser ? accValue.isChooser : true}
+                      checked={accValue?.isChooser }
                       onChange={(e) => {
                         setAccValue((prevConfig) => {
                           const newConfig = { ...(prevConfig as UtmObj) };
@@ -269,7 +269,7 @@ export default function UTMAccordianItem({
                       inline
                       id={`${accType}-text`}
                       label="Use Text Input"
-                      checked={!accValue?.isChooser ? !accValue.isChooser : false}
+                      checked={!accValue?.isChooser}
                       onChange={(e) => {
                         setAccValue((prevConfig) => {
                           const newConfig = { ...(prevConfig as UtmObj) };

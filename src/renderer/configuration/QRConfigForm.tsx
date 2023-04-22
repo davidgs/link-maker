@@ -33,6 +33,9 @@ import {
 import { QRSettings } from 'renderer/types';
 import PropTypes from 'prop-types';
 import { Gear, GearFill } from 'react-bootstrap-icons';
+import { Knob, KnobChangeEvent } from 'primereact/knob';
+import FileTypeSelector from 'renderer/components/FileTypeSelector';
+import { ChangeEvent } from 'react';
 
 export default function QRConfigForm({
   show,
@@ -40,22 +43,30 @@ export default function QRConfigForm({
   sizeCallback,
   extensionCallback,
   onHide,
+  dark
 }: {
   show: boolean;
   qrSettings: QRSettings;
   sizeCallback: (size: number) => void;
   extensionCallback: (value: string) => void;
   onHide: (value: boolean) => void;
+  dark: boolean;
 }): JSX.Element {
-  const [showConfig, setShowConfig] = useState<boolean>(false);
+  const [showConfig, setShowConfig] = useState<boolean>(show);
   const [myQRSettings, setMyQRSettings] = useState<QRSettings>(qrSettings);
   const [initSize, setInitSize] = useState<number>(220);
   const [initExtension, setInitExtension] = useState<string>('png');
   const [darkMode, setDarkMode] = useState<boolean>(false);
 
   useEffect(() => {
+    console.log('QRConfigForm useEffect showConfig: ', showConfig);
     setShowConfig(show);
+    console.log('QRConfigForm useEffect show: ', show);
   }, [show]);
+
+  useEffect(() => {
+    setDarkMode(dark);
+  }, [dark]);
 
   useEffect(() => {
     setMyQRSettings(qrSettings);
@@ -69,13 +80,13 @@ export default function QRConfigForm({
     setMyQRSettings(qSet);
   };
 
-  const onSizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onSizeChange = (event: KnobChangeEvent) => {
     const qSet: QRSettings = { ...myQRSettings };
     const qProp = { ...qSet.QRProps };
-    qProp.size = parseInt(event.target.value, 10);
+    qProp.size = event.value;
     qSet.QRProps = qProp;
     setMyQRSettings(qSet);
-    sizeCallback(parseInt(event.target.value, 10));
+    sizeCallback(event.value);
   };
 
   const handleSubmit = (event: SyntheticEvent) => {
@@ -108,12 +119,26 @@ export default function QRConfigForm({
     onHide(false);
   };
 
+  function handleExtChange(selectedFileType: string): void {
+    const qSet: QRSettings = { ...myQRSettings };
+    qSet.QRType = selectedFileType;
+    setMyQRSettings(qSet);
+    console.log(`Selected File Type: ${selectedFileType}`);
+  }
+
+  function onXparentChange(e: ChangeEvent<HTMLInputElement>) {
+    const qSet: QRSettings = { ...myQRSettings };
+    qSet.XParent = e.target.checked;
+    setMyQRSettings(qSet);
+  }
+
   return (
     <Modal
       show={showConfig}
       onHide={handleCancel}
       size="lg"
-      dialogClassName="modal-40w"
+      dialogClassName="modal-90w"
+      width="90vw"
       backdrop="static"
     >
       <Modal.Header closeButton>
@@ -126,7 +151,7 @@ export default function QRConfigForm({
               <Form.Group controlId="formBasicCheckbox">
                 <OverlayTrigger
                   placement="auto"
-                  delay={{ show: 250, hide: 400 }}
+                  delay={{ show: 250, hide: 300 }}
                   rootClose
                   overlay={
                     <Tooltip id="qrcode-tooltip">
@@ -134,7 +159,10 @@ export default function QRConfigForm({
                     </Tooltip>
                   }
                 >
-                  <Form.Label size="lg" style={{ fontSize: 'large' }}>
+                  <Form.Label
+                    size="lg"
+                    style={{ fontSize: 'large', marginTop: '15px' }}
+                  >
                     Size: {myQRSettings.QRProps?.size}
                   </Form.Label>
                 </OverlayTrigger>
@@ -151,78 +179,68 @@ export default function QRConfigForm({
                   </Tooltip>
                 }
               >
-                <Form.Range
+                <Knob
+                  size={55}
+                  name="eyeRadius-0-0"
+                  className="p-knob"
                   value={
                     myQRSettings.QRProps?.size ? myQRSettings.QRProps.size : 220
                   }
-                  min={150}
-                  max={1000}
-                  step={10}
+                  min={100}
+                  max={500}
+                  strokeWidth={11}
+                  textColor={darkMode ? 'white' : 'black'}
                   onChange={(e) => {
                     onSizeChange(e);
                   }}
+                  valueColor={'#0B3665'}
+                  rangeColor={'#21C6DC'}
                 />
               </OverlayTrigger>
             </Col>
           </Row>
           <Row>
-            <Col sm="4" style={{ paddingLeft: '1rem', paddingRight: '0px' }}>
+            <Col
+              sm="4"
+              style={{
+                paddingLeft: '1rem',
+                paddingRight: '0px',
+                paddingTop: '15px',
+              }}
+            >
               <Form.Label size="lg" style={{ fontSize: 'large' }}>
                 File Extension:{' '}
               </Form.Label>
             </Col>
-            <Col sm="6" style={{ paddingLeft: '1rem' }}>
-              <div key="inline-radio" className="mb-3">
-                <OverlayTrigger
-                  placement="auto"
-                  overlay={<Tooltip>Download as a PNG</Tooltip>}
-                >
-                  <Form.Check
-                    inline
-                    label=".png"
-                    name="group1"
-                    type="radio"
-                    id="inline-radio-png"
-                    style={{ marginRight: '.5rem' }}
-                    onChange={(e) => {
-                      onExtensionChange(e);
-                    }}
-                    checked={myQRSettings.QRType === 'png'}
-                  />
-                </OverlayTrigger>
-                <OverlayTrigger
-                  placement="auto"
-                  overlay={<Tooltip>Download as a JPG</Tooltip>}
-                >
-                  <Form.Check
-                    inline
-                    label=".jpg"
-                    name="group1"
-                    type="radio"
-                    id="inline-radio-jpg"
-                    style={{ marginRight: '.5rem' }}
-                    onChange={onExtensionChange}
-                    checked={myQRSettings.QRType === 'jpg'}
-                  />
-                </OverlayTrigger>
-                <OverlayTrigger
-                  placement="auto"
-                  overlay={<Tooltip>Download as a JPG</Tooltip>}
-                >
-                  <Form.Check
-                    inline
-                    label=".svg"
-                    name="group1"
-                    type="radio"
-                    id="inline-radio-svg"
-                    style={{ marginRight: '.5rem' }}
-                    onChange={onExtensionChange}
-                    checked={myQRSettings.QRType === 'svg'}
-                  />
-                </OverlayTrigger>
-              </div>
+            <Col sm="7" style={{ paddingLeft: '1rem' }}>
+              <FileTypeSelector
+                onSelectionChange={handleExtChange}
+                fileType={myQRSettings.QRType}
+              />
             </Col>
           </Row>
+          {myQRSettings.QRType === 'svg' ? (
+            <Row style={{ paddingTop: '15px' }} className={'fade-component in'}>
+              <Col sm="4" style={{ paddingLeft: '1rem' }}>
+                <Form.Label size="lg" style={{ fontSize: 'large' }}>
+                  Transparent Background:{' '}
+                </Form.Label>
+              </Col>
+              <Col sm="6" style={{ paddingLeft: '1rem' }}>
+                <div className="round">
+                  <input
+                    type="checkbox"
+                    checked={myQRSettings.XParent}
+                    id="checkbox"
+                    onChange={(e) => {
+                      onXparentChange(e);
+                    }}
+                  />
+                  <label for="checkbox"></label>
+                </div>
+              </Col>
+            </Row>
+          ) : null}
           <Form.Group as={Row} style={{ margin: 'auto' }}>
             <Col sm={8}>&nbsp;</Col>
             <Col sm={1}>

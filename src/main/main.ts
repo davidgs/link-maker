@@ -35,11 +35,10 @@ import { app, BrowserWindow, autoUpdater, dialog, shell, ipcMain, nativeImage } 
 // import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import Store from 'electron-store';
-import { UtmParams, defaultUTMParams, QRSettings, defaultQRSettings, defaultMainSettings, MainSettings, LinkData } from '../renderer/types';
+import { UtmParams, defaultUTMParams, defaultQRSettings, defaultMainSettings, LinkData } from '../renderer/types';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import uuid from 'react-uuid';
-import { useState } from 'react';
 
 
 
@@ -84,7 +83,7 @@ class AppUpdater {
   constructor() {
     log.verbose('AppUpdater::constructor');
     log.transports.file.level = 'debug';
-    up.checkForUpdates();
+    // up.checkForUpdates();
   }
 }
 
@@ -92,7 +91,7 @@ app.on('checkForUpdates', () => {
   console.log('Checking for updates ...')
   updateMessage.push('Checking for updates ...');
   if (timeoutID === null) sendMessage();
-  up.checkForUpdates();
+  // up.checkForUpdates();
 });
 
   function sendJsonMessage(type: string){
@@ -150,9 +149,9 @@ function sendMessage(){
 }
 
 
-setInterval(() => {
-  up.checkForUpdates();
-}, 1.8e+6);
+// setInterval(() => {
+//   up.checkForUpdates();
+// }, 1.8e+6);
 
 up.on('update-downloaded', (event, releaseNotes, releaseName) => {
   updateMessage.push('A new version has been downloaded.');
@@ -413,8 +412,8 @@ const createWindow = async () => {
   app.setAboutPanelOptions(options);
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1124,
-    height: 875,
+    width: 1112,
+    height: 820,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: app.isPackaged

@@ -315,6 +315,7 @@ export type LinkData = {
 export type QRSettings = {
   QRProps: IProps;
   QRType: string;
+  XParent: boolean;
   QRImageFile: string;
 };
 
@@ -337,7 +338,7 @@ export const DefaultQRStyle: IProps = {
   logoImage: '',
   logoWidth: 60,
   logoHeight: 60,
-  logoOpacity: 10,
+  logoOpacity: 1,
   removeQrCodeBehindLogo: false,
   qrStyle: 'dots',
   eyeColor: 'rgba(11, 38, 62, 1)',
@@ -355,6 +356,7 @@ export const DefaultQRStyle: IProps = {
 export const defaultQRSettings: QRSettings = {
   QRProps: DefaultQRStyle,
   QRType: 'png',
+  XParent: false,
   QRImageFile: '',
 };
 
@@ -362,6 +364,6 @@ export const defaultMainSettings: MainSettings = {
   brandImageFile: '',
   brandHeight: 0,
   brandWidth: 0,
-  brandOpacity: 10,
+  brandOpacity: 1,
   QRSettings: defaultQRSettings,
 };

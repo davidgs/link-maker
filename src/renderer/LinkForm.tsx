@@ -44,18 +44,20 @@ import {
   defaultUTMParams,
   UtmParams,
   LinkData,
+  MainSettings,
+  QRSettings,
+  IProps,
+  defaultMainSettings,
 } from './types';
 import BitlyCheck from './BitlyCheck';
 import QCode from './QRCode';
 import 'react-bootstrap-country-select/dist/react-bootstrap-country-select.css';
 import DireWarning from './configuration/DireWarning';
-import {
-  XCircle,
-  XCircleFill,
-  Save,
-  SaveFill,
-} from 'react-bootstrap-icons';
+import { XCircle, XCircleFill, Save, SaveFill } from 'react-bootstrap-icons';
 import PropTypes from 'prop-types';
+import DownloadButton from './components/DownloadButton';
+import QRConfigButton from './components/QRConfigButton';
+import Checker from './components/Checker';
 
 interface ICountry {
   id: string;
@@ -87,7 +89,9 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
   const [bitlyConfig, setBitlyConfig] =
     useState<BitlyConfig>(defaultBitlyConfig);
   const [enableBitly, setEnableBitly] = useState(false);
-  const [mainConfig, setMainConfig] = useState(defaultUTMParams);
+  const [mainConfig, setMainConfig] =
+    useState<MainSettings>(defaultMainSettings);
+  const [mainUTMConfig, setMainUTMConfig] = useState(defaultUTMParams);
   const [qrOnly, setQrOnly] = useState(false);
   const [linkHistory, setLinkHistory] = useState<LinkData[]>([]);
   const [showDireWarning, setShowDireWarning] = useState(false);
@@ -105,7 +109,7 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
     window.electronAPI
       .getLinks()
       .then((response: string) => {
-        if(response) {
+        if (response) {
           const linkData: LinkData[] = JSON.parse(response);
           setLinkHistory(linkData);
           return '';
@@ -117,22 +121,22 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
   };
 
   /* Save link to the main process */
-  const saveLink = (): void => {
+  function saveLink(): void {
     const ld: LinkData = {
-      longLink: (longLink !== '' ? longLink : null),
-      shortLink: (shortLink !== '' ? shortLink : null),
+      longLink: longLink !== '' ? longLink : null,
+      shortLink: shortLink !== '' ? shortLink : null,
       uuid: uuid(),
-      teamName: (team !== '' ? team : null),
-      regionName: (region !== '' ? region : null),
-      campaign: (campaign !== '' ? campaign : null),
-      source: (source !== '' ? source : null),
-      medium: (medium !== '' ? medium : null),
-      term: (term !== '' ? term : null),
-      target: (target !== '' ? target : null),
-      content: (content !== '' ? content : null),
-      keyword: (keyword !== '' ? keyword : null),
-      base: (base !== '' ? base : null),
-      countryName: (countryID !== '' ? countryID : null),
+      teamName: team !== '' ? team : null,
+      regionName: region !== '' ? region : null,
+      campaign: campaign !== '' ? campaign : null,
+      source: source !== '' ? source : null,
+      medium: medium !== '' ? medium : null,
+      term: term !== '' ? term : null,
+      target: target !== '' ? target : null,
+      content: content !== '' ? content : null,
+      keyword: keyword !== '' ? keyword : null,
+      base: base !== '' ? base : null,
+      countryName: countryID !== '' ? countryID : null,
       date: new Date().toLocaleString(),
     };
     const linkDataString = JSON.stringify(ld);
@@ -146,8 +150,9 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
       .catch((error: unknown) => {
         console.log(`Error: ${error}`);
       });
-  };
+  }
 
+  /* Clear the history */
   const clearHistory = (): void => {
     window.electronAPI
       .clearHistory()
@@ -160,11 +165,43 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
       });
   };
 
+  /* Show a dire warning */
   const dire = (): void => {
     setShowDireWarning(false);
     clearHistory();
   };
 
+  /* Get the main config from the main process
+   * If a logo for the QR code is defined, go fetch that too
+   */
+  useEffect(() => {
+    window.electronAPI
+      .getMainConfig()
+      .then((result) => {
+        const mainS: MainSettings = JSON.parse(result) as MainSettings;
+        setMainConfig(mainS);
+        const qrS: QRSettings = { ...mainS.QRSettings } as QRSettings;
+        const qr = { ...qrS.QRProps } as IProps;
+        if (qrS.QRImageFile) {
+          window.electronAPI
+            .loadFile(qrS.QRImageFile)
+            .then((response) => {
+              const fType = qrS.QRImageFile.split('.').pop();
+              const image = Buffer.from(response, 'base64').toString('base64');
+              return '';
+            })
+            .catch((error: unknown) => {
+              console.log(`Error: ${error}`);
+            });
+        }
+        return '';
+      })
+      .catch((error: unknown) => {
+        console.log(`Error: ${error}`);
+      });
+  }, []);
+
+  /* Clear the form */
   const clearForm = (): void => {
     window.electronAPI
       .clearForm()
@@ -176,19 +213,20 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
       });
   };
 
+  /* Get the UTM config from the main process */
   const getConfig = () => {
-  window.electronAPI
-    .getConfig()
-    .then((response: string) => {
-      const c: UtmParams = JSON.parse(response);
-      setMainConfig(c);
-      setRestrictBases(c.restrict_bases);
-      setShowCountry(c.show_country);
-      return '';
-    })
-    .catch((error: unknown) => {
-      console.log(`Error: ${error}`);
-    });
+    window.electronAPI
+      .getConfig()
+      .then((response: string) => {
+        const c: UtmParams = JSON.parse(response);
+        setMainUTMConfig(c);
+        setRestrictBases(c.restrict_bases);
+        setShowCountry(c.show_country);
+        return '';
+      })
+      .catch((error: unknown) => {
+        console.log(`Error: ${error}`);
+      });
   };
 
   useEffect(() => {
@@ -224,12 +262,12 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
       setSource((prevSource) =>
         regex.test(prevSource) ? prevSource?.replace(regex, '') : prevSource
       );
-      source !== '' ? ll = `${ll}?utm_source=${source}` : ll;
-      medium !== '' ? ll = `${ll}&utm_medium=${medium}` : ll;
-      term !== '' ? ll = `${ll}&utm_term=${term}` : ll;
-      content !== '' ? ll = `${ll}&utm_content=${content}` : ll;
-      keyword !== '' ? ll = `${ll}&keyword=${keyword}` : ll;
-      finalCampaign !== '' ? ll = `${ll}&utm_campaign=${finalCampaign}` : ll;
+      source !== '' ? (ll = `${ll}?utm_source=${source}`) : ll;
+      medium !== '' ? (ll = `${ll}&utm_medium=${medium}`) : ll;
+      term !== '' ? (ll = `${ll}&utm_term=${term}`) : ll;
+      content !== '' ? (ll = `${ll}&utm_content=${content}`) : ll;
+      keyword !== '' ? (ll = `${ll}&keyword=${keyword}`) : ll;
+      finalCampaign !== '' ? (ll = `${ll}&utm_campaign=${finalCampaign}`) : ll;
       setLongLink(ll);
       if (base === 'choose_one_...') {
         setBase('');
@@ -250,7 +288,7 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
     qrOnly,
   ]);
 
-
+  /* Run through the history and parse each one */
   const fillHistory = (histID: string) => {
     if (histID === 'clear-history') {
       setShowDireWarning(true);
@@ -258,10 +296,10 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
     }
     linkHistory.forEach((item) => {
       if (item.uuid === histID) {
-        setBase(
-          (item?.base && item?.base !== '') ? item?.base : '');
+        setBase(item?.base && item?.base !== '' ? item?.base : '');
         setTarget(
-          (item?.target !== null && item?.target !== '') ? item?.target : '');
+          item?.target !== null && item?.target !== '' ? item?.target : ''
+        );
         setSource(item?.source ? item?.source : '');
         setMedium(item?.medium ? item?.medium : '');
         setTerm(item?.term ? item?.term : '');
@@ -279,7 +317,6 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
     });
   };
 
-
   useEffect(() => {
     if (qrOnly) {
       setShowCountry(!qrOnly);
@@ -289,7 +326,7 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
 
   // If Bitly switch is turned on, get the Bitly configuration
   const setUpBitly = () => {
-    if (mainConfig.bitly_config?.useValue && useBitly) {
+    if (mainUTMConfig.bitly_config?.useValue && useBitly) {
       window.electronAPI
         .getParams('bitly_config')
         .then((response: string) => {
@@ -325,7 +362,11 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
     if (region !== '' && region !== 'choose_one_...' && region !== null) {
       tempCampaign = `${tempCampaign}${region}_`;
     }
-    if (countryID !== '' && countryID !== 'choose_one_...' && countryID !== null) {
+    if (
+      countryID !== '' &&
+      countryID !== 'choose_one_...' &&
+      countryID !== null
+    ) {
       tempCampaign = `${tempCampaign}${countryID}_`;
     }
     const t = tempCampaign.endsWith('_')
@@ -337,12 +378,24 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
   useEffect(() => {
     if (
       target !== 'https://www.example.com/' &&
-      (mainConfig?.utm_source?.useValue && (source !== '' && source !== null)) &&
-      (mainConfig?.utm_medium?.useValue && (medium !== '' && medium !== null)) &&
-      (mainConfig?.utm_term?.useValue && (term !== '' && term !== null)) &&
-      (mainConfig?.utm_campaign?.useValue && (campaign !== '' && campaign !== null)) &&
-      (mainConfig?.utm_content?.useValue && (content !== '' && content !== null)) &&
-      (mainConfig?.utm_keyword?.useValue && (keyword !== '' && keyword !== null))
+      mainUTMConfig?.utm_source?.useValue &&
+      source !== '' &&
+      source !== null &&
+      mainUTMConfig?.utm_medium?.useValue &&
+      medium !== '' &&
+      medium !== null &&
+      mainUTMConfig?.utm_term?.useValue &&
+      term !== '' &&
+      term !== null &&
+      mainUTMConfig?.utm_campaign?.useValue &&
+      campaign !== '' &&
+      campaign !== null &&
+      mainUTMConfig?.utm_content?.useValue &&
+      content !== '' &&
+      content !== null &&
+      mainUTMConfig?.utm_keyword?.useValue &&
+      keyword !== '' &&
+      keyword !== null
     ) {
       setEnableBitly(true);
     } else {
@@ -351,26 +404,41 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
   }, [target, source, medium, campaign, term, content, keyword]);
 
   useEffect(() => {
-    if (mainConfig.bitly_config?.useValue && bitlyConfig.bitlyEnabled) {
+    if (mainUTMConfig.bitly_config?.useValue && bitlyConfig.bitlyEnabled) {
       // only call bitly if the link is complete.
       if (
         target !== 'https://www.example.com/' &&
-        (mainConfig?.utm_source?.useValue && (source !== '' && source !== null)) &&
-        (mainConfig?.utm_medium?.useValue && (medium !== '' && medium !== null)) &&
-        (mainConfig?.utm_campaign?.useValue && (campaign !== '' && campaign !== null)) &&
-        (mainConfig?.utm_term?.useValue && (term !== '' && term !== null)) &&
-        (mainConfig?.utm_content?.useValue && (content !== '' && content !== null)) &&
-        (mainConfig?.utm_keyword?.useValue && (keyword !== '' && keyword !== null))
+        mainUTMConfig?.utm_source?.useValue &&
+        source !== '' &&
+        source !== null &&
+        mainUTMConfig?.utm_medium?.useValue &&
+        medium !== '' &&
+        medium !== null &&
+        mainUTMConfig?.utm_campaign?.useValue &&
+        campaign !== '' &&
+        campaign !== null &&
+        mainUTMConfig?.utm_term?.useValue &&
+        term !== '' &&
+        term !== null &&
+        mainUTMConfig?.utm_content?.useValue &&
+        content !== '' &&
+        content !== null &&
+        mainUTMConfig?.utm_keyword?.useValue &&
+        keyword !== '' &&
+        keyword !== null
       ) {
         const headers = {
           Authorization: `Bearer ${bitlyConfig.bitlyToken}`,
           Accept: 'application/json',
           ContentType: 'application/json; charset=utf-8',
         };
-        const bDom = (bitlyConfig && bitlyConfig.bitlyDomain && bitlyConfig.bitlyDomain !== '') ? ( `"domain": ${bitlyConfig.bitlyDomain}`) : ( null );
-        const data = JSON.parse(
-          `{"long_url": "${longLink}", ${bDom}}`
-        );
+        const bDom =
+          bitlyConfig &&
+          bitlyConfig.bitlyDomain &&
+          bitlyConfig.bitlyDomain !== ''
+            ? `"domain": ${bitlyConfig.bitlyDomain}`
+            : null;
+        const data = JSON.parse(`{"long_url": "${longLink}", ${bDom}}`);
         axios
           .post(`${bitlyConfig.bitlyAddr}`, data, {
             headers,
@@ -385,11 +453,20 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
           })
           .catch((error) => {
             console.log(`Error: ${error}`);
-          }
-          );
+          });
       }
     }
-  }, [bitlyConfig, longLink, target, source, medium, campaign, term, content, keyword]);
+  }, [
+    bitlyConfig,
+    longLink,
+    target,
+    source,
+    medium,
+    campaign,
+    term,
+    content,
+    keyword,
+  ]);
 
   const updateCountry = (countryIdOrCountry: string | ICountry) => {
     if (countryIdOrCountry === null) {
@@ -411,6 +488,21 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
     setCountryID(i);
   };
 
+  /* if any settings have changed, save them
+   * @param: settings
+   */
+  function updateSettings(settings: MainSettings): void {
+    setMainConfig(settings);
+    window.electronAPI
+      .saveMainConfig(JSON.stringify(settings))
+      .then((response: string) => {
+        console.log(`Response: ${response}`);
+      })
+      .catch((error: unknown) => {
+        console.log(`Error: ${error}`);
+      });
+  }
+
   return (
     <div className="link-form">
       <style type="text/css">
@@ -419,19 +511,28 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
       background-color: var(--bs-secondary-bg);
     }`}
       </style>
+      {/* QR Code */}
       <div>
         <QCode
           link={!useBitly ? (longLink as string) : (shortLink as string)}
-          ext="png"
-          qrOnly={qrOnly}
           dark={darkMode}
+          settings={mainConfig}
         />
       </div>
-      {/* bitly button */}
-      <div style={{ width: '100%', marginBottom: '0.25rem' }}>
+      {/* Config buttons */}
+      <div
+        style={{
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'row',
+          marginBottom: '0.5rem',
+        }}
+      >
         {/* bitly enable */}
-        <div style={{ width: '18%', display: 'inline-block' }}>
-          {mainConfig?.bitly_config.useValue ? (
+        <div
+          style={{ minWidth: '15%', display: 'flex', flexDirection: 'column' }}
+        >
+          {mainUTMConfig?.bitly_config.useValue ? (
             <BitlyCheck
               targetType="bitly_config"
               useMe={useBitly}
@@ -439,102 +540,110 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
               valueChanged={setUpBitly}
             />
           ) : null}
-          {/* </OverlayTrigger> */}
         </div>
         {/* qr only button */}
-        <OverlayTrigger
-            placement="auto"
+        <div
+          style={{ minWidth: '20%', display: 'flex', flexDirection: 'column' }}
+        >
+          <Checker
+            state={qrOnly}
+            label="QR Code Only"
+            tooltip="Just generate a QR Code with no UTM parameters."
+            callback={(value) => setQrOnly(value)}
+          />
+        </div>
+        {/* spacer */}
+        <div
+          style={{ minWidth: '20%', display: 'flex', flexDirection: 'column' }}
+        />
+        {/* history button */}
+        <div style={{ width: '15%', display: 'flex', flexDirection: 'column' }}>
+          <HistoryChooser
+            history={linkHistory}
+            dark={darkMode}
+            callback={fillHistory}
+          />
+        </div>
+        {/* Spacer */}
+        <div
+          style={{ width: '30%', display: 'flex', flexDirection: 'column' }}
+        />
+        {/* download QR Code BUtton */}
+        <div
+          style={{ width: 'auto', display: 'flex', flexDirection: 'column' }}
+        >
+          <DownloadButton dark={darkMode} settings={mainConfig} />
+        </div>
+        {/* spacer */}
+        <div
+          style={{ width: '10px', display: 'flex', flexDirection: 'column' }}
+        />
+        {/* config button */}
+        <div
+          style={{ width: 'auto', display: 'flex', flexDirection: 'column' }}
+        >
+          <QRConfigButton
+            dark={darkMode}
+            settings={mainConfig}
+            callback={updateSettings}
+          />
+        </div>
+        {/* spacer */}
+        <div
+          style={{ width: '10px', display: 'flex', flexDirection: 'column' }}
+        />
+        {/* save button */}
+        <div
+          style={{ width: 'auto', display: 'flex', flexDirection: 'column' }}
+        >
+          <OverlayTrigger
+            placement="top"
             delay={{ show: 250, hide: 300 }}
             overlay={
-              <Tooltip id="qr-only-tooltip">
-                Just generate a QR Code with no UTM parameters.
+              <Tooltip id="save-btn-tooltip">
+                Save the current link to your history.
               </Tooltip>
             }
           >
-            <div style={{ width: '22%', display: 'inline-block' }}>
-
-            <Form.Check
-              type="switch"
-              id="qr-only-show"
-              label="QR Code Only"
-              checked={qrOnly}
-              style={{ float: 'left' }}
-              onChange={(e) => {
-                setQrOnly(e.target.checked);
-              }}
-            />
-
+            <Button
+              size="sm"
+              id="save-btn"
+              variant={darkMode ? 'icon-only-dark' : 'icon-only'}
+              onClick={saveLink}
+              className={darkClass}
+            >
+              {darkMode ? <Save /> : <SaveFill />}
+            </Button>
+          </OverlayTrigger>
         </div>
-        </OverlayTrigger>
-        {/* history, save & clear buttons */}
+        {/* spacer */}
         <div
-          style={{
-            width: '60%',
-            display: 'inline-block',
-            alignItems: 'center',
-          }}
+          style={{ width: '10px', display: 'flex', flexDirection: 'column' }}
+        />
+        {/* clear button */}
+        <div
+          style={{ width: 'auto', display: 'flex', flexDirection: 'column' }}
         >
-          <div style={{ width: '50%', display: 'inline-block' }}></div>
-          {/* history button */}
-          <div
-            style={{
-              width: '34%',
-              display: 'inline-block',
-              verticalAlign: 'top',
-            }}
+          <OverlayTrigger
+            placement="top"
+            delay={{ show: 250, hide: 300 }}
+            overlay={
+              <Tooltip id="clear-btn-tooltip">
+                Clear the form and start over.
+              </Tooltip>
+            }
           >
-            <HistoryChooser
-              history={linkHistory}
-              dark={darkMode}
-              callback={fillHistory}
-            />
-          </div>
-          {/* save button */}
-          <div style={{ width: '8%', display: 'inline-block' }}>
-            <OverlayTrigger
-              placement="auto"
-              delay={{ show: 250, hide: 300 }}
-              overlay={
-                <Tooltip id="save-btn-tooltip">
-                  Save the current link to your history.
-                </Tooltip>
-              }
+            <Button
+              size="sm"
+              variant={darkMode ? 'icon-only-dark' : 'icon-only'}
+              color={darkMode ? '#adb5bd' : '#0B3665'}
+              className={darkClass}
+              onClick={clearForm}
+              // style={{ float: 'right', marginRight: '-30px' }}
             >
-              <Button
-                size="sm"
-                id="save-btn"
-                variant={darkMode ? 'icon-only-dark' : 'icon-only'}
-                onClick={saveLink}
-                className={darkClass}
-                style={{ float: 'right' }}
-              >
-                {darkMode ? <Save /> : <SaveFill />}
-              </Button>
-            </OverlayTrigger>
-          </div>
-          {/* clear button */}
-          <div style={{ width: '1.5%', display: 'inline-block' }}>
-            <OverlayTrigger
-              placement="auto"
-              delay={{ show: 250, hide: 300 }}
-              overlay={
-                <Tooltip id="clear-btn-tooltip">
-                  Clear the form and start over.
-                </Tooltip>
-              }
-            >
-              <Button
-                size="sm"
-                variant={darkMode ? 'icon-only-dark' : 'icon-only'}
-                color={darkMode ? '#adb5bd' : '#0B3665'}
-                className={darkClass}
-                onClick={clearForm}
-                style={{ float: 'right', marginRight: '-30px' }}
-              >
-                {darkMode ? <XCircle /> : <XCircleFill />}
-              </Button>
-            </OverlayTrigger>
-          </div>
+              {darkMode ? <XCircle /> : <XCircleFill />}
+            </Button>
+          </OverlayTrigger>
         </div>
       </div>
       {/* utm_target */}
@@ -547,7 +656,7 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
                 targetType="utm_bases"
                 id="restricted-bases"
                 enabled
-                settings={mainConfig?.utm_bases}
+                settings={mainUTMConfig?.utm_bases}
                 selected={base}
               />
             )}
@@ -570,16 +679,16 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
       {/* utm_source & utm_medium */}
       <Row style={{ marginBottom: '-.5rem' }}>
         {/* utm_source */}
-        {mainConfig?.utm_source?.useValue ? (
+        {mainUTMConfig?.utm_source?.useValue ? (
           <Col>
-            {mainConfig?.utm_source?.isChooser ? (
+            {mainUTMConfig?.utm_source?.isChooser ? (
               <InputGroup className="mb-3" size="lg">
                 <UTMChoice
                   valueChanged={setSource}
                   targetType="utm_source"
                   enabled={!qrOnly}
                   id="utm-source"
-                  settings={mainConfig?.utm_source}
+                  settings={mainUTMConfig?.utm_source}
                   selected={source}
                 />
               </InputGroup>
@@ -599,16 +708,16 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
           <></>
         )}
         {/* utm_medium */}
-        {mainConfig?.utm_medium?.useValue ? (
+        {mainUTMConfig?.utm_medium?.useValue ? (
           <Col>
             <InputGroup className="mb-3" size="lg">
-              {mainConfig?.utm_medium?.isChooser ? (
+              {mainUTMConfig?.utm_medium?.isChooser ? (
                 <UTMChoice
                   valueChanged={setMedium}
                   targetType="utm_medium"
                   enabled={!qrOnly}
                   id="medium-choice"
-                  settings={mainConfig?.utm_medium}
+                  settings={mainUTMConfig?.utm_medium}
                   selected={medium}
                 />
               ) : (
@@ -628,15 +737,16 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
       </Row>
       {/*  utm_term, utm_campaign */}
       <Row style={{ marginBottom: '.5rem' }}>
-        {mainConfig?.utm_campaign.useValue ? (
+        {/* utm_campaign */}
+        {mainUTMConfig?.utm_campaign.useValue ? (
           <Col>
-            {mainConfig?.utm_campaign.isChooser ? (
+            {mainUTMConfig?.utm_campaign.isChooser ? (
               <UTMChoice
                 valueChanged={setCampaign}
                 targetType="utm_campaign"
                 enabled={!qrOnly}
                 id="campaign-choice"
-                settings={mainConfig?.utm_campaign}
+                settings={mainUTMConfig?.utm_campaign}
                 selected={campaign}
               />
             ) : (
@@ -652,15 +762,16 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
         ) : (
           <></>
         )}
-        {mainConfig?.utm_term.useValue ? (
+        {/* utm_term */}
+        {mainUTMConfig?.utm_term.useValue ? (
           <Col>
-            {mainConfig?.utm_term.isChooser ? (
+            {mainUTMConfig?.utm_term.isChooser ? (
               <UTMChoice
                 valueChanged={setTerm}
                 targetType="utm_Term"
                 enabled={!qrOnly}
                 id="term-choice"
-                settings={mainConfig?.utm_term}
+                settings={mainUTMConfig?.utm_term}
                 selected={term}
               />
             ) : (
@@ -679,15 +790,16 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
       </Row>
       {/*  utm_content, utm_keyword */}
       <Row style={{ marginBottom: '.5rem' }}>
-        {mainConfig?.utm_content?.useValue ? (
+        {/* utm_content */}
+        {mainUTMConfig?.utm_content?.useValue ? (
           <Col>
-            {mainConfig?.utm_content.isChooser ? (
+            {mainUTMConfig?.utm_content.isChooser ? (
               <UTMChoice
                 valueChanged={setContent}
                 targetType="utm_content"
                 enabled={!qrOnly}
                 id="content-choice"
-                settings={mainConfig?.utm_content}
+                settings={mainUTMConfig?.utm_content}
                 selected={content}
               />
             ) : (
@@ -703,15 +815,16 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
         ) : (
           <></>
         )}
-        {mainConfig?.utm_keyword?.useValue ? (
+        {/* utm_keyword */}
+        {mainUTMConfig?.utm_keyword?.useValue ? (
           <Col>
-            {mainConfig?.utm_keyword?.isChooser ? (
+            {mainUTMConfig?.utm_keyword?.isChooser ? (
               <UTMChoice
                 valueChanged={setKeyword}
                 targetType="utm_keyword"
                 enabled={!qrOnly}
                 id="keyword-choice"
-                settings={mainConfig?.utm_keyword}
+                settings={mainUTMConfig?.utm_keyword}
                 selected={keyword}
               />
             ) : (
@@ -730,16 +843,17 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
       </Row>
       {/* team_name, region_name, utm_country */}
       <Row style={{ marginTop: '.5rem', marginBottom: '-.5rem' }}>
-        {mainConfig?.team_name.useValue ? (
+        {/* Team Name Selector */}
+        {mainUTMConfig?.team_name.useValue ? (
           <Col>
-            {mainConfig?.team_name.isChooser ? (
+            {mainUTMConfig?.team_name.isChooser ? (
               <InputGroup className="mb-3" size="lg">
                 <UTMChoice
                   valueChanged={updateTeam}
                   targetType="utm_campaign_team"
                   enabled={!qrOnly}
                   id="utm-team"
-                  settings={mainConfig?.team_name}
+                  settings={mainUTMConfig?.team_name}
                   selected={team}
                 />
               </InputGroup>
@@ -758,16 +872,17 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
         ) : (
           <></>
         )}
-        {mainConfig?.region_name.useValue ? (
+        {/* Region Selector */}
+        {mainUTMConfig?.region_name.useValue ? (
           <Col>
-            {mainConfig?.region_name.isChooser ? (
+            {mainUTMConfig?.region_name.isChooser ? (
               <InputGroup className="mb-3" size="lg">
                 <UTMChoice
                   valueChanged={updateRegion}
                   targetType="region_name"
                   enabled={!qrOnly}
                   id="region_name"
-                  settings={mainConfig?.region_name}
+                  settings={mainUTMConfig?.region_name}
                   selected={region}
                 />
               </InputGroup>
@@ -786,37 +901,44 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
         ) : (
           <></>
         )}
+        {/* Country Selector */}
         {showCountry ? (
           <OverlayTrigger
-              placement="auto"
-              delay={{ show: 250, hide: 300 }}
-              overlay={<Tooltip id='Country-Select-tooltip'>Begin typing or select from list</Tooltip>}
-            >
-              <Col style={{ marginTop: '.3rem' }}>
-
-            <CountrySelect
-              value={country as ICountry}
-              valueAs="object"
-              size="lg"
-              disabled={qrOnly}
-              onChange={updateCountry}
-              onTextChange={updateCountry}
-            />
-
-          </Col>
+            placement="auto"
+            delay={{ show: 250, hide: 300 }}
+            overlay={
+              <Tooltip id="Country-Select-tooltip">
+                Begin typing or select from list
+              </Tooltip>
+            }
+          >
+            <Col style={{ marginTop: '.3rem' }}>
+              <CountrySelect
+                value={country as ICountry}
+                valueAs="object"
+                size="lg"
+                disabled={qrOnly}
+                onChange={updateCountry}
+                onTextChange={updateCountry}
+              />
+            </Col>
           </OverlayTrigger>
         ) : (
           <></>
         )}
       </Row>
-      {/* utm_content */}
+      {/* Final utm_content string (auto-generated) */}
       <Row>
         <Col sm={12}>
           <InputGroup className="mb-3" size="lg">
             <OverlayTrigger
               placement="top"
               delay={{ show: 250, hide: 300 }}
-              overlay={<Tooltip id='utm-string-tooltip'>This value is auto-generated</Tooltip>}
+              overlay={
+                <Tooltip id="utm-string-tooltip">
+                  This value is auto-generated
+                </Tooltip>
+              }
             >
               <FloatingLabel
                 label="Final Campaign String"
