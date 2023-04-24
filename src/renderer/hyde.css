@@ -34,20 +34,25 @@
 html {
   font-family: Mulish, "Helvetica Neue", "Arial Nova", sans-serif !important;
 }
+
 body {
   font-family: Mulish, "Helvetica Neue", "Arial Nova", sans-serif !important;
 }
+
 .form-select {
   font-family: Mulish, "Helvetica Neue", "Arial Nova", sans-serif !important;
 }
+
 --bs-font-sans-serif {
   font-family: Mulish, "Helvetica Neue", "Arial Nova", sans-serif !important;
 }
+
 @media (min-width: 48em) {
   html {
     font-size: 16px;
   }
 }
+
 @media (min-width: 58em) {
   html {
     font-size: 16px;
@@ -65,11 +70,12 @@ body {
 .sidebar {
   text-align: center;
   padding: 2rem 1rem;
-  color: rgba(255,255,255,.5);
+  color: rgba(255, 255, 255, .5);
   background-color: #0B3665;
   font-size: .75rem;
 
 }
+
 @media (min-width: 48em) {
   .sidebar {
     position: fixed;
@@ -117,13 +123,16 @@ body {
   padding-left: 0;
   list-style: none;
 }
+
 .sidebar-nav-item {
   display: block;
 }
+
 a.sidebar-nav-item:hover,
 a.sidebar-nav-item:focus {
   text-decoration: underline;
 }
+
 .sidebar-nav-item.active {
   font-weight: bold;
 }
@@ -137,9 +146,9 @@ a.sidebar-nav-item:focus {
 @media (min-width: 48em) {
   .sidebar-sticky {
     position: absolute;
-    right:  1rem;
+    right: 1rem;
     bottom: 1rem;
-    left:   1rem;
+    left: 1rem;
   }
 }
 
@@ -151,20 +160,18 @@ a.sidebar-nav-item:focus {
  */
 
 .content {
-  padding-top:    .5rem;
+  padding-top: .5rem;
   /* padding-bottom: .5rem; */
 }
 
 @media (min-width: 48em) {
   .content {
-    margin-left: 2rem;
-    margin-right: 2rem;
+    /* margin-left: 2rem;
+    margin-right: 2rem; */
   }
 }
 
-@media (min-width: 64em) {
-
-}
+@media (min-width: 64em) {}
 
 
 /*
@@ -178,6 +185,7 @@ a.sidebar-nav-item:focus {
     left: auto;
     right: 0;
   }
+
   .layout-reverse .content {
     margin-left: 2rem;
     margin-right: 20rem;
@@ -213,9 +221,11 @@ a.sidebar-nav-item:focus {
   font-family: Mulish, "Helvetica Neue", "Arial Nova", sans-serif;
   font-size: 16;
 }
+
 .content a,
 .related-posts li a:hover {
-  color: #dee2e6;;
+  color: #dee2e6;
+  ;
 }
 
 .container {
@@ -251,9 +261,11 @@ a.sidebar-nav-item:focus {
   z-index: -1;
   cursor: auto;
 }
+
 .pill:hover {
   opacity: 0.8;
 }
+
 .pillImage {
   width: 15px;
   height: auto;
@@ -299,11 +311,13 @@ a.sidebar-nav-item:focus {
 .pointer {
   cursor: pointer;
 }
+
 .content-link {
   padding-top: .5rem;
   padding-bottom: .5rem;
   word-wrap: break-word;
 }
+
 @media (min-width: 48em) {
   .content-link {
     max-width: 38rem;
@@ -333,8 +347,8 @@ a.sidebar-nav-item:focus {
   flex-direction: row;
   justify-content: space-between;
   margin: 5px 0;
-  border: 1px solid #f44336;
 }
+
 .alert-column1 {
   display: flex;
   flex-direction: column;
@@ -342,8 +356,10 @@ a.sidebar-nav-item:focus {
   justify-content: center;
   margin: 2px;
   width: 8%;
-  border: 1px solid #f44336;
+  -ms-grid-row-span: 2;
+
 }
+
 .alert-column2 {
   display: flex;
   flex-direction: column;
@@ -351,9 +367,8 @@ a.sidebar-nav-item:focus {
   justify-content: center;
   word-break: break-all;
   margin: 2px;
-  width: 60%;
+  width: auto;
   padding: 5px;
-  border: 1px solid #f44336;
   flex-shrink: 3;
 }
 
@@ -364,8 +379,21 @@ a.sidebar-nav-item:focus {
   justify-content: center;
   margin: 2px;
   width: 30%;
-  text-align:center;
+  text-align: center;
   flex-grow: 2;
+}
+
+.encoded-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  word-break: break-all;
+  margin: 2px;
+  width: 60%;
+  padding: 5px;
+  border: 1px solid #f44336;
+  flex-shrink: 3;
 }
 
 .qr-position {
@@ -412,6 +440,7 @@ a.sidebar-nav-item:focus {
   color: #ffffff;
   word-wrap: break-word;
 }
+
 .link-text:after {
   content: '';
   clear: both;
@@ -422,6 +451,7 @@ a.sidebar-nav-item:focus {
   text-align: center;
   width: 100%;
 }
+
 .column {
   width: 100%;
 }
@@ -433,6 +463,7 @@ a.sidebar-nav-item:focus {
     max-width: 230px;
     margin-right: 10px;
   }
+
   .main-column {
     float: right;
     width: 75%;
@@ -440,6 +471,7 @@ a.sidebar-nav-item:focus {
     margin-left: 10px;
     margin-right: 10px;
   }
+
   /* Stops the float property from affecting content after the columns */
   .columns:after {
     content: "";
@@ -450,27 +482,28 @@ a.sidebar-nav-item:focus {
 
 @media (min-width: 64em) {
   .aside-column {
-      float: left;
-      width: 25%;
-      max-width: 230px;
-      margin-right: 10px;
-      padding-right: 10px;
-    }
+    float: left;
+    width: 25%;
+    max-width: 230px;
+    margin-right: 10px;
+    padding-right: 10px;
+  }
 
-    .main-column {
-      float: right;
-      width: 75%;
-      margin-left: 10px;
-      margin-right: 10px;
-    }
+  .main-column {
+    float: right;
+    width: 75%;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
 
-    /* Stops the float property from affecting content after the columns */
-    .columns:after {
-      content: "";
-      display: table;
-      clear: both;
-    }
+  /* Stops the float property from affecting content after the columns */
+  .columns:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
 }
+
 .configSwitch {
   font-weight: bold;
   color: #ffffff;
@@ -479,7 +512,8 @@ a.sidebar-nav-item:focus {
 .header-stuff {
   color: #0B3665;
 }
- .content .header-stuff a,
+
+.content .header-stuff a,
 .related-posts li a:hover {
   color: #343a40;
   ;
@@ -500,49 +534,50 @@ a.sidebar-nav-item:focus {
   border-radius: 10%;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-    border-top-color: initial;
-    border-top-style: solid;
-    border-top-width: 0.5px;
-    border-right-color: initial;
-    border-right-style: solid;
-    border-right-width: 0.5px;
-    border-bottom-color: initial;
-    border-bottom-style: solid;
-    border-bottom-width: 0.5px;
-    border-left-color: initial;
-    border-left-style: solid;
-    border-left-width: 0.5px;
-    border-image-source: initial;
-    border-image-slice: initial;
-    border-image-width: initial;
-    border-image-outset: initial;
-    border-image-repeat: initial;
+  border-top-color: initial;
+  border-top-style: solid;
+  border-top-width: 0.5px;
+  border-right-color: initial;
+  border-right-style: solid;
+  border-right-width: 0.5px;
+  border-bottom-color: initial;
+  border-bottom-style: solid;
+  border-bottom-width: 0.5px;
+  border-left-color: initial;
+  border-left-style: solid;
+  border-left-width: 0.5px;
+  border-image-source: initial;
+  border-image-slice: initial;
+  border-image-width: initial;
+  border-image-outset: initial;
+  border-image-repeat: initial;
   outline: solid;
   color: #0B3665;
 }
+
 .btn-icon-only-dark {
   border-color: #adb5bd;
   border: 1px solid #adb5bd;
   border-radius: 10%;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-    border-top-color: initial;
-    border-top-style: solid;
-    border-top-width: 0.5px;
-    border-right-color: initial;
-    border-right-style: solid;
-    border-right-width: 0.5px;
-    border-bottom-color: initial;
-    border-bottom-style: solid;
-    border-bottom-width: 0.5px;
-    border-left-color: initial;
-    border-left-style: solid;
-    border-left-width: 0.5px;
-    border-image-source: initial;
-    border-image-slice: initial;
-    border-image-width: initial;
-    border-image-outset: initial;
-    border-image-repeat: initial;
+  border-top-color: initial;
+  border-top-style: solid;
+  border-top-width: 0.5px;
+  border-right-color: initial;
+  border-right-style: solid;
+  border-right-width: 0.5px;
+  border-bottom-color: initial;
+  border-bottom-style: solid;
+  border-bottom-width: 0.5px;
+  border-left-color: initial;
+  border-left-style: solid;
+  border-left-width: 0.5px;
+  border-image-source: initial;
+  border-image-slice: initial;
+  border-image-width: initial;
+  border-image-outset: initial;
+  border-image-repeat: initial;
   outline: solid;
   color: #adb5bd;
 }
@@ -551,26 +586,27 @@ a.sidebar-nav-item:focus {
   border-radius: 10%;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-    border-top-color: initial;
-    border-top-style: solid;
-    border-top-width: 0.5px;
-    border-right-color: initial;
-    border-right-style: solid;
-    border-right-width: 0.5px;
-    border-bottom-color: initial;
-    border-bottom-style: solid;
-    border-bottom-width: 0.5px;
-    border-left-color: initial;
-    border-left-style: solid;
-    border-left-width: 0.5px;
-    border-image-source: initial;
-    border-image-slice: initial;
-    border-image-width: initial;
-    border-image-outset: initial;
-    border-image-repeat: initial;
+  border-top-color: initial;
+  border-top-style: solid;
+  border-top-width: 0.5px;
+  border-right-color: initial;
+  border-right-style: solid;
+  border-right-width: 0.5px;
+  border-bottom-color: initial;
+  border-bottom-style: solid;
+  border-bottom-width: 0.5px;
+  border-left-color: initial;
+  border-left-style: solid;
+  border-left-width: 0.5px;
+  border-image-source: initial;
+  border-image-slice: initial;
+  border-image-width: initial;
+  border-image-outset: initial;
+  border-image-repeat: initial;
   outline: solid;
   color: #adb5bd;
 }
+
 .button-icon {
   position: absolute;
   display: flex;
@@ -588,14 +624,15 @@ a.sidebar-nav-item:focus {
 .form-control.invalid {
   border-color: red;
 }
+
 .knob {
-    width: 100px;
+  width: 100px;
 }
 
 .knob .value {
-    font-family: sans-serif;
-    font-size: 5rem;
-    text-align: center;
+  font-family: sans-serif;
+  font-size: 5rem;
+  text-align: center;
 }
 
 .knobbly {
@@ -603,9 +640,10 @@ a.sidebar-nav-item:focus {
 }
 
 .my-modal {
-    width: 95vw;
-    max-width: 95vw;
+  width: 95vw;
+  max-width: 95vw;
 }
+
 .update-container {
   border-radius: 5px;
   overflow: hidden;
@@ -661,6 +699,7 @@ a.sidebar-nav-item:focus {
     transform: translateX(-100%);
   }
 }
+
 .glyphicon-refresh-animate {
   -animation: spin 2s infinite linear;
   -webkit-animation: spin2 2s infinite linear;
@@ -694,13 +733,14 @@ a.sidebar-nav-item:focus {
   color: #21C6DC;
   transform: scale(1.1);
 }
+
 .custom-radio.selected {
   color: #0B3665;
 }
 
 .fade-component {
   opacity: 0;
-  transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.6s ease-in-out;
 }
 
 .fade-component.in {
@@ -741,12 +781,11 @@ a.sidebar-nav-item:focus {
   visibility: hidden;
 }
 
-.round input[type="checkbox"]:checked + label {
+.round input[type="checkbox"]:checked+label {
   background-color: #0B3665;
   border-color: #0B3665;
 }
 
-.round input[type="checkbox"]:checked + label:after {
+.round input[type="checkbox"]:checked+label:after {
   opacity: 1;
 }
-

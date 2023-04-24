@@ -1,6 +1,6 @@
 {
-  "name": "link-builder",
-  "productName": "UTM QR Code Builder",
+  "name": "qr-link-builder",
+  "productName": "QR Link Builder",
   "version": "1.3.5",
   "description": "A UTM QR Code Builder App",
   "copyright": "Copyright © 2023 David G. Simmons",

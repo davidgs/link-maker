@@ -4,7 +4,9 @@ import { FiletypeSvg, FiletypeJpg, FiletypePng } from 'react-bootstrap-icons';
 
 interface Props {
   onSelectionChange: (selectedFileType: string) => void;
+  setXparent: (value: boolean) => void;
   fileType?: string;
+  isXparent?: boolean;
 }
 
 const FileTypeSelector: React.FC<Props> = ({ onSelectionChange, fileType }) => {
@@ -19,7 +21,7 @@ const FileTypeSelector: React.FC<Props> = ({ onSelectionChange, fileType }) => {
   return (
     <div style={{ paddingTop: '10px' }}>
       <OverlayTrigger
-        placement="auto"
+        placement="top"
         delay={{ show: 250, hide: 400 }}
         rootClose
         overlay={
@@ -42,7 +44,7 @@ const FileTypeSelector: React.FC<Props> = ({ onSelectionChange, fileType }) => {
         />
       </OverlayTrigger>
       <OverlayTrigger
-        placement="auto"
+        placement="top"
         delay={{ show: 250, hide: 400 }}
         rootClose
         overlay={
@@ -63,7 +65,7 @@ const FileTypeSelector: React.FC<Props> = ({ onSelectionChange, fileType }) => {
       />
       </OverlayTrigger>
       <OverlayTrigger
-        placement="auto"
+        placement="top"
         delay={{ show: 250, hide: 400 }}
         rootClose
         overlay={

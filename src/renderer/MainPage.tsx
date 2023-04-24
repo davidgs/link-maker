@@ -31,6 +31,7 @@ import LinkForm from './LinkForm';
 import ConfigEditor from './configuration/ConfigEditor';
 import { MainSettings, UtmParams } from './types';
 import JsonEditor from './configuration/JsonEditor';
+import Footer from './Footer';
 
 export default function MainPage() {
   const [editConfig, setEditConfig] = useState(false);
@@ -118,6 +119,7 @@ export default function MainPage() {
       <div className="main-column">
         <MainHeader dark={darkMode} />
         <LinkForm dark={darkMode} />
+        {/* <Footer dark={darkMode} /> */}
       </div>
       <ConfigEditor showMe={editConfig} dark={darkMode} callback={toggleConfig} />
       <JsonEditor type={configType} json={jsonProp} show={editJson} callback={toggleJson} />

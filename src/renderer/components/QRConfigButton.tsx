@@ -68,6 +68,13 @@ export default function QRConfigButton(
     }
   }, [dark]);
 
+  function setXparent(value: boolean): void {
+    const qrS: MainSettings = { ...mainConfig } as MainSettings;
+    qrS.QRSettings.XParent = value;
+    setMainConfig(qrS);
+    callback(qrS);
+  }
+
   return (
     <div>
       <OverlayTrigger
@@ -92,6 +99,7 @@ export default function QRConfigButton(
         qrSettings={mainConfig.QRSettings as QRSettings}
         sizeCallback={setQRSize}
         extensionCallback={setFileExt}
+        xParentCallback={setXparent}
         onHide={showConfigWindow}
         dark={darkMode}
       />

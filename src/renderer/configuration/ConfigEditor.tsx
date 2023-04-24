@@ -842,7 +842,30 @@ export default function ConfigEditor({
                         ) : (
                           <></>
                         )}
-                        <Checker
+                        <Form.Group as={Row}>
+                                <Col lg="2">
+                                  <Form.Label>Enable Bit.ly?</Form.Label>
+                                </Col>
+                                <Col lg="2">
+                                  <Form.Check
+                                    type="checkbox"
+                                    id="bitly-switch"
+                                    label=""
+                                    checked={config.bitly_config.useValue}
+                                    onChange={(e) => {
+                            setConfig((prevConfig) => {
+                                const newConfig = { ...prevConfig };
+                                const newSource = { ...newConfig.bitly_config };
+                                newSource.useValue = e.target.checked;
+                                newConfig.bitly_config = newSource;
+                                return newConfig;
+                              });
+                          }}
+                                  />
+                                </Col>
+                                <Col lg="6" />
+                              </Form.Group>
+                        {/* <Checker
                           state={
                             config.bitly_config.useValue
                               ? config?.bitly_config?.useValue
@@ -859,7 +882,7 @@ export default function ConfigEditor({
                                 return newConfig;
                               });
                           }}
-                        />
+                        /> */}
                       </Form>
                     </Accordion.Body>
                   </Accordion.Item>

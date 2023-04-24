@@ -1,11 +1,11 @@
 {
   "description": "A UTM Link Builder App",
   "name": "link-builder",
-  "productName": "UTM QR Code Builder",
+  "productName": "QR Code Builder",
   "keywords": [
     "electron",
     "react",
-    "typescript",
+    "tyscript",
     "ts",
     "sass",
     "webpack",
@@ -35,7 +35,7 @@
     "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts",
     "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
     "package": "ts-node ./.erb/scripts/clean.js dist && yarn run build && electron-builder build --publish never",
-    "clean": "ts-node ./.erb/scripts/clean.js dist",
+    "clean": "ts-node ./.erb/scripts/clean.js dist && find . -name .DS_Store -delete && xattr -cr .",
     "prepare": "husky install",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
     "start": "ts-node ./.erb/scripts/check-port-in-use.js && yarn run start:renderer",
@@ -208,8 +208,8 @@
     "webpack-merge": "^5.8.0"
   },
   "build": {
-    "productName": "Link Builder",
-    "appId": "com.davidgs.utm-linker",
+    "productName": "QR Link Maker",
+    "appId": "com.davidgs.qr-link-builder",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
@@ -220,7 +220,7 @@
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {
       "target": {
-        "target": "mac",
+        "target": "default",
         "arch": [
           "arm64",
           "x64"
@@ -230,13 +230,7 @@
       "hardenedRuntime": true,
       "entitlements": "assets/entitlements.mac.plist",
       "entitlementsInherit": "assets/entitlements.mac.plist",
-      "provisioningProfile": "assets/macqrapp.provisionprofile",
-      "gatekeeperAssess": false,
-      "extendInfo": {
-        "NSAppTransportSecurity": {
-          "NSAllowsArbitraryLoads": true
-        }
-      }
+      "gatekeeperAssess": false
     },
     "dmg": {
       "contents": [
@@ -251,25 +245,6 @@
           "path": "/Applications"
         }
       ]
-    },
-    "mas": {
-      "target": {
-        "target": "mas",
-        "arch": [
-          "arm64",
-          "x64"
-        ]
-      },
-      "hardenedRuntime": true,
-      "entitlements": "assets/entitlements.mas.plist",
-      "entitlementsInherit": "assets/entitlements.mas.plist",
-      "provisioningProfile": "assets/macqrapp.provisionprofile",
-      "gatekeeperAssess": false,
-      "extendInfo": {
-        "NSAppTransportSecurity": {
-          "NSAllowsArbitraryLoads": true
-        }
-      }
     },
     "win": {
       "target": [

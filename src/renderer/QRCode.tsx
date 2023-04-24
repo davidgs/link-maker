@@ -76,11 +76,12 @@ export default function QCode({
   }, [settings]);
 
   const saveSVG = () => {
+    const background = mySettings.QRSettings.XParent ? "none" :  mySettings.QRSettings.QRProps?.bgColor
     const canvas = document.getElementById(
       'react-qrcode-logo'
     ) as HTMLCanvasElement;
     const params = {
-      background: mySettings.QRSettings.QRProps?.bgColor,
+      background: background,
       color: mySettings.QRSettings.QRProps?.fgColor,
     };
     const dataURL = canvas?.toDataURL(`image/${mySettings.QRSettings.QRType}`);
@@ -130,7 +131,7 @@ export default function QCode({
 
   return (
     <div>
-      <div className="alert-columns">
+      <div className="alert-columns" style={{display: 'flex', flexDirection: 'row'}}>
         <div className="alert-column1">
           {copied && (
             <OverlayTrigger
@@ -249,8 +250,38 @@ export default function QCode({
               </div>
             </OverlayTrigger>
           </Row>
+
         </div>
-      </div>
+        </div>
+        {/* <div style={{ margin: 'auto', display: 'flex', flexDirection: 'row' }}>
+          <div id='encoded-link' className="encodedLink" >
+            <OverlayTrigger
+              placement="auto"
+              delay={{ show: 250, hide: 300 }}
+              rootClose
+              overlay={
+                <Tooltip id="alert-copy-link-tooltip">
+                  {qrState
+                    ? 'This data is encoded in the QR Code'
+                    : 'Click here to copy your link!'}
+                </Tooltip>
+              }
+            >
+              <div
+                onClick={copyMe}
+                onKeyDown={null as unknown as KeyboardEventHandler}
+                role="button"
+                tabIndex={0}
+                style={{alignItems: 'center', display: 'flex', justifyContent: 'center'}}
+              >
+                <strong style={{ cursor: 'pointer' }} className={darkClass}>
+                  {link}
+                </strong>
+              </div>
+            </OverlayTrigger>
+          </div>
+
+      </div> */}
     </div>
   );
 }

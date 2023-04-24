@@ -42,6 +42,7 @@ export default function QRConfigForm({
   qrSettings,
   sizeCallback,
   extensionCallback,
+  xParentCallback,
   onHide,
   dark
 }: {
@@ -49,6 +50,7 @@ export default function QRConfigForm({
   qrSettings: QRSettings;
   sizeCallback: (size: number) => void;
   extensionCallback: (value: string) => void;
+  xParentCallback: (value: boolean) => void;
   onHide: (value: boolean) => void;
   dark: boolean;
 }): JSX.Element {
@@ -73,12 +75,6 @@ export default function QRConfigForm({
     setInitSize(qrSettings.QRProps?.size ? qrSettings.QRProps.size : 220);
     setInitExtension(qrSettings.QRType);
   }, [qrSettings]);
-
-  const onExtensionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const qSet: QRSettings = { ...myQRSettings };
-    qSet.QRType = event.target.id.split('-')[2];
-    setMyQRSettings(qSet);
-  };
 
   const onSizeChange = (event: KnobChangeEvent) => {
     const qSet: QRSettings = { ...myQRSettings };
@@ -123,12 +119,14 @@ export default function QRConfigForm({
     const qSet: QRSettings = { ...myQRSettings };
     qSet.QRType = selectedFileType;
     setMyQRSettings(qSet);
+    extensionCallback(selectedFileType);
     console.log(`Selected File Type: ${selectedFileType}`);
   }
 
-  function onXparentChange(e: ChangeEvent<HTMLInputElement>) {
+  function onXparentChange(value: boolean) {
+    console.log(`XParent: ${value}`)
     const qSet: QRSettings = { ...myQRSettings };
-    qSet.XParent = e.target.checked;
+    qSet.XParent = value;
     setMyQRSettings(qSet);
   }
 
@@ -215,12 +213,14 @@ export default function QRConfigForm({
             <Col sm="7" style={{ paddingLeft: '1rem' }}>
               <FileTypeSelector
                 onSelectionChange={handleExtChange}
+                setXparent={onXparentChange}
                 fileType={myQRSettings.QRType}
+                isXparent={myQRSettings.XParent}
               />
             </Col>
           </Row>
           {myQRSettings.QRType === 'svg' ? (
-            <Row style={{ paddingTop: '15px' }} className={'fade-component in'}>
+            <Row style={{ paddingTop: '15px' }} className={myQRSettings.QRType === 'svg' ? 'fade-component in' : 'fade-component'}>
               <Col sm="4" style={{ paddingLeft: '1rem' }}>
                 <Form.Label size="lg" style={{ fontSize: 'large' }}>
                   Transparent Background:{' '}
@@ -233,7 +233,11 @@ export default function QRConfigForm({
                     checked={myQRSettings.XParent}
                     id="checkbox"
                     onChange={(e) => {
-                      onXparentChange(e);
+                      const qSet: QRSettings = { ...myQRSettings };
+                      console.log(`XParent: ${e.target.checked}`)
+                      qSet.XParent = e.target.checked;
+                      setMyQRSettings(qSet);
+                      // onXparentChange(e);
                     }}
                   />
                   <label for="checkbox"></label>

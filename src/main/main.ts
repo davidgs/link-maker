@@ -32,7 +32,6 @@
  */
 import path from 'path';
 import { app, BrowserWindow, autoUpdater, dialog, shell, ipcMain, nativeImage } from 'electron';
-// import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import Store from 'electron-store';
 import { UtmParams, defaultUTMParams, defaultQRSettings, defaultMainSettings, LinkData } from '../renderer/types';
@@ -44,7 +43,7 @@ import uuid from 'react-uuid';
 
 const electronApp = require('electron').app;
 
-const appStorePath = path.join(electronApp.getPath('appData'), 'Link Builder');
+const appStorePath = path.join(electronApp.getPath('appData'), 'QR Code Builder');
 const home = process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH || './';
 const store = new Store();
 const defaultConfig: UtmParams = defaultUTMParams;
@@ -399,7 +398,7 @@ const createWindow = async () => {
   };
 
   const options = {
-    applicationName: 'UTM Link Builder',
+    applicationName: 'QR Link Builder',
     applicationVersion: currentVersion,
     copyright: '© 2023',
     version: currentBuild,

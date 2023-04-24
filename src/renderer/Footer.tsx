@@ -23,8 +23,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './hyde.css';
-
-export default function MainHeader({dark} : {dark: boolean}) {
+import { Bug, BugFill } from 'react-bootstrap-icons';
+export default function Footer({dark} : {dark: boolean}) {
   const [darkMode, setDarkMode] = React.useState(dark);
   const [darkClass, setDarkClass] = React.useState('post-title header-stuff');
 
@@ -35,25 +35,13 @@ export default function MainHeader({dark} : {dark: boolean}) {
 
   return (
     <main className="content">
-      <div className="posts">
-        <article className="post">
-          <h4
-            className={darkClass}
-            style={{ textAlign: 'center' }}
-          >
-            QR Link Builder
-          </h4>
-          <p className={darkClass} style={{ textAlign: 'center' }}>
-            Create trackable links.
-            <br />
-            Add a custom QR Code to match your brand.
-          </p>
-        </article>
+      <div className="posts" style={{border: '1px solid white'}}>
+          {dark ? <BugFill size={20} /> : <Bug size={20} />}
       </div>
     </main>
   );
 }
 
-MainHeader.propTypes = {
+Footer.propTypes = {
   dark: PropTypes.bool.isRequired,
 };
