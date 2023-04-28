@@ -2,9 +2,6 @@
 - [X] Add a license to all files
 - [X] Pill not added when new term is entered
 - [X] Odd error
-```
-react_devtools_backend.js:2540 Warning: validateDOMNesting(...): <div> cannot appear as a child of <select>.
-```
 - [x] Move BitLy button up to the top of the page
 - [X] Enable/disable fields bug
 - [x] **Maybe** add config for QR Codes
@@ -22,8 +19,10 @@ react_devtools_backend.js:2540 Warning: validateDOMNesting(...): <div> cannot ap
 - [X] Add a way to change/set the password
 - [X] Dark Mode
 - [X] Link History
-- [ ] change main image
-- [ ] change pill image?
-- [ ] Bitly configuration
+- [X] change main image
+- [X] change pill image?
+- [X] Bitly configuration
 - [ ] Installer with the default config file
 - [X] Fix configuration callbacks
+- [X] Add raw JSON Editor
+- [ ] Fix file choosers to display file name if one exists already

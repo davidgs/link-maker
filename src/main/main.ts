@@ -22,14 +22,6 @@
  */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
-/**
- * This module executes inside of electron's main process. You can start
- * electron renderer process from here and communicate with the other processes
- * through IPC.
- *
- * When running `npm run build` or `npm run build:main`, this file is compiled to
- * `./src/main.js` using webpack. This gives us some performance wins.
- */
 import path from 'path';
 import { app, BrowserWindow, autoUpdater, dialog, shell, ipcMain, nativeImage } from 'electron';
 import log from 'electron-log';
@@ -39,10 +31,7 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import uuid from 'react-uuid';
 
-
-
 const electronApp = require('electron').app;
-
 const appStorePath = path.join(electronApp.getPath('appData'), 'QR Code Builder');
 const home = process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH || './';
 const store = new Store();
@@ -56,21 +45,26 @@ let timeoutID: NodeJS.Timeout | null = null;
 let updateMessage: string[] = [];
 const up = autoUpdater;
 up.setFeedURL({ url });
+
+/* Send a messsage to renderer process when we check for updates */
 autoUpdater.on('checking-for-update', () => {
   updateMessage.push('Checking for update ...');
   if(timeoutID === null) sendMessage();
 });
 
+/* Send a messsage to renderer process when there's an update */
 autoUpdater.on('update-available', () => {
   updateMessage.push(`Update available ... awaiting download.`);
   if(timeoutID === null) sendMessage();
 });
 
+/* Send a messsage to renderer process when there's no update */
 autoUpdater.on('update-not-available', () => {
   updateMessage.push(`Version ${currentVersion} is the most recent.`);
   if(timeoutID === null) sendMessage();
 });
 
+/* Send a messsage to renderer process when there's an error */
 up.on('error', (err) => {
   log.error('There was a problem updating the application');
   updateMessage.push('There was a problem updating the application.');
@@ -78,6 +72,7 @@ up.on('error', (err) => {
   log.error(err);
 });
 
+/* check for updates */
 class AppUpdater {
   constructor() {
     log.verbose('AppUpdater::constructor');
@@ -86,33 +81,32 @@ class AppUpdater {
   }
 }
 
+/* when we select the "check for updates" menu item */
 app.on('checkForUpdates', () => {
-  console.log('Checking for updates ...')
   updateMessage.push('Checking for updates ...');
   if (timeoutID === null) sendMessage();
   // up.checkForUpdates();
 });
 
-  function sendJsonMessage(type: string){
-    console.log(`Sending Edit ${type} Json`)
-    switch (type) {
-      case 'main':
-        const js = JSON.stringify(store.get('main-config', defaultMainSettings));
-        console.log(js);
-        mainWindow?.webContents.send('editMainJSON', js);
-        break;
-      case 'qr':
-        mainWindow?.webContents.send('editQRJson', JSON.stringify(store.get('qr-settings', defaultQRSettings)));
-        break;
-      case 'utm':
-        mainWindow?.webContents.send('editUTMJSON', JSON.stringify(store.get('utm-config', defaultUTMParams)));
-        break;
-      default:
-        break;
-    }
-    // mainWindow?.webContents.send('editJSON', 'JSON Editor');
-    return;
+function sendJsonMessage(type: string){
+  switch (type) {
+    case 'main':
+      const js = JSON.stringify(store.get('main-config', defaultMainSettings));
+      console.log(js);
+      mainWindow?.webContents.send('editMainJSON', js);
+      break;
+    case 'qr':
+      mainWindow?.webContents.send('editQRJson', JSON.stringify(store.get('qr-settings', defaultQRSettings)));
+      break;
+    case 'utm':
+      mainWindow?.webContents.send('editUTMJSON', JSON.stringify(store.get('utm-config', defaultUTMParams)));
+      break;
+    default:
+      break;
   }
+  // mainWindow?.webContents.send('editJSON', 'JSON Editor');
+  return;
+}
 
 app.on('editMainJSON', () => {
   console.log('Emitted editMainJSON')
@@ -397,6 +391,10 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
+  console.log('appStorePath', appStorePath);
+  console.log('RESOURCES_PATH', RESOURCES_PATH);
+  console.log('getAssetPath', getAssetPath('icon.png'));
+
   const options = {
     applicationName: 'QR Link Builder',
     applicationVersion: currentVersion,
@@ -412,7 +410,7 @@ const createWindow = async () => {
   mainWindow = new BrowserWindow({
     show: false,
     width: 1112,
-    height: 820,
+    height: 725,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: app.isPackaged

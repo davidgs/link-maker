@@ -21,12 +21,7 @@
  * SOFTWARE.
  */
 /* eslint-disable no-case-declarations */
-import {
-  useState,
-  useEffect,
-  ChangeEvent,
-  SyntheticEvent,
-} from 'react';
+import { useState, useEffect, ChangeEvent, SyntheticEvent } from 'react';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import {
@@ -51,7 +46,7 @@ import {
   defaultMainSettings,
 } from '../types';
 import UTMAccordianItem from './UTMAccordianItem';
-import {QRCode} from 'react-qrcode-logo';
+import { QRCode } from 'react-qrcode-logo';
 import Checker from 'renderer/components/Checker';
 
 declare type EyeColor = string | InnerOuterEyeColor;
@@ -92,14 +87,18 @@ export default function ConfigEditor({
   const darkColor = '#adb5bd';
   const lightColor = '#000000';
   const [color, setColor] = useState(darkMode ? darkColor : lightColor);
-  const [borderColor, setBorderColor] = useState(darkMode ? 'rgba(255,255,255,.5)' : '#0B3665');
+  const [borderColor, setBorderColor] = useState(
+    darkMode ? 'rgba(255,255,255,.5)' : '#0B3665'
+  );
 
-  const maxBrandHeight = 300;
-  const maxBrandWidth = 300;
+  const maxBrandHeight = 200;
+  const maxBrandWidth = 200;
   const minHeight = 5;
   const minWidth = 5;
   const maxQrHeight = 100;
   const maxQrWidth = 100;
+  const knobSize = 65;
+  const knobStroke = 14;
 
   useEffect(() => {
     setDarkMode(dark);
@@ -442,8 +441,10 @@ export default function ConfigEditor({
           const fi = new Image();
           fi.src = read.result as string;
           fi.onload = () => {
-            const h: number = fi.height > maxBrandHeight ? maxBrandHeight : fi.height;
-            const w: number = fi.width > maxBrandWidth ? maxBrandWidth : fi.width;
+            const h: number =
+              fi.height > maxBrandHeight ? maxBrandHeight : fi.height;
+            const w: number =
+              fi.width > maxBrandWidth ? maxBrandWidth : fi.width;
             setMainLogoImage(fi.src);
             const ff = fi.src as string;
             window.electronAPI
@@ -482,42 +483,42 @@ export default function ConfigEditor({
     if (foo) {
       const f = foo[0];
       const fName = f.name;
-    read.readAsDataURL(f);
-    read.onloadend = () => {
-      const fi = new Image();
-      fi.src = read.result as string;
-      fi.onload = () => {
-        const h = fi.height > maxQrHeight ? maxQrHeight : fi.height;
-        const w = fi.width > maxQrWidth ? maxQrWidth : fi.width;
-        setQrLogoImage(fi.src);
-        const fType = fName.split('.').pop() as string;
-        window.electronAPI
-          .saveFile('qr_logo', fi.src, fType)
-          .then((res: string) => {
-            if (res !== '') {
-              setMainConfig((prevMainConfig) => {
-                const con = { ...prevMainConfig };
-                const q = { ...con.QRSettings };
-                q.QRImageFile = res;
-                q.QRProps.logoHeight = h;
-                q.QRProps.logoWidth = w;
-                q.QRProps.logoOpacity = 1.0;
-                con.QRSettings = q;
-                return con;
-              });
-            }
-          })
-          .catch((error: string) => {
-            console.log(error);
-          });
-        setAspectRatio(w, h, 'qr');
-        setIsQrAspectLocked(true);
-        setShowQRLogo(true);
+      read.readAsDataURL(f);
+      read.onloadend = () => {
+        const fi = new Image();
+        fi.src = read.result as string;
+        fi.onload = () => {
+          const h = fi.height > maxQrHeight ? maxQrHeight : fi.height;
+          const w = fi.width > maxQrWidth ? maxQrWidth : fi.width;
+          setQrLogoImage(fi.src);
+          const fType = fName.split('.').pop() as string;
+          window.electronAPI
+            .saveFile('qr_logo', fi.src, fType)
+            .then((res: string) => {
+              if (res !== '') {
+                setMainConfig((prevMainConfig) => {
+                  const con = { ...prevMainConfig };
+                  const q = { ...con.QRSettings };
+                  q.QRImageFile = res;
+                  q.QRProps.logoHeight = h;
+                  q.QRProps.logoWidth = w;
+                  q.QRProps.logoOpacity = 1.0;
+                  con.QRSettings = q;
+                  return con;
+                });
+              }
+            })
+            .catch((error: string) => {
+              console.log(error);
+            });
+          setAspectRatio(w, h, 'qr');
+          setIsQrAspectLocked(true);
+          setShowQRLogo(true);
+        };
       };
-    };
-    setQrLogoChanged(true);
-  }
-};
+      setQrLogoChanged(true);
+    }
+  };
 
   /* All done! */
   function callDone() {
@@ -843,28 +844,30 @@ export default function ConfigEditor({
                           <></>
                         )}
                         <Form.Group as={Row}>
-                                <Col lg="2">
-                                  <Form.Label>Enable Bit.ly?</Form.Label>
-                                </Col>
-                                <Col lg="2">
-                                  <Form.Check
-                                    type="checkbox"
-                                    id="bitly-switch"
-                                    label=""
-                                    checked={config.bitly_config.useValue}
-                                    onChange={(e) => {
-                            setConfig((prevConfig) => {
-                                const newConfig = { ...prevConfig };
-                                const newSource = { ...newConfig.bitly_config };
-                                newSource.useValue = e.target.checked;
-                                newConfig.bitly_config = newSource;
-                                return newConfig;
-                              });
-                          }}
-                                  />
-                                </Col>
-                                <Col lg="6" />
-                              </Form.Group>
+                          <Col lg="2">
+                            <Form.Label>Enable Bit.ly?</Form.Label>
+                          </Col>
+                          <Col lg="2">
+                            <Form.Check
+                              type="checkbox"
+                              id="bitly-switch"
+                              label=""
+                              checked={config.bitly_config.useValue}
+                              onChange={(e) => {
+                                setConfig((prevConfig) => {
+                                  const newConfig = { ...prevConfig };
+                                  const newSource = {
+                                    ...newConfig.bitly_config,
+                                  };
+                                  newSource.useValue = e.target.checked;
+                                  newConfig.bitly_config = newSource;
+                                  return newConfig;
+                                });
+                              }}
+                            />
+                          </Col>
+                          <Col lg="6" />
+                        </Form.Group>
                         {/* <Checker
                           state={
                             config.bitly_config.useValue
@@ -903,6 +906,7 @@ export default function ConfigEditor({
                                   type="file"
                                   onChange={setMainFileName}
                                   accept=".png,.jpg,.jpeg"
+                                  value=""
                                 />
                               </Form.Group>
                               {/* Show Main Logo */}
@@ -932,7 +936,7 @@ export default function ConfigEditor({
                                 </Col>
                                 <Col lg="1">
                                   <Knob
-                                    size={55}
+                                    size={knobSize}
                                     name="brandHeight"
                                     className="p-knob"
                                     value={
@@ -942,7 +946,7 @@ export default function ConfigEditor({
                                     }
                                     min={minHeight}
                                     max={maxBrandHeight}
-                                    strokeWidth={11}
+                                    strokeWidth={knobStroke}
                                     textColor={dark ? 'white' : 'black'}
                                     valueColor={'#0B3665'}
                                     rangeColor={'#21C6DC'}
@@ -990,7 +994,7 @@ export default function ConfigEditor({
                                 </Col>
                                 <Col lg="1">
                                   <Knob
-                                    size={55}
+                                    size={knobSize}
                                     name="brandWidth"
                                     className="p-knob"
                                     value={
@@ -1000,7 +1004,7 @@ export default function ConfigEditor({
                                     }
                                     min={minWidth}
                                     max={maxBrandWidth}
-                                    strokeWidth={11}
+                                    strokeWidth={knobStroke}
                                     textColor={dark ? 'white' : 'black'}
                                     valueColor={'#0B3665'}
                                     rangeColor={'#21C6DC'}
@@ -1024,7 +1028,7 @@ export default function ConfigEditor({
                                 </Col>
                                 <Col lg="1">
                                   <Knob
-                                    size={55}
+                                    size={knobSize}
                                     name="brandOpacity"
                                     className="p-knob"
                                     value={
@@ -1035,7 +1039,7 @@ export default function ConfigEditor({
                                     min={0.0}
                                     max={1.0}
                                     step={0.1}
-                                    strokeWidth={11}
+                                    strokeWidth={knobStroke}
                                     textColor={dark ? 'white' : 'black'}
                                     valueColor={'#0B3665'}
                                     rangeColor={'#21C6DC'}
@@ -1214,7 +1218,7 @@ export default function ConfigEditor({
                         </Col>
                         <Col lg="2">
                           <Form.Select
-                            aria-label="Default select example"
+                            aria-label="Choose dots or squares for the code"
                             onChange={(e) => {
                               const ds = e.target.value as 'dots' | 'squares';
                               setMainConfig((prevQrConfig) => {
@@ -1238,7 +1242,7 @@ export default function ConfigEditor({
                         </Col>
                         <Col lg="2">
                           <Form.Select
-                            aria-label="Default select example"
+                            aria-label="Error correction selection"
                             onChange={(e) => {
                               const eq = e.target.value as
                                 | 'L'
@@ -1270,7 +1274,7 @@ export default function ConfigEditor({
                         </Col>
                         <Col lg="1">
                           <Knob
-                            size={55}
+                            size={knobSize}
                             name="qrSize"
                             className="p-knob"
                             value={
@@ -1278,7 +1282,7 @@ export default function ConfigEditor({
                             }
                             min={100}
                             max={500}
-                            strokeWidth={11}
+                            strokeWidth={knobStroke}
                             textColor={dark ? 'white' : 'black'}
                             onChange={(e) => {
                               setMainConfig((prevConfig) => {
@@ -1301,7 +1305,7 @@ export default function ConfigEditor({
                         </Col>
                         <Col lg="1">
                           <Knob
-                            size={55}
+                            size={knobSize}
                             name="quietZone"
                             className="p-knob"
                             value={
@@ -1311,7 +1315,7 @@ export default function ConfigEditor({
                             }
                             min={0}
                             max={50}
-                            strokeWidth={11}
+                            strokeWidth={knobStroke}
                             textColor={dark ? 'white' : 'black'}
                             onChange={(e) => {
                               setMainConfig((prevConfig) => {
@@ -1540,7 +1544,7 @@ export default function ConfigEditor({
                                   }}
                                 >
                                   <Knob
-                                    size={55}
+                                    size={knobSize}
                                     name="eyeRadius-0-0"
                                     className="p-knob"
                                     value={
@@ -1549,7 +1553,7 @@ export default function ConfigEditor({
                                     }
                                     min={0}
                                     max={25}
-                                    strokeWidth={11}
+                                    strokeWidth={knobStroke}
                                     textColor={dark ? 'white' : 'black'}
                                     onChange={(e) => {
                                       handleEyeRadiusChange(e.value, 0, 0);
@@ -1567,7 +1571,7 @@ export default function ConfigEditor({
                                   }}
                                 >
                                   <Knob
-                                    size={55}
+                                    size={knobSize}
                                     name="eyeRadius-0-1"
                                     className="p-knob"
                                     value={
@@ -1576,7 +1580,7 @@ export default function ConfigEditor({
                                     }
                                     min={0}
                                     max={25}
-                                    strokeWidth={11}
+                                    strokeWidth={knobStroke}
                                     textColor={dark ? 'white' : 'black'}
                                     onChange={(e) => {
                                       handleEyeRadiusChange(e.value, 0, 1);
@@ -1604,7 +1608,7 @@ export default function ConfigEditor({
                                   }}
                                 >
                                   <Knob
-                                    size={55}
+                                    size={knobSize}
                                     name="eyeRadius-0-3"
                                     className="p-knob"
                                     value={
@@ -1613,7 +1617,7 @@ export default function ConfigEditor({
                                     }
                                     min={0}
                                     max={25}
-                                    strokeWidth={11}
+                                    strokeWidth={knobStroke}
                                     textColor={dark ? 'white' : 'black'}
                                     onChange={(e) => {
                                       handleEyeRadiusChange(e.value, 0, 3);
@@ -1631,7 +1635,7 @@ export default function ConfigEditor({
                                   }}
                                 >
                                   <Knob
-                                    size={55}
+                                    size={knobSize}
                                     name="eyeRadius-0-2"
                                     className="p-knob"
                                     value={
@@ -1684,7 +1688,7 @@ export default function ConfigEditor({
                                   }}
                                 >
                                   <Knob
-                                    size={55}
+                                    size={knobSize}
                                     name="eyeRadius-1-0"
                                     className="p-knob"
                                     value={
@@ -1693,7 +1697,7 @@ export default function ConfigEditor({
                                     }
                                     min={0}
                                     max={25}
-                                    strokeWidth={11}
+                                    strokeWidth={knobStroke}
                                     textColor={dark ? 'white' : 'black'}
                                     onChange={(e) => {
                                       handleEyeRadiusChange(e.value, 1, 0);
@@ -1711,7 +1715,7 @@ export default function ConfigEditor({
                                   }}
                                 >
                                   <Knob
-                                    size={55}
+                                    size={knobSize}
                                     name="eyeRadius-1-1"
                                     className="p-knob"
                                     value={
@@ -1720,7 +1724,7 @@ export default function ConfigEditor({
                                     }
                                     min={0}
                                     max={25}
-                                    strokeWidth={11}
+                                    strokeWidth={knobStroke}
                                     textColor={dark ? 'white' : 'black'}
                                     onChange={(e) => {
                                       handleEyeRadiusChange(e.value, 1, 1);
@@ -1749,7 +1753,7 @@ export default function ConfigEditor({
                                   }}
                                 >
                                   <Knob
-                                    size={55}
+                                    size={knobSize}
                                     name="eyeRadius-1-3"
                                     className="p-knob"
                                     value={
@@ -1758,7 +1762,7 @@ export default function ConfigEditor({
                                     }
                                     min={0}
                                     max={25}
-                                    strokeWidth={11}
+                                    strokeWidth={knobStroke}
                                     textColor={dark ? 'white' : 'black'}
                                     onChange={(e) => {
                                       handleEyeRadiusChange(e.value, 1, 3);
@@ -1776,7 +1780,7 @@ export default function ConfigEditor({
                                   }}
                                 >
                                   <Knob
-                                    size={55}
+                                    size={knobSize}
                                     name="eyeRadius-1-2"
                                     className="p-knob"
                                     value={
@@ -1785,7 +1789,7 @@ export default function ConfigEditor({
                                     }
                                     min={0}
                                     max={25}
-                                    strokeWidth={11}
+                                    strokeWidth={knobStroke}
                                     textColor={dark ? 'white' : 'black'}
                                     onChange={(e) => {
                                       handleEyeRadiusChange(e.value, 1, 2);
@@ -1841,7 +1845,7 @@ export default function ConfigEditor({
                                   }}
                                 >
                                   <Knob
-                                    size={55}
+                                    size={knobSize}
                                     name="eyeRadius-2-0"
                                     className="p-knob"
                                     value={
@@ -1850,7 +1854,7 @@ export default function ConfigEditor({
                                     }
                                     min={0}
                                     max={25}
-                                    strokeWidth={11}
+                                    strokeWidth={knobStroke}
                                     textColor={dark ? 'white' : 'black'}
                                     onChange={(e) => {
                                       handleEyeRadiusChange(e.value, 2, 0);
@@ -1868,7 +1872,7 @@ export default function ConfigEditor({
                                   }}
                                 >
                                   <Knob
-                                    size={55}
+                                    size={knobSize}
                                     name="eyeRadius-2-1"
                                     className="p-knob"
                                     value={
@@ -1877,7 +1881,7 @@ export default function ConfigEditor({
                                     }
                                     min={0}
                                     max={25}
-                                    strokeWidth={11}
+                                    strokeWidth={knobStroke}
                                     textColor={dark ? 'white' : 'black'}
                                     onChange={(e) => {
                                       handleEyeRadiusChange(e.value, 2, 1);
@@ -1906,7 +1910,7 @@ export default function ConfigEditor({
                                   }}
                                 >
                                   <Knob
-                                    size={55}
+                                    size={knobSize}
                                     name="eyeRadius-2-3"
                                     className="p-knob"
                                     value={
@@ -1915,7 +1919,7 @@ export default function ConfigEditor({
                                     }
                                     min={0}
                                     max={25}
-                                    strokeWidth={11}
+                                    strokeWidth={knobStroke}
                                     textColor={dark ? 'white' : 'black'}
                                     onChange={(e) => {
                                       handleEyeRadiusChange(e.value, 2, 3);
@@ -1933,7 +1937,7 @@ export default function ConfigEditor({
                                   }}
                                 >
                                   <Knob
-                                    size={55}
+                                    size={knobSize}
                                     name="eyeRadius-2-2"
                                     className="p-knob"
                                     value={
@@ -1942,7 +1946,7 @@ export default function ConfigEditor({
                                     }
                                     min={0}
                                     max={25}
-                                    strokeWidth={11}
+                                    strokeWidth={knobStroke}
                                     textColor={dark ? 'white' : 'black'}
                                     onChange={(e) => {
                                       handleEyeRadiusChange(e.value, 2, 2);
@@ -2029,7 +2033,7 @@ export default function ConfigEditor({
                             </Col>
                             <Col lg="2">
                               <Knob
-                                size={55}
+                                size={knobSize}
                                 name="QrLogoHeight"
                                 className="p-knob"
                                 value={
@@ -2038,7 +2042,7 @@ export default function ConfigEditor({
                                 }
                                 min={minHeight}
                                 max={maxQrHeight}
-                                strokeWidth={11}
+                                strokeWidth={knobStroke}
                                 textColor={dark ? 'white' : 'black'}
                                 valueColor={'#0B3665'}
                                 rangeColor={'#21C6DC'}
@@ -2077,7 +2081,7 @@ export default function ConfigEditor({
                             </Col>
                             <Col lg="1">
                               <Knob
-                                size={55}
+                                size={knobSize}
                                 name="QrLogoWidth"
                                 className="p-knob"
                                 value={
@@ -2087,7 +2091,7 @@ export default function ConfigEditor({
                                 }
                                 min={minWidth}
                                 max={maxQrWidth}
-                                strokeWidth={11}
+                                strokeWidth={knobStroke}
                                 textColor={dark ? 'white' : 'black'}
                                 valueColor={'#0B3665'}
                                 rangeColor={'#21C6DC'}
@@ -2107,7 +2111,7 @@ export default function ConfigEditor({
                             </Col>
                             <Col lg="1">
                               <Knob
-                                size={55}
+                                size={knobSize}
                                 name="QrLogoOpacity"
                                 className="p-knob"
                                 value={
@@ -2118,7 +2122,7 @@ export default function ConfigEditor({
                                 min={0}
                                 max={1}
                                 step={0.1}
-                                strokeWidth={11}
+                                strokeWidth={knobStroke}
                                 textColor={dark ? 'white' : 'black'}
                                 valueColor={'#0B3665'}
                                 rangeColor={'#21C6DC'}
@@ -2142,7 +2146,7 @@ export default function ConfigEditor({
                             </Col>
                             <Col lg="1">
                               <Knob
-                                size={55}
+                                size={knobSize}
                                 name="QrLogoPadding"
                                 className="p-knob"
                                 value={
@@ -2151,7 +2155,7 @@ export default function ConfigEditor({
                                 }
                                 min={0}
                                 max={50}
-                                strokeWidth={11}
+                                strokeWidth={knobStroke}
                                 textColor={dark ? 'white' : 'black'}
                                 valueColor={'#0B3665'}
                                 rangeColor={'#21C6DC'}
@@ -2175,18 +2179,29 @@ export default function ConfigEditor({
                               <Form.Select
                                 aria-label="Default select example"
                                 onChange={(e) => {
-                                  const eq = e.target.value as
-                                    | 'circle'
-                                    | 'square';
+                                  console.log(e.target.value);
+                                  let eq = e.target.value as string | undefined;
+                                  if (eq === 'None') {
+                                    eq = undefined;
+                                  }
                                   setMainConfig((prevQrConfig) => {
                                     const newEq = { ...prevQrConfig };
                                     newEq.QRSettings.QRProps.logoPaddingStyle =
-                                      eq;
+                                      eq as 'circle' | 'square' | undefined;
+                                    if (
+                                      eq !== undefined && newEq.QRSettings.QRProps.logoPadding === 0
+                                    ) {
+                                      newEq.QRSettings.QRProps.logoPadding = 5;
+                                    } else if (
+                                      eq === undefined ) {
+                                      newEq.QRSettings.QRProps.logoPadding = 0;
+                                    }
                                     return newEq;
                                   });
                                 }}
                                 disabled={!showQRLogo}
                               >
+                                <option value={undefined}>None</option>
                                 <option value="circle">Circle</option>
                                 <option value="square">Square</option>
                               </Form.Select>

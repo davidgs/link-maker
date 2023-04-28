@@ -39,7 +39,7 @@ export interface IProps {
   logoOnLoad?: () => void;
   removeQrCodeBehindLogo: boolean;
   logoPadding: number;
-  logoPaddingStyle: 'square' | 'circle';
+  logoPaddingStyle: 'square' | 'circle' | undefined;
   eyeRadius: [CornerRadii, CornerRadii, CornerRadii];
   eyeColor: EyeColor ;
   qrStyle: 'squares' | 'dots';

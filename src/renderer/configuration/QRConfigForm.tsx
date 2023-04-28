@@ -178,7 +178,7 @@ export default function QRConfigForm({
                 }
               >
                 <Knob
-                  size={55}
+                  size={75}
                   name="eyeRadius-0-0"
                   className="p-knob"
                   value={
@@ -186,7 +186,7 @@ export default function QRConfigForm({
                   }
                   min={100}
                   max={500}
-                  strokeWidth={11}
+                  strokeWidth={13}
                   textColor={darkMode ? 'white' : 'black'}
                   onChange={(e) => {
                     onSizeChange(e);

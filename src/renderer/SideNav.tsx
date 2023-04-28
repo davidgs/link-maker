@@ -52,7 +52,14 @@ export default function SideNav({
   const [mainConfig, setMainConfig] = useState<MainSettings>(defaultMainSettings);
   const [mainImage, setMainImage] = useState<string>('');
   const [updateText, setUpdateText] = useState<string>('');
+const [darkClass, setDarkClass] = React.useState('post-title header-stuff');
 
+React.useEffect(() => {
+  setDarkMode(dark);
+  dark
+    ? setDarkClass('post-title header-stuff-dark')
+    : setDarkClass('post-title header-stuff');
+}, [dark]);
   const passwdVisible = (show: boolean) => {
     setShowPasswd(show);
   };
@@ -116,6 +123,7 @@ export default function SideNav({
                 alt="UTM Linker Logo"
               />
             ) : (
+              <OverlayTrigger placement="auto" overlay={<Tooltip id="brand-tooltip">Click the <GearFill/> icon below to change this image.</Tooltip>}>
               <img
                 src={StarTree}
                 alt="UTM Linker Logo"
@@ -130,12 +138,24 @@ export default function SideNav({
                     : 'auto'
                 }
               />
+              </OverlayTrigger>
             )}
           </a>
         </div>
+        <article className="post">
+          <p />
+          <h5 className={darkClass} style={{ textAlign: 'center' }}>
+            QR Link Builder
+          </h5>
+          <p className={darkClass} style={{ textAlign: 'center' }}>
+            Create trackable links.
+            <br />
+            Design and add a custom QR Code to match your brand.
+          </p>
+        </article>
         <p />
         <div className="container sidebar-sticky">
-          <div className="sidebar-about">
+          {/* <div className="sidebar-about">
             <div>
               <p className="lead">
                 Developed By:
@@ -147,8 +167,8 @@ export default function SideNav({
                 </span>
               </p>
             </div>
-          </div>
-          <nav>
+          </div> */}
+          {/* <nav>
             <ul className="sidebar-nav">
               <li>
                 • <a href="https://davidgs.com">Home</a>{' '}
@@ -157,15 +177,25 @@ export default function SideNav({
                 • <a href="https://github.com/davidgs/"> Github </a>
               </li>
             </ul>
-          </nav>
-          <p>
-            &copy; David G. Simmons 2023
-            <br />
-            All rights reserved
-          </p>
+          </nav> */}
           <Form>
-            <div style={{ textAlign: 'center', display: 'flex', flexDirection: "row" }}>
-              <div style={{ width: '10%', textAlign: 'center', display: 'flex', flexDirection: 'column' }}>
+            <div
+              style={{
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'row',
+                // border: '1px solid white',
+                paddingLeft: '-20px',
+              }}
+            >
+              <div
+                style={{
+                  width: '10%',
+                  textAlign: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
                 <OverlayTrigger
                   placement="top"
                   delay={{ show: 250, hide: 300 }}
@@ -175,36 +205,60 @@ export default function SideNav({
                     </Tooltip>
                   }
                 >
-                <Button
-                  type="button"
-                  size={'sm'}
-                  onClick={toggleDark}
-                  className="btn"
-                  style={{
-                    backgroundColor: '#0A1C2E',
-                    borderColor: '#0A1C2E',
-                  }}
-                >
-                  {darkMode ? (
-                    <LightbulbFill size={20} />
-                  ) : (
-                    <Lightbulb size={20} />
-                  )}
-                </Button>
+                  <Button
+                    type="button"
+                    size={'sm'}
+                    onClick={toggleDark}
+                    className="btn"
+                    style={{
+                      backgroundColor: '#0A1C2E',
+                      borderColor: '#0A1C2E',
+                    }}
+                  >
+                    {darkMode ? (
+                      <LightbulbFill size={20} />
+                    ) : (
+                      <Lightbulb size={20} />
+                    )}
+                  </Button>
                 </OverlayTrigger>
               </div>
-              <div style={{ width: '80%', textAlign: 'left', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                <div className="update-container" style={{marginTop: '10px'}}>
-                  {
-                    updateText !== '' && updateText.startsWith('Checking') ? (
-                      <div style={{textAlign: 'left'}}>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <img src={spinner} alt="spinner" width="10px" className='glyphicon-refresh-animate' style={{paddingTop: '-.25rem'}}/> {updateText}
-                      </div>
-                    ) : <div id={updateText.length > 25 ? "update-text" : "udt"}>{updateText}</div>}
+              <div
+                style={{
+                  width: '80%',
+                  textAlign: 'left',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                }}
+              >
+                <div className="update-container" style={{ marginTop: '10px' }}>
+                  {updateText !== '' && updateText.startsWith('Checking') ? (
+                    <div style={{ textAlign: 'left' }}>
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <img
+                        src={spinner}
+                        alt="spinner"
+                        width="10px"
+                        className="glyphicon-refresh-animate"
+                        style={{ paddingTop: '-.25rem' }}
+                      />{' '}
+                      {updateText}
+                    </div>
+                  ) : (
+                    <div id={updateText.length > 25 ? 'update-text' : 'udt'}>
+                      {updateText}
+                    </div>
+                  )}
                 </div>
-            </div>
-              <div style={{ width: '10%', textAlign: 'center', display: 'flex', flexDirection: 'column' }}>
+              </div>
+              <div
+                style={{
+                  textAlign: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
                 <OverlayTrigger
                   placement="top"
                   delay={{ show: 250, hide: 300 }}
@@ -218,7 +272,7 @@ export default function SideNav({
                     variant={'config-btn-icon-only-dark'}
                     className="configSwitch"
                     id="custom-switch"
-                    style={{ opacity: 1.0, zIndex: 1000}}
+                    style={{ opacity: 1.0, zIndex: 1000 }}
                     key="config-switch"
                     aria-label="Edit Configuration"
                     onClick={(e) => {
@@ -230,9 +284,19 @@ export default function SideNav({
                   </Button>
                 </OverlayTrigger>
               </div>
-              <Col sm={1} />
             </div>
           </Form>
+          <p
+            style={{
+              fontSize: '10px',
+              textAlign: 'center',
+              marginTop: '0.25rem',
+            }}
+          >
+            &copy; <a href="https://davidgs.com/">David G. Simmons 2023</a>
+            <br />
+            All rights reserved
+          </p>
         </div>
       </aside>
       <PasswordForm

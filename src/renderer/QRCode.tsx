@@ -71,8 +71,24 @@ export default function QCode({
     }
   }, [dark]);
 
+  const loadImage = (file: string) => {
+
+  };
   useEffect(() => {
     setMySettings(settings);
+    console.log(`QRCode.tsx: settings.QRSettings.QRImageFile: ${settings.QRSettings.QRImageFile}`)
+    if(settings.QRSettings.QRImageFile !== '') {
+      window.electronAPI
+        .loadFile(settings.QRSettings.QRImageFile)
+        .then((result) => {
+          const fType = settings.QRSettings.QRImageFile.split('.').pop();
+          const image = Buffer.from(result, 'base64').toString('base64');
+          setQrImage(`data:image/${fType};base64,${image}`);
+        })
+        .catch((error: unknown) => {
+          console.log(`Error: ${error}`);
+        });
+    }
   }, [settings]);
 
   const saveSVG = () => {

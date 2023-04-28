@@ -264,7 +264,7 @@ export default function PasswordForm({
       show={showPassword}
       onHide={handleCancel}
       size="xl"
-      dialogClassName="modal-90w"
+      dialogClassName="my-modal"
       backdrop="static"
     >
       <Modal.Header closeButton>

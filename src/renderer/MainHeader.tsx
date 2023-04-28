@@ -36,7 +36,7 @@ export default function MainHeader({dark} : {dark: boolean}) {
   return (
     <main className="content">
       <div className="posts">
-        <article className="post">
+        {/* <article className="post">
           <h4
             className={darkClass}
             style={{ textAlign: 'center' }}
@@ -48,7 +48,7 @@ export default function MainHeader({dark} : {dark: boolean}) {
             <br />
             Add a custom QR Code to match your brand.
           </p>
-        </article>
+        </article> */}
       </div>
     </main>
   );

@@ -76,13 +76,13 @@ body {
 
 }
 
-@media (min-width: 48em) {
+@media (min-width: 38em) {
   .sidebar {
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
-    width: 18rem;
+    width: 14rem;
     text-align: left;
   }
 }
@@ -143,7 +143,7 @@ a.sidebar-nav-item:focus {
  * contents to the bottom of the sidebar in tablets and up.
  */
 
-@media (min-width: 48em) {
+@media (min-width: 38em) {
   .sidebar-sticky {
     position: absolute;
     right: 1rem;
@@ -180,7 +180,7 @@ a.sidebar-nav-item:focus {
  * Flip the orientation of the page by placing the `.sidebar` on the right.
  */
 
-@media (min-width: 48em) {
+@media (min-width: 38em) {
   .layout-reverse .sidebar {
     left: auto;
     right: 0;
@@ -220,6 +220,7 @@ a.sidebar-nav-item:focus {
   background-size: cover;
   font-family: Mulish, "Helvetica Neue", "Arial Nova", sans-serif;
   font-size: 16;
+  margin-bottom: -1.25rem
 }
 
 .content a,
@@ -233,7 +234,7 @@ a.sidebar-nav-item:focus {
   padding-right: 5px;
   padding-left: 5px;
   margin-right: auto;
-  margin-left: auto;
+  margin-left: -1rem;
 }
 
 .container.align-fix {
@@ -355,8 +356,9 @@ a.sidebar-nav-item:focus {
   align-items: center;
   justify-content: center;
   margin: 2px;
-  width: 8%;
-  -ms-grid-row-span: 2;
+  width: 10%;
+  padding-left: 15px;
+  padding-right: 15px;
 
 }
 
@@ -378,8 +380,7 @@ a.sidebar-nav-item:focus {
   align-items: center;
   justify-content: center;
   margin: 2px;
-  width: 30%;
-  text-align: center;
+  width: auto;
   flex-grow: 2;
 }
 
@@ -467,7 +468,7 @@ a.sidebar-nav-item:focus {
   .main-column {
     float: right;
     width: 75%;
-    padding-left: 40px;
+    /* padding-left: 40px; */
     margin-left: 10px;
     margin-right: 10px;
   }
@@ -756,11 +757,11 @@ a.sidebar-nav-item:focus {
   border: 1px solid #ccc;
   border-radius: 50%;
   cursor: pointer;
-  height: 24px;
+  height: 18px;
   left: 0;
   position: absolute;
-  top: 0;
-  width: 24px;
+  top: 3px;
+  width: 18px;
 }
 
 .round label:after {
@@ -768,11 +769,11 @@ a.sidebar-nav-item:focus {
   border-top: none;
   border-right: none;
   content: "";
-  height: 6px;
-  left: 6px;
+  height: 4px;
+  left: 3px;
   opacity: 0;
   position: absolute;
-  top: 7px;
+  top: 5px;
   transform: rotate(-45deg);
   width: 10px;
 }

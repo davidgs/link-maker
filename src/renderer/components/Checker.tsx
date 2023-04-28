@@ -36,6 +36,8 @@ export default function Checker({
           flexDirection: 'column',
           justifyContent: 'space-between',
           width: '200px',
+          fontSize: '14px',
+          paddingTop: '2px'
         }}
       >
         <strong>{label}</strong>
