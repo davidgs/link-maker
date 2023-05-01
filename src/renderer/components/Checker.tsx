@@ -35,7 +35,7 @@ export default function Checker({
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          width: '200px',
+          width: 'auto',
           fontSize: '14px',
           paddingTop: '2px'
         }}
@@ -47,7 +47,7 @@ export default function Checker({
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          width: '10px',
+          width: 'auto',
         }}
       />
       <div
@@ -55,11 +55,11 @@ export default function Checker({
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          width: '50px',
+          width: 'auto',
         }}
       >
         <OverlayTrigger
-          placement="auto"
+          placement="bottom"
           delay={{ show: 250, hide: 300 }}
           overlay={<Tooltip id="qr-only-tooltip">{tooltip}</Tooltip>}
         >

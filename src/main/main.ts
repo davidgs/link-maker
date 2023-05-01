@@ -77,7 +77,7 @@ class AppUpdater {
   constructor() {
     log.verbose('AppUpdater::constructor');
     log.transports.file.level = 'debug';
-    // up.checkForUpdates();
+    up.checkForUpdates();
   }
 }
 
@@ -85,7 +85,7 @@ class AppUpdater {
 app.on('checkForUpdates', () => {
   updateMessage.push('Checking for updates ...');
   if (timeoutID === null) sendMessage();
-  // up.checkForUpdates();
+  up.checkForUpdates();
 });
 
 function sendJsonMessage(type: string){
@@ -209,6 +209,25 @@ ipcMain.handle('save-link', (event: Event, linkData: string) => {
   links.push(JSON.parse(linkData));
   store.set('utm-links', links);
   return JSON.stringify(links);
+});
+
+ipcMain.handle('choose-image', () => {
+  const options = {
+    title: 'Choose Image',
+    filters: [{ name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'svg'] }],
+  };
+  dialog.showOpenDialog(options).then((result) => {
+    if (!result.canceled) {
+      const fs = require('fs');
+      fs.writeFile(result.filePath, svg, (err: any) => {
+        if (err) {
+          console.log(err);
+        }
+      });
+      return result.filePath;
+    }
+    return 'cancelled';
+  });
 });
 
 ipcMain.handle('save-svg', (event: Event, svg: string) => {
@@ -390,10 +409,6 @@ const createWindow = async () => {
   const getAssetPath = (...paths: string[]): string => {
     return path.join(RESOURCES_PATH, ...paths);
   };
-
-  console.log('appStorePath', appStorePath);
-  console.log('RESOURCES_PATH', RESOURCES_PATH);
-  console.log('getAssetPath', getAssetPath('icon.png'));
 
   const options = {
     applicationName: 'QR Link Builder',

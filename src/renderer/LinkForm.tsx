@@ -547,6 +547,7 @@ export default function LinkForm({ dark }: { dark: boolean }): JSX.Element {
         >
           <Checker
             state={qrOnly}
+            disabled={false}
             label="QR Code Only"
             tooltip="Just generate a QR Code with no UTM parameters."
             callback={(value) => setQrOnly(value)}

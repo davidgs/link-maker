@@ -24,11 +24,13 @@ import React from 'react';
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import MainPage from './MainPage';
+import { Analytics } from '@vercel/analytics/react';
 
 function Hello() {
   return (
     <div>
       <MainPage />
+      <Analytics />
     </div>
   );
 }

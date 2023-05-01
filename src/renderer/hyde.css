@@ -335,12 +335,18 @@ a.sidebar-nav-item:focus {
 }
 
 .alert {
-  padding: 20px;
-  min-height: 125px;
-  background-color: #f44336;
-  color: white;
-  margin-bottom: 15px;
+  /* padding: 20px; */
+  /* min-height: 125px; */
+  /* background-color: #f44336; */
+  /* color: white; */
+  /* margin-bottom: 15px; */
   border-radius: 15px;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #ffffff;
+  font-size: 14px;
 }
 
 .alert-columns {
@@ -702,15 +708,23 @@ a.sidebar-nav-item:focus {
 }
 
 .glyphicon-refresh-animate {
+  animation: spin 2s infinite linear;
   -animation: spin 2s infinite linear;
   -webkit-animation: spin2 2s infinite linear;
 }
 
+@keyframes spin2 {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
 @-webkit-keyframes spin2 {
   from {
     -webkit-transform: rotate(360deg);
   }
-
   to {
     -webkit-transform: rotate(0deg);
   }
@@ -720,7 +734,6 @@ a.sidebar-nav-item:focus {
   from {
     transform: scale(1) rotate(360deg);
   }
-
   to {
     transform: scale(1) rotate(0deg);
   }

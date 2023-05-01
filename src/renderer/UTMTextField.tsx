@@ -115,6 +115,7 @@ function UTMTextField({
             required
             className={'form-control-dgs form-control'}
             type="text"
+            size="sm"
             disabled={!enableChoice}
             id={`${targetType}-target`}
             aria-label={ariaLabel}

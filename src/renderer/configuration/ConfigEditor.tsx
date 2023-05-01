@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 /* eslint-disable no-case-declarations */
-import { useState, useEffect, ChangeEvent, SyntheticEvent } from 'react';
+import { useState, useEffect, ChangeEvent, SyntheticEvent, useRef } from 'react';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import {
@@ -90,7 +90,8 @@ export default function ConfigEditor({
   const [borderColor, setBorderColor] = useState(
     darkMode ? 'rgba(255,255,255,.5)' : '#0B3665'
   );
-
+  const mainRef = useRef<HTMLInputElement>(null);
+  const qrRef = useRef<HTMLInputElement>(null);
   const maxBrandHeight = 200;
   const maxBrandWidth = 200;
   const minHeight = 5;
@@ -99,6 +100,16 @@ export default function ConfigEditor({
   const maxQrWidth = 100;
   const knobSize = 65;
   const knobStroke = 14;
+
+  const [inputQRFile, setInputQRFile] = useState<HTMLInputElement | null>(null);
+  useEffect(() => {
+    setInputQRFile(document.getElementById("input-qr-file") as HTMLInputElement);
+  }, []);
+
+  const [inputMainFile, setInputMainFile] = useState<HTMLInputElement | null>(null);
+  useEffect(() => {
+    setInputMainFile(document.getElementById("input-main-file") as HTMLInputElement);
+  }, []);
 
   useEffect(() => {
     setDarkMode(dark);
@@ -441,10 +452,9 @@ export default function ConfigEditor({
           const fi = new Image();
           fi.src = read.result as string;
           fi.onload = () => {
-            const h: number =
-              fi.height > maxBrandHeight ? maxBrandHeight : fi.height;
-            const w: number =
-              fi.width > maxBrandWidth ? maxBrandWidth : fi.width;
+            const h: number = fi.height;
+            const w: number = fi.width;
+            setImageSize(h, w, 'main');
             setMainLogoImage(fi.src);
             const ff = fi.src as string;
             window.electronAPI
@@ -454,8 +464,6 @@ export default function ConfigEditor({
                   setMainConfig((prevMainConfig) => {
                     const con = { ...prevMainConfig };
                     con.brandImageFile = res;
-                    con.brandHeight = h;
-                    con.brandWidth = w;
                     return con;
                   });
                 }
@@ -473,6 +481,36 @@ export default function ConfigEditor({
     }
   };
 
+  const setImageSize = (height: number, width: number, im: string) => {
+    const aspect = width / height;
+    if (im === 'main') {
+      const newWidth = width > maxBrandWidth ? maxBrandWidth : width;
+      const scaleW = newWidth === width ? 1 : newWidth / width;
+      if(width !== height) {
+        const newHeight = height * scaleW;
+        const scaleH = newHeight === height ? 1 : newHeight / height;
+        setMainConfig((prevState) => {
+          const p = { ...prevState };
+          p.brandHeight = newHeight;
+          p.brandWidth = newWidth;
+          return p;
+        });
+      }
+    } else {
+      const newWidth = width > maxQrWidth ? maxQrWidth : width;
+      const scaleW = newWidth === width ? 1 : newWidth / width;
+      if(width !== height) {
+        const newHeight = height * scaleW;
+        const scaleH = newHeight === height ? 1 : newHeight / height;
+        setMainConfig((prevState) => {
+          const p = { ...prevState };
+          p.QRSettings.QRProps.logoHeight = newHeight;
+          p.QRSettings.QRProps.logoWidth = newWidth;
+          return p;
+        });
+      }
+    }
+  };
   /* handle saving the qr logo file for branding
       @param: result: the result of the file read
   */
@@ -488,8 +526,9 @@ export default function ConfigEditor({
         const fi = new Image();
         fi.src = read.result as string;
         fi.onload = () => {
-          const h = fi.height > maxQrHeight ? maxQrHeight : fi.height;
-          const w = fi.width > maxQrWidth ? maxQrWidth : fi.width;
+          const h = fi.height ; // > maxQrHeight ? maxQrHeight : fi.height;
+          const w = fi.width ; //> maxQrWidth ? maxQrWidth : fi.width;
+          setImageSize(h, w, 'qr');
           setQrLogoImage(fi.src);
           const fType = fName.split('.').pop() as string;
           window.electronAPI
@@ -500,8 +539,6 @@ export default function ConfigEditor({
                   const con = { ...prevMainConfig };
                   const q = { ...con.QRSettings };
                   q.QRImageFile = res;
-                  q.QRProps.logoHeight = h;
-                  q.QRProps.logoWidth = w;
                   q.QRProps.logoOpacity = 1.0;
                   con.QRSettings = q;
                   return con;
@@ -691,6 +728,27 @@ export default function ConfigEditor({
     }
   };
 
+  const handleUploadQRFile = () => {
+    setQRFileName;
+    qrRef.current?.click();
+  };
+
+  const handleUploadMainFile = () => {
+    mainRef.current?.click();
+  };
+
+  function uploadQRFile(): void {
+    console.log('uploading QR file');
+
+    inputQRFile?.click();
+    setQRFileName;
+  }
+
+  function uploadMainFile(): void {
+    console.log('uploading main file')
+    inputMainFile?.click();
+  }
+
   return (
     <>
       <Modal
@@ -843,56 +901,41 @@ export default function ConfigEditor({
                         ) : (
                           <></>
                         )}
-                        <Form.Group as={Row}>
-                          <Col lg="2">
+                        <div style={{ display: 'flex', flexDirection: 'row' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', paddingTop: '2px' }}>
                             <Form.Label>Enable Bit.ly?</Form.Label>
-                          </Col>
-                          <Col lg="2">
-                            <Form.Check
-                              type="checkbox"
-                              id="bitly-switch"
-                              label=""
-                              checked={config.bitly_config.useValue}
-                              onChange={(e) => {
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', width: '10px' }} />
+                          <div style={{ display: 'flex', flexDirection: 'column', width: 'auto' }}>
+                            <Checker
+                              state={
+                                config.bitly_config?.useValue
+                                  ? config?.bitly_config?.useValue
+                                  : false
+                              }
+                              label=''
+                              tooltip='Enable Bit.ly integration'
+                              disabled={false}
+                              callback={(value) => {
                                 setConfig((prevConfig) => {
                                   const newConfig = { ...prevConfig };
-                                  const newSource = {
-                                    ...newConfig.bitly_config,
-                                  };
-                                  newSource.useValue = e.target.checked;
+                                  const newSource = { ...newConfig.bitly_config };
+                                  newSource.useValue = value;
                                   newConfig.bitly_config = newSource;
                                   return newConfig;
                                 });
                               }}
                             />
-                          </Col>
+                          </div>
                           <Col lg="6" />
-                        </Form.Group>
-                        {/* <Checker
-                          state={
-                            config.bitly_config.useValue
-                              ? config?.bitly_config?.useValue
-                              : false
-                          }
-                          label='Enable Bit.ly?'
-                          disabled={false}
-                          callback={(value) => {
-                            setConfig((prevConfig) => {
-                                const newConfig = { ...prevConfig };
-                                const newSource = { ...newConfig.bitly_config };
-                                newSource.useValue = value;
-                                newConfig.bitly_config = newSource;
-                                return newConfig;
-                              });
-                          }}
-                        /> */}
+                        </div>
                       </Form>
                     </Accordion.Body>
                   </Accordion.Item>
                   {/* UI Images */}
                   <Accordion.Item eventKey="1">
                     <Accordion.Header>
-                      <strong>Configure Images</strong>
+                      <strong>Configure Branding</strong>
                     </Accordion.Header>
                     <Accordion.Body id="images">
                       <Form noValidate validated={targetValidated}>
@@ -900,41 +943,52 @@ export default function ConfigEditor({
                         <Row>
                           <Col lg={8}>
                             <Row className="mb-3">
-                              <Form.Group controlId="formFile" className="mb-3">
-                                <Form.Label>Choose Main Image</Form.Label>
+                              <Row>
+                            <Col sm={12}>
+                              <div style={{ display: 'flex', flexDirection: 'row' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', width: '22%', zIndex: '1' }}>
+                                <button style={{borderRadius: '5px', height: '40px'}} onClick={uploadMainFile}>Choose File: </button>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', width: '75%', marginLeft: '-4px' }}>
+                                <Form.Control type="text" value={mainConfig.brandImageFile} readOnly />
+                                </div>
                                 <Form.Control
                                   type="file"
-                                  onChange={setMainFileName}
-                                  accept=".png,.jpg,.jpeg"
-                                  value=""
+                                  ref={mainRef}
+                                  id='input-main-file'
+                                  className='d-none'
+                                  onChange={handleUploadMainFile}
+                                  accept=".png,.jpg,.jpeg, .svg"
                                 />
-                              </Form.Group>
+                              </div>
+                            </Col>
+                          </Row>
+                              {/* {mainConfig.brandImageFile ? ( */}
                               {/* Show Main Logo */}
+                              {mainConfig.brandImageFile ? (
                               <Form.Group as={Row}>
-                                <Col lg="4">
-                                  <Form.Label>Show Logo</Form.Label>
+                                <Col lg="3">
+                                  <Form.Label>Show Logo?</Form.Label>
                                 </Col>
-                                <Col lg="2">
-                                  <Form.Check
-                                    type="switch"
-                                    id="custom-switch"
+                                <Col lg="4" style={{alignItems: 'left'}}>
+                                  <Checker
+                                    state={showMainLogo}
+                                    disabled={false}
                                     label=""
-                                    checked={showMainLogo}
-                                    onChange={(e) => {
-                                      setShowMainLogo(e.target.checked);
-                                    }}
+                                    tooltip="Show the logo"
+                                    callback={(value) => setShowMainLogo(value)}
                                   />
                                 </Col>
-                                <Col lg="6" />
-                              </Form.Group>
+                                <Col lg="5" />
+                              </Form.Group>) : (<></>)}
                               {/* Main Logo Height */}
-                              <Form.Group as={Row}>
-                                <Col lg="4">
-                                  <Form.Label style={{ marginTop: '1rem' }}>
+                              {mainConfig.brandImageFile ? (<Form.Group as={Row}>
+                                <Col lg="3" style={{paddingTop: '0.5rem'}}>
+                                  <Form.Label style={{ marginTop: '0.75rem' }}>
                                     Logo Height
                                   </Form.Label>
                                 </Col>
-                                <Col lg="1">
+                                <Col lg="2">
                                   <Knob
                                     size={knobSize}
                                     name="brandHeight"
@@ -951,17 +1005,13 @@ export default function ConfigEditor({
                                     valueColor={'#0B3665'}
                                     rangeColor={'#21C6DC'}
                                     onChange={(e) => {
-                                      updateAspectRatio(
-                                        e.value,
-                                        'height',
-                                        'main'
-                                      );
+                                      setImageSize(e.value, mainConfig?.brandHeight, 'main');
                                     }}
-                                    disabled={!showQRLogo}
+                                    disabled={!showMainLogo}
                                   />
                                 </Col>
-                                <Col lg="2" />
-                                <Col lg="2">
+                                {/* <Col lg="1" /> */}
+                                <Col lg="2" style={{paddingTop: '0.5rem'}}>
                                   <OverlayTrigger
                                     placement="auto"
                                     delay={{ show: 250, hide: 300 }}
@@ -975,7 +1025,7 @@ export default function ConfigEditor({
                                     <Button
                                       variant="outline-secondary"
                                       style={{
-                                        width: '100%',
+                                        // width: '100%',
                                         fontSize: '0.6rem',
                                       }}
                                       onClick={setLockMainAspectRatio}
@@ -983,16 +1033,16 @@ export default function ConfigEditor({
                                     >
                                       {isMainAspectLocked ? locked : unlocked}
                                       <br />
-                                      Aspect ratio
+                                      Aspect
                                     </Button>
                                   </OverlayTrigger>
                                 </Col>
-                                <Col lg="2">
-                                  <Form.Label style={{ marginTop: '1rem' }}>
+                                <Col lg="3" style={{paddingTop: '0.5rem'}}>
+                                  <Form.Label style={{ marginTop: '0.75rem' }}>
                                     Logo Width
                                   </Form.Label>
                                 </Col>
-                                <Col lg="1">
+                                <Col lg="2">
                                   <Knob
                                     size={knobSize}
                                     name="brandWidth"
@@ -1018,15 +1068,15 @@ export default function ConfigEditor({
                                     disabled={!showQRLogo}
                                   />
                                 </Col>
-                              </Form.Group>
+                              </Form.Group>) : (<></>)}
                               {/*  Main Logo Opacity */}
-                              <Form.Group as={Row}>
-                                <Col lg="4">
-                                  <Form.Label style={{ marginTop: '1rem' }}>
+                              {mainConfig.brandImageFile ? (<Form.Group as={Row}>
+                                <Col lg="3" style={{paddingTop: '0.5rem'}}>
+                                  <Form.Label style={{ marginTop: '0.75rem' }}>
                                     Logo Opacity
                                   </Form.Label>
                                 </Col>
-                                <Col lg="1">
+                                <Col lg="2">
                                   <Knob
                                     size={knobSize}
                                     name="brandOpacity"
@@ -1055,22 +1105,8 @@ export default function ConfigEditor({
                                     disabled={!showQRLogo}
                                   />
                                 </Col>
-                              </Form.Group>
-                              {mainLogoChanged ? (
-                                <Row>
-                                  <Col lg="12">
-                                    <Alert variant="warning">
-                                      <Alert.Heading>
-                                        <strong>Warning!</strong>
-                                      </Alert.Heading>
-                                      <p>
-                                        The Main Logo Change will be reflected
-                                        after restarting the application.
-                                      </p>
-                                    </Alert>
-                                  </Col>
-                                </Row>
-                              ) : null}
+                              </Form.Group>) : (<></>)}
+
                             </Row>
                           </Col>
                           {showMainLogo ? (
@@ -1089,6 +1125,19 @@ export default function ConfigEditor({
                             </Col>
                           ) : null}
                         </Row>
+                        {/* <div style={{ display: 'flex', flexDirection: 'row' }}> */}
+                          {mainLogoChanged ? (
+                                    <Alert variant="danger" onClose={() => setMainLogoChanged(false)} dismissible>
+                                      <Alert.Heading>
+                                        <strong>Warning!</strong>
+                                      </Alert.Heading>
+                                      <p>
+                                        The Main Logo Change will be reflected
+                                        after restarting the application.
+                                      </p>
+                                    </Alert>
+                              ) : null}
+                        {/* </div> */}
                       </Form>
                     </Accordion.Body>
                   </Accordion.Item>
@@ -1973,13 +2022,23 @@ export default function ConfigEditor({
                         <Col sm={7}>
                           <Row>
                             <Col sm={12}>
-                              <Form.Group controlId="formFile" className="mb-3">
+                              <div style={{ display: 'flex', flexDirection: 'row' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', width: '22%', zIndex: '1' }}>
+                                <button style={{borderRadius: '5px', height: '40px'}} onClick={uploadQRFile}>Choose File: </button>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', width: '75%', marginLeft: '-4px' }}>
+                                <Form.Control type="text" value={mainConfig.QRSettings.QRImageFile} readOnly />
+                                </div>
                                 <Form.Control
                                   type="file"
-                                  onChange={setQRFileName}
-                                  accept=".png,.jpg,.jpeg"
+                                  id='input-qr-file'
+                                  ref={qrRef}
+                                  className='d-none'
+                                  onClick={setQRFileName}
+                                  // onChange={handleUploadQRFile}
+                                  accept=".png,.jpg,.jpeg, .svg"
                                 />
-                              </Form.Group>
+                              </div>
                             </Col>
                           </Row>
                           {/* QR Code Show */}
@@ -1988,14 +2047,12 @@ export default function ConfigEditor({
                               <Form.Label>Show Logo</Form.Label>
                             </Col>
                             <Col lg="2">
-                              <Form.Check
-                                type="switch"
-                                id="custom-switch"
+                              <Checker
+                                state={showQRLogo}
+                                disabled={false}
                                 label=""
-                                checked={showQRLogo}
-                                onChange={(e) => {
-                                  setShowQRLogo(e.target.checked);
-                                }}
+                                tooltip="Show the logo"
+                                callback={(value) => setShowQRLogo(value)}
                               />
                             </Col>
                             {/* Hide QR Behind Logo */}
@@ -2003,20 +2060,17 @@ export default function ConfigEditor({
                               <Form.Label>Hide QR Behind Logo</Form.Label>
                             </Col>
                             <Col lg="1">
-                              <Form.Check
-                                type="switch"
-                                id="custom-switch"
+                              <Checker
+                                state={mainConfig.QRSettings.QRProps
+                                .removeQrCodeBehindLogo}
+                                disabled={false}
                                 label=""
-                                checked={
-                                  mainConfig.QRSettings.QRProps
-                                    .removeQrCodeBehindLogo
-                                }
-                                disabled={!showQRLogo}
-                                onChange={(e) => {
+                                tooltip="Show the logo"
+                                callback={(value) => {
                                   setMainConfig((prevQrConfig) => {
                                     const rc = { ...prevQrConfig };
                                     rc.QRSettings.QRProps.removeQrCodeBehindLogo =
-                                      e.target.checked;
+                                    value;
                                     return rc;
                                   });
                                 }}
@@ -2327,7 +2381,29 @@ export default function ConfigEditor({
                     </Accordion.Header>
                     <Accordion.Body id="show_country">
                       <Form.Group>
-                        <Form.Check
+                        <div style={{ display: 'flex', flexDirection: 'row', paddingTop: '10px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', width: 'auto' }}>
+                            <Form.Label>Show Country Selector?</Form.Label>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', width: '20px' }} />
+                          <div style={{ display: 'flex', flexDirection: 'column', width: 'auto' }}>
+                            <Checker
+                              state={config?.show_country}
+                              disabled={false}
+                              label=''
+                              tooltip={`Check to enable the use of the 'Country' Chooser`}
+                              callback={(value) => {
+                                setConfig((prevConfig) => {
+                                const newConfig = { ...prevConfig };
+                                newConfig.show_country = value;
+                                return newConfig;
+                              });
+                            }}
+                            />
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: 'auto' }} />
+                        </div>
+                        {/* <Form.Check
                           type="checkbox"
                           id="show_country-show"
                           label="Show Country Selector?"
@@ -2339,7 +2415,7 @@ export default function ConfigEditor({
                               return newConfig;
                             });
                           }}
-                        />
+                        /> */}
                       </Form.Group>
                     </Accordion.Body>
                   </Accordion.Item>

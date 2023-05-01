@@ -110,6 +110,7 @@ export default function UTMChoice({
     overlay={<Tooltip id={`${targetType}-tooltip`}>{tooltip}</Tooltip>}>
       <FloatingLabel label={showName ? `${label} (${targetType})` : label}>
         <Form.Select
+          size='sm'
           required
           aria-label={showName ? `${ariaLabel} (${targetType})` : ariaLabel}
           id={targetType}

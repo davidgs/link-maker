@@ -26,3 +26,5 @@
 - [X] Fix configuration callbacks
 - [X] Add raw JSON Editor
 - [ ] Fix file choosers to display file name if one exists already
+  - [ ] Use a `dialog` in the `main` process
+- [ ] Break out Accordions into components

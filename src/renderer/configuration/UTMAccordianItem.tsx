@@ -2,6 +2,7 @@ import { useState, useEffect, SyntheticEvent } from 'react';
 import { Accordion, Form } from 'react-bootstrap';
 import { UtmKeyValue, UtmObj, UtmParams } from 'renderer/types';
 import PillArea from './pills/PillArea';
+import Checker from 'renderer/components/Checker';
 
 export default function UTMAccordianItem({
   type,
@@ -25,15 +26,18 @@ export default function UTMAccordianItem({
   useEffect(() => {
     setAccType(type);
     if(type !== 'utm_target'){
+      console.log(`type: ${type}`)
       const f = type.split('_')[1];
       setValKind(f.charAt(0).toUpperCase() + f.slice(1));
     } else {
+      console.log(`Not target type: ${type}`)
       setValKind('URL Base Targets');
     }
   }, [type]);
 
   useEffect(() => {
-    if(value.hasOwnProperty('restrict_bases')){
+    if(value?.hasOwnProperty('restrict_bases')){
+      console.log(`value: ${JSON.stringify(value)}`)
       const v = value as UtmParams;
       setUtmObj(v as UtmParams);
       setAccValue(v.utm_bases as UtmObj);
@@ -97,6 +101,32 @@ export default function UTMAccordianItem({
       </Accordion.Header>
       <Accordion.Body id={accType}>
         <Form noValidate>
+          {!utmObj && (
+            <div style={{ display: 'flex', flexDirection: 'row', paddingTop: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', width: 'auto' }}>
+                  <Form.Label>{`Use '${accType}' value?`}</Form.Label>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', width: '20px' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', width: 'auto' }}>
+                  <Checker
+                    state={accValue?.useValue ? accValue.useValue : false}
+                    disabled={false}
+                    label=''
+                    tooltip={`Check to enable the use of the '${accType}' value`}
+                    callback={(value) => {
+                    setAccValue((prevConfig) => {
+                      const newConfig = { ...(prevConfig as UtmObj) };
+                      newConfig.useValue = value;
+                      callback(accType, newConfig);
+                      return newConfig;
+                    });
+                  }}
+                  />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: 'auto' }} />
+              </div>
+          )}
+          {  accValue?.useValue ? (
           <Form.Group>
             <Form.Label>
               <strong>Label</strong>
@@ -119,20 +149,29 @@ export default function UTMAccordianItem({
                 });
               }}
             />
-            <Form.Check
-              type="checkbox"
-              id={`${accType}-showName`}
-              label={`Show '${accType}' in Field Label?`}
-              checked={accValue?.showName ? accValue.showName : false}
-              onChange={(e) => {
+            <div style={{ display: 'flex', flexDirection: 'row', paddingTop: '10px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', width: 'auto' }}>
+                <Form.Label>{`Show '${accType}' in Field Label?`}</Form.Label>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', width: '20px' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', width: 'auto' }}>
+            <Checker
+              state={accValue?.showName ? accValue.showName : false}
+              disabled={false}
+              label=''
+              tooltip="check to show the field name in the field label"
+              callback={(value) => {
                 setAccValue((prevConfig) => {
                   const newConfig = { ...(prevConfig as UtmObj) };
-                  newConfig.showName = e.target.checked;
+                  newConfig.showName = value;
                   callback(accType, newConfig);
                   return newConfig;
                 });
               }}
             />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: 'auto' }} />
+            </div>
             <Form.Label>
               <strong>ToolTip Text</strong>
             </Form.Label>
@@ -186,27 +225,88 @@ export default function UTMAccordianItem({
               }}
             />
             {utmObj ? (
-              <Form.Check
-                type="checkbox"
-                id="utm_target-restrict_bases"
-                // key="restrict-bases"
-                label="Restrict base URLs for utm_targets?"
-                checked={utmObj?.restrict_bases ? utmObj.restrict_bases : false}
-                onChange={(e) => {
-                  setUtmObj((prevConfig) => {
-                    const newConfig = { ...(prevConfig as UtmParams) };
-                    newConfig.restrict_bases = e.target.checked;
-                    return newConfig;
-                  });
-                }}
-              />
+              <div style={{ display: 'flex', flexDirection: 'row', paddingTop: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', width: 'auto' }}>
+                  <Form.Label>Restrict base URLs for utm_targets?</Form.Label>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', width: '20px' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', width: 'auto' }}>
+                  <Checker
+                    state={utmObj?.restrict_bases ? utmObj.restrict_bases : false}
+                    disabled={false}
+                    label=''
+                    tooltip="Check to restrict URLs to pre-defined values"
+                    callback={(value) => {
+                        setUtmObj((prevConfig) => {
+                          const newConfig = { ...(prevConfig as UtmParams) };
+                          const ac = accValue as UtmObj;
+                          ac.isChooser = value;
+                          newConfig.restrict_bases = value;
+                          return newConfig;
+                        });
+                      }}
+                  />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: 'auto' }} />
+              </div>
             ) : (
               <></>
             )}
+            {!utmObj ? (
+              <>
+                {accValue?.useValue ? (
+                  <div style={{ display: 'flex', flexDirection: 'row', paddingTop: '10px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', width: 'auto' }}>
+                      <Form.Label>Use Chooser</Form.Label>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', width: '20px' }} />
+                    <div style={{ display: 'flex', flexDirection: 'column', width: 'auto' }}>
+                      <Checker
+                        state={accValue?.isChooser}
+                        disabled={false}
+                        label=""
+                        tooltip={`Use a chooser to select from a list of ${accType} values`}
+                        callback={(value) => {
+                            setAccValue((prevConfig) => {
+                              const newConfig = { ...(prevConfig as UtmObj) };
+                              newConfig.isChooser = value;
+                              callback(accType, newConfig);
+                              return newConfig;
+                            });
+                          }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', width: 'auto' }}>
+                      <Form.Label>Use Text Field</Form.Label>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', width: '20px' }} />
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <Checker
+                        state={!accValue?.isChooser}
+                        disabled={false}
+                        label=""
+                        tooltip={`Use a Text Field to enter ${accType} values`}
+                        callback={(value) => {
+                        setAccValue((prevConfig) => {
+                          const newConfig = { ...(prevConfig as UtmObj) };
+                          newConfig.isChooser = !value;
+                          callback(accType, newConfig);
+                          return newConfig;
+                        });
+                      }}
+                      />
+                  </div>
+                </div>
+                ) : (
+                  <></>
+                )}
+              </>
+            ) : null}
             {accValue?.isChooser || utmObj?.restrict_bases ? (
               <>
+              <div style={{display: 'flex', flexDirection: 'row'}} />
                 <Form.Label>
-                  <strong>{valKind} Values</strong>
+                  <strong>{`UTM_${valKind} Values`}</strong>
                 </Form.Label>
                 <Form.Control
                   type="text"
@@ -231,61 +331,10 @@ export default function UTMAccordianItem({
             ) : (
               <></>
             )}
-            {!utmObj ? (
-              <>
-                <Form.Check
-                  type="checkbox"
-                  id={`${accType}-use`}
-                  label={`Use '${accType}' value?`}
-                  checked={accValue?.useValue ? accValue.useValue : false}
-                  onChange={(e) => {
-                    setAccValue((prevConfig) => {
-                      const newConfig = { ...(prevConfig as UtmObj) };
-                      newConfig.useValue = e.target.checked;
-                      callback(accType, newConfig);
-                      return newConfig;
-                    });
-                  }}
-                />
-                {accValue?.useValue ? (
-                  <>
-                    <Form.Check
-                      type="radio"
-                      inline
-                      id={`${accType}-chooser`}
-                      label="Use Chooser"
-                      checked={accValue?.isChooser }
-                      onChange={(e) => {
-                        setAccValue((prevConfig) => {
-                          const newConfig = { ...(prevConfig as UtmObj) };
-                          newConfig.isChooser = e.target.checked;
-                          callback(accType, newConfig);
-                          return newConfig;
-                        });
-                      }}
-                    />
-                    <Form.Check
-                      type="radio"
-                      inline
-                      id={`${accType}-text`}
-                      label="Use Text Input"
-                      checked={!accValue?.isChooser}
-                      onChange={(e) => {
-                        setAccValue((prevConfig) => {
-                          const newConfig = { ...(prevConfig as UtmObj) };
-                          newConfig.isChooser = !e.target.checked;
-                          callback(accType, newConfig);
-                          return newConfig;
-                        });
-                      }}
-                    />
-                  </>
-                ) : (
-                  <></>
-                )}
-              </>
-            ) : null}
           </Form.Group>
+          ) : (
+            <></>
+          )}
         </Form>
       </Accordion.Body>
     </Accordion.Item>
